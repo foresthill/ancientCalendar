@@ -628,7 +628,7 @@ class ViewController: UIViewController {
             endDate: oneYearFromNow, calendars: nil)
         
         // 述語にマッチする全てのイベントをフェッチ
-        var events = myEventStore.eventsMachingPredicate(predicate) as! [EKEven]
+        var events = myEventStore.eventsMatchingPredicate(predicate) as! [EKEvent]
         
         // 発見したイベントを格納する配列を生成
         var eventItems = [String]()
