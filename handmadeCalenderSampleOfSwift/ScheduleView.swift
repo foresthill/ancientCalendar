@@ -61,7 +61,27 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         println("Value: \(myItems[indexPath.row])")
     }
     
-
+    /**
+    Cellの総数を返す
+    **/
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return myItems.count
+    }
+    
+    /**
+    Cellに値を設定する
+    **/
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        // Cellの.を取得する
+        let cell = tableView.dequeueReusableCellWithIdentifier("MyCell", forIndexPath: indexPath) as! UITableViewCell
+        
+        // Cellに値を設定する
+        cell.textLabel!.text = "\(myItems[indexPath.row])"
+        cell.textLabel!.font = UIFont.systemFontOfSize(13)
+        
+        return cell
+    }
 
 }
 
