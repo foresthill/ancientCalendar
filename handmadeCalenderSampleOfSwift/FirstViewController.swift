@@ -23,7 +23,7 @@ class FirstViewController: UIViewController {
         nextButton.setTitle("Next", forState: .Normal)
         nextButton.layer.cornerRadius = 20.0
         nextButton.layer.position = CGPoint(x:self.view.bounds.width/2, y:self.view.bounds.height-50)
-        nextButton.addTarget(self, action: "onClickMyButton", forControlEvents: .TouchUpInside)
+        nextButton.addTarget(self, action: "onClickMyButton:", forControlEvents: .TouchUpInside)
         
         // ボタンを追加する
         self.view.addSubview(nextButton)
