@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import EventKit
 
 //CALayerクラスのインポート
 import QuartzCore
@@ -57,6 +58,10 @@ class ViewController: UIViewController {
     var popUpWindow: UIWindow!
     private var popUpWindowButton: UIButton!
     
+    // カレンダーを呼び出すための認証情報（2015/07/29）
+    var myEventStore: EKEventStore!
+    var myEvents: NSArray!
+    var myTargetCalendar: EKCalendar!
     
     override func viewDidLoad() {
         
@@ -438,14 +443,21 @@ class ViewController: UIViewController {
     //カレンダーボタンをタップした時のアクション
     func buttonTapped(button: UIButton){
         
-        //@todo:画面遷移等の処理を書くことができます。
+        // @todo:画面遷移等の処理を書くことができます。
         
-        //コンソール表示
+        // コンソール表示
         println("\(year)年\(month)月\(button.tag)日が選択されました！")
         
-        //Windowを開く
-        openWindow(button)
+        // Windowを開く
+        //openWindow(button)
         
+        // 画面遷移１
+        //toSchedule(button)
+        
+        day = button.tag
+        
+        // 画面遷移２
+        toScheduleView()
     }
     
     // Windowを開くアクション
@@ -479,7 +491,7 @@ class ViewController: UIViewController {
         let windowTextView: UITextView = UITextView(frame: CGRectMake(10, 10, self.popUpWindow.frame.width - 20, 150))
         windowTextView.backgroundColor = UIColor.clearColor()
         windowTextView.text = "ボタンを押しましたね。あなたは今日から“大納言”です。ウソです。"
-        windowTextView.text = "\(year)年\(month)月\(button.tag)日が選択されました！ by"
+        windowTextView.text = "\(year)年\(month)月\(button.tag)日が選択されました！ by 大納言小豆"
         windowTextView.font = UIFont.systemFontOfSize(CGFloat(15))
         windowTextView.textColor = UIColor.blackColor()
         windowTextView.textAlignment = NSTextAlignment.Left
@@ -499,6 +511,157 @@ class ViewController: UIViewController {
         UIApplication.sharedApplication().windows.first?.makeKeyAndVisible()
     }
     
+    // スケジュール画面に遷移
+    internal func toSchedule(button: UIButton){
+        // 遷移するViewを定義する
+        let mySecondViewController: UIViewController = SecondViewController()
+        
+        // アニメーションを定義する
+        mySecondViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
+        
+        // Viewの移動する
+        self.presentViewController(mySecondViewController, animated: true, completion: nil)
+    }
+    
+    /**
+    認証ステータスを取得
+    **/
+    func getAuthorization_status() -> Bool {
+        
+        // ステータスを取得
+        let status: EKAuthorizationStatus = EKEventStore.authorizationStatusForEntityType(EKEntityTypeEvent)
+        
+        // ステータスを表示 許可されている場合のみtrueを返す
+        switch status {
+        case EKAuthorizationStatus.NotDetermined:
+            println("NotDetermined")
+            return false
+        
+        case EKAuthorizationStatus.Denied:
+            println("Denied")
+            return false
+            
+        case EKAuthorizationStatus.Authorized:
+            println("Authorized")
+            return true
+        
+        case EKAuthorizationStatus.Restricted:
+            println("Restricted")
+            return false
+            
+        default:
+            println("error")
+            return false
+            
+        }
+    }
+    
+    /**
+    認証許可
+    **/
+    func allowAuthorization() {
+        
+        // 許可されていなかった場合、認証許可を求める
+        if getAuthorization_status() {
+            return
+        } else {
+            
+            // ユーザーに許可を求める
+            myEventStore.requestAccessToEntityType(EKEntityTypeEvent, completion: {
+                (granted, error) -> Void in
+                
+                // 許可を得られなかった場合アラート発動
+                if granted {
+                    return
+                }
+                else {
+                    
+                    // メインスレッド 画面制御.非同期.
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        
+                        // アラート作成
+                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertControllerStyle.Alert)
+                        
+                        // アラートアクション
+                        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
+                    })
+                }
+            })
+        }
+    }
+    
+    /**
+    スケジュール画面に遷移する
+    **/
+    func toScheduleView() {
+        println("toScheduleView")
+        
+        // NSCalendarを生成
+        var myCalendar: NSCalendar = NSCalendar.currentCalendar()
+        
+        // ユーザのカレンダーを取得
+        var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityTypeEvent)
+        
+        // 開始日（昨日）コンポーネントの生成
+        let oneDayAgoComponents: NSDateComponents = NSDateComponents()
+        oneDayAgoComponents.day = -1
+        
+        // 昨日から今日までのNSDateを生成
+        let oneDayAgo: NSDate = myCalendar.dateByAddingComponents(oneDayAgoComponents,
+            toDate: NSDate(),
+            options: NSCalendarOptions.allZeros)!
+        
+        // 終了日（一年後）コンポーネントの生成
+        let oneYearFromNowComponents: NSDateComponents = NSDateComponents()
+        oneYearFromNowComponents.year = 1
+        
+        // 今日から一年後までのNSDateを生成
+        let oneYearFromNow: NSDate = myCalendar.dateByAddingComponents(oneYearFromNowComponents,
+            toDate: NSDate(),
+            options: NSCalendarOptions.allZeros)
+        
+        // イベントストアのインスタントメソッドで述語を生成
+        var predicate = NSPredicate()
+        
+        // ユーザーの全てのカレンダーからフェッチせよ
+        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
+            endDate: oneYearFromNow, calendars: nil)
+        
+        // 述語にマッチする全てのイベントをフェッチ
+        var events = myEventStore.eventsMachingPredicate(predicate) as! [EKEven]
+        
+        // 発見したイベントを格納する配列を生成
+        var eventItems = [String]()
+        
+        // イベントが見つかった
+        if !events.isEmpty {
+            for i in events{
+                println(i.title)
+                println(i.startDate)
+                println(i.endDate)
+                
+                // 配列に格納
+                eventItems += ["\(i.title): \(i.startDate)"]
+                
+            }
+        }
+        
+        // 画面遷移.
+        moveViewController(eventItems)
+        
+    }
+    
+    func moveViewController(events: NSArray) {
+        println("moveViewController")
+        
+        let myTableViewController = TableViewController()
+        
+        // TableViewに表示する内容として発見したイベントを入れた配列を渡す
+        myTableViewController.myItems = events
+        
+        // 画面遷移
+        self.navigationController?.pushViewController(myTableViewController, animated: true)
+    }
     
     //前の月のボタンを押した際のアクション
     @IBAction func getPrevMonthData(sender: UIButton) {
@@ -536,6 +699,7 @@ class ViewController: UIViewController {
         setupCalendarTitleLabel()
     }
     
+    // どのクラスにもあるメソッド Memory監視？
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
