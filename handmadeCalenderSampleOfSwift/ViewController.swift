@@ -618,7 +618,7 @@ class ViewController: UIViewController {
         // 今日から一年後までのNSDateを生成
         let oneYearFromNow: NSDate = myCalendar.dateByAddingComponents(oneYearFromNowComponents,
             toDate: NSDate(),
-            options: NSCalendarOptions.allZeros)
+            options: NSCalendarOptions.allZeros)!
         
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
