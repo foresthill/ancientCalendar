@@ -201,6 +201,9 @@ class ViewController: UIViewController {
         popUpWindow = UIWindow()        // インスタンス化しとかないとダメ
         popUpWindowButton = UIButton()  // 同上
         
+        
+        // EventStoreを作成する（2015/08/05）
+        myEventStore = EKEventStore()
 
      }
     
