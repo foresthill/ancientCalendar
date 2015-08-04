@@ -63,6 +63,10 @@ class ViewController: UIViewController {
     var myEvents: NSArray!
     var myTargetCalendar: EKCalendar!
     
+    // 旧暦
+//    var jpnMonth: NSArray!
+    
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -196,6 +200,7 @@ class ViewController: UIViewController {
         //ウィンドウ（2015/07/21）
         popUpWindow = UIWindow()        // インスタンス化しとかないとダメ
         popUpWindowButton = UIButton()  // 同上
+        
 
      }
     
@@ -329,7 +334,8 @@ class ViewController: UIViewController {
     //タイトル表記を設定する関数
     func setupCalendarTitleLabel() {
         //calendarBar.text = String("\(year)年\(month)月のカレンダー")
-        calendarBar.text = String("旧暦\(month)月")
+        var jpnMonth = ["睦月", "如月", "弥生", "卯月", "皐月", "水無月", "文月", "葉月", "長月", "神無月", "霜月", "師走"]
+        calendarBar.text = String(jpnMonth[month-1] + "（旧暦\(month)月）")
     }
     
     //現在（初期表示時）の年月に該当するデータを取得する関数
