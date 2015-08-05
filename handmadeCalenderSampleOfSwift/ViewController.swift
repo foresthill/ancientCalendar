@@ -669,11 +669,20 @@ class ViewController: UIViewController {
         
         let myTableViewController = TableViewController()
         
+        println(myTableViewController)
+        
         // TableViewに表示する内容として発見したイベントを入れた配列を渡す
         myTableViewController.myItems = events
         
         // 画面遷移
-        self.navigationController?.pushViewController(myTableViewController, animated: true)
+        //self.navigationController?.pushViewController(myTableViewController, animated: true)
+ 
+        // アニメーションを定義する
+        myTableViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
+        
+        // Viewの移動する
+        self.presentViewController(myTableViewController, animated: true, completion: nil)
+        
     }
     
     //前の月のボタンを押した際のアクション

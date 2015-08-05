@@ -12,6 +12,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var myNavigationController: UINavigationController!
 
     /*
     アプリケーション起動時に呼び出されるメソッド
@@ -19,19 +20,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         
-        /*
         // ViewControllerを生成する
-        let myFirstViewController: FirstViewController = FirstViewController()
+        //let myFirstViewController: FirstViewController = FirstViewController()
+ 
+        // UINavigationControllerを生成する
+        //myNavigationController = UINavigationController(rootViewController: myFirstViewController)
         
         // UIWindowを作成する
-        self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        //self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
         
         // rootViewControllerにNavigationControllerを設定する
-        self.window?.rootViewController = myFirstViewController
+        //self.window?.rootViewController = myFirstViewController
+        //self.window?.rootViewController = myNavigationController
         
-        self.window?.makeKeyAndVisible()
-        */
-        
+        //self.window?.makeKeyAndVisible()
+
         return true
     }
 
