@@ -204,6 +204,10 @@ class ViewController: UIViewController {
         
         // EventStoreを作成する（2015/08/05）
         myEventStore = EKEventStore()
+        
+        // ユーザーにカレンダーの使用許可を求める（2015/08/06）
+        allowAuthorization()
+        
 
      }
     
