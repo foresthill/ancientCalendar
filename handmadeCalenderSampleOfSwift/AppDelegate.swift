@@ -21,21 +21,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         // ViewControllerを生成する
-        //let myFirstViewController: FirstViewController = FirstViewController()
+        let myFirstViewController: CalendarViewController = CalendarViewController()
  
         // UINavigationControllerを生成する
-        //myNavigationController = UINavigationController(rootViewController: myFirstViewController)
+        myNavigationController = UINavigationController(rootViewController: myFirstViewController)
         
+        /*
+        画面遷移その１
+        */
         // UIWindowを作成する
-        //self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
         
         // rootViewControllerにNavigationControllerを設定する
-        //self.window?.rootViewController = myFirstViewController
-        //self.window?.rootViewController = myNavigationController
+        self.window?.rootViewController = myFirstViewController
+        self.window?.rootViewController = myNavigationController
         
-        //self.window?.makeKeyAndVisible()
-
+        self.window?.makeKeyAndVisible()
+        
+        /*
+        画面遷移その２
+        */
+//        // UIWindowsを作成する
+//        window = UIWindow(frame: UIScreen.mainScreen().bounds)
+//        
+//                // rootViewControllerをセット.
+//        window!.rootViewController = myNavigationController
+//        
+//        window!.makeKeyAndVisible()
+        
         return true
+   
     }
 
     func applicationWillResignActive(application: UIApplication) {

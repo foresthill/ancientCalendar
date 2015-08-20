@@ -9,44 +9,89 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "handmadeCalenderSampleOfSwift/ViewController.swift"
-            timestampString = "460331478.453169"
+            filePath = "handmadeCalenderSampleOfSwift/CalendarView.swift"
+            timestampString = "460720544.392968"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "575"
-            endingLineNumber = "575"
-            landmarkName = "allowAuthorization()"
-            landmarkType = "5">
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "CalendarViewController"
+            landmarkType = "3">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "handmadeCalenderSampleOfSwift.ViewController.allowAuthorization (handmadeCalenderSampleOfSwift.ViewController)() -&gt; ()"
+                  symbolName = "handmadeCalenderSampleOfSwift.CalendarViewController.nextMonthButton.getter : Swift.ImplicitlyUnwrappedOptional&lt;ObjectiveC.UIButton&gt;"
                   moduleName = "handmadeCalenderSampleOfSwift"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/AmmaBhagavan/foresthill/iPhone/handMadeCalendarOfSwift-master/handmadeCalenderSampleOfSwift/ViewController.swift"
-                  timestampString = "459896660.211136"
+                  urlString = "file:///Users/AmmaBhagavan/foresthill/iPhone/handMadeCalendarOfSwift-master/handmadeCalenderSampleOfSwift/CalendarView.swift"
+                  timestampString = "460936991.878741"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "570"
-                  endingLineNumber = "570"
-                  offsetFromSymbolStart = "65">
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "12">
                </Location>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "handmadeCalenderSampleOfSwift.ViewController.(allowAuthorization (handmadeCalenderSampleOfSwift.ViewController) -&gt; () -&gt; ()).(closure #1)"
+                  symbolName = "handmadeCalenderSampleOfSwift.CalendarViewController.nextMonthButton.setter : Swift.ImplicitlyUnwrappedOptional&lt;ObjectiveC.UIButton&gt;"
                   moduleName = "handmadeCalenderSampleOfSwift"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/AmmaBhagavan/foresthill/iPhone/handMadeCalendarOfSwift-master/handmadeCalenderSampleOfSwift/ViewController.swift"
-                  timestampString = "459896660.213551"
+                  urlString = "file:///Users/AmmaBhagavan/foresthill/iPhone/handMadeCalendarOfSwift-master/handmadeCalenderSampleOfSwift/CalendarView.swift"
+                  timestampString = "460936991.87891"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "574"
-                  endingLineNumber = "574"
-                  offsetFromSymbolStart = "40">
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "16">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "handmadeCalenderSampleOfSwift.CalendarViewController.nextMonthButton.materializeForSet : Swift.ImplicitlyUnwrappedOptional&lt;ObjectiveC.UIButton&gt;"
+                  moduleName = "handmadeCalenderSampleOfSwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/AmmaBhagavan/foresthill/iPhone/handMadeCalendarOfSwift-master/handmadeCalenderSampleOfSwift/CalendarView.swift"
+                  timestampString = "460936991.879023"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "16">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "handmadeCalenderSampleOfSwift.CalendarViewController.init (handmadeCalenderSampleOfSwift.CalendarViewController.Type)(nibName : Swift.Optional&lt;Swift.String&gt;, bundle : Swift.Optional&lt;ObjectiveC.NSBundle&gt;) -&gt; handmadeCalenderSampleOfSwift.CalendarViewController"
+                  moduleName = "handmadeCalenderSampleOfSwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/AmmaBhagavan/foresthill/iPhone/handMadeCalendarOfSwift-master/handmadeCalenderSampleOfSwift/CalendarView.swift"
+                  timestampString = "460936991.879121"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "40"
+                  endingLineNumber = "40"
+                  offsetFromSymbolStart = "428">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "handmadeCalenderSampleOfSwift.CalendarViewController.init (handmadeCalenderSampleOfSwift.CalendarViewController.Type)(coder : ObjectiveC.NSCoder) -&gt; handmadeCalenderSampleOfSwift.CalendarViewController"
+                  moduleName = "handmadeCalenderSampleOfSwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/AmmaBhagavan/foresthill/iPhone/handMadeCalendarOfSwift-master/handmadeCalenderSampleOfSwift/CalendarView.swift"
+                  timestampString = "460936991.879214"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "40"
+                  endingLineNumber = "40"
+                  offsetFromSymbolStart = "421">
                </Location>
             </Locations>
          </BreakpointContent>

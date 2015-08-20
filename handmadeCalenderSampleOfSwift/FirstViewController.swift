@@ -20,10 +20,11 @@ class FirstViewController: UIViewController {
         let nextButton: UIButton = UIButton(frame: CGRectMake(0, 0, 120, 50))
         nextButton.backgroundColor = UIColor.redColor()
         nextButton.layer.masksToBounds = true
-        nextButton.setTitle("Next", forState: .Normal)
+        nextButton.setTitle("Next", forState: UIControlState.Normal)
         nextButton.layer.cornerRadius = 20.0
         nextButton.layer.position = CGPoint(x:self.view.bounds.width/2, y:self.view.bounds.height-50)
-        nextButton.addTarget(self, action: "onClickMyButton:", forControlEvents: .TouchUpInside)
+        //nextButton.addTarget(self, action: "onClickMyButton:", forControlEvents: .TouchUpInside)
+        nextButton.addTarget(self, action: "onClickMyButton:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // ボタンを追加する
         self.view.addSubview(nextButton)
@@ -35,7 +36,9 @@ class FirstViewController: UIViewController {
     internal func onClickMyButton(sender: UIButton){
         
         // 遷移するViewを定義する
-        let mySecondViewController: UIViewController = SecondViewController()
+        //let mySecondViewController: UIViewController = SecondViewController()
+        let mySecondViewController: UIViewController = TableViewController()
+        
         
         // アニメーションを定義する
         mySecondViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl

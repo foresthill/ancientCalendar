@@ -12,8 +12,11 @@ import UIKit
 class TableViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     // Tableで使用する配列を設定する
-    var myItems: NSArray = []
-    
+    var myItems: NSArray = []                     //読み専配列
+    //var myItems: NSMutableArray = []          //読み書きどちらもOK配列
+    //var myItems: AnyObject[] = ["追加"]         //http://zutto-megane.com/swift/post-573/とおんない
+    //var myItems: Array = []                   //Swiftで用意されている配列
+  
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -39,12 +42,17 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         // Delegateを設定する
         myTableView.delegate = self
         
+        //myItems.addObject("追加")               //や〜めた。myItem渡す前のメソッドで追加しよう。
+        
         // Viewに追加する
         self.view.addSubview(myTableView)
         
         for x in myItems {
             println(x)
         }
+        
+        self.dismissViewControllerAnimated(true, completion: nil)
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -54,7 +62,7 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
     /** 以下、tableview系メソッド **/
     
     /**
-    Cellが選択された際に呼び出される
+    Cellが選択された際に呼び出されるデリゲートメソッド
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         println("Num: \(indexPath.row)")
@@ -62,14 +70,14 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
     }
     
     /**
-    Cellの総数を返す
+    Cellの総数を返すデータソースメソッド（実装必須）
     **/
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return myItems.count
     }
     
     /**
-    Cellに値を設定する
+    Cellに値を設定するデータソースメソッド（実装必須）
     **/
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
