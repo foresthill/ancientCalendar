@@ -66,6 +66,7 @@
                         <outlet property="calendarBar" destination="B5a-7P-bLg" id="nVo-rs-7Sk"/>
                         <outlet property="nextMonthButton" destination="AT1-Bb-NnH" id="c6K-3d-jyk"/>
                         <outlet property="prevMonthButton" destination="wII-sV-LBg" id="Lvy-eU-TCG"/>
+                        <segue destination="6Jl-Ig-hfY" kind="push" identifier="PushCalendarDetail" id="zGT-Iz-tH7"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -81,6 +82,30 @@
                 </swipeGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="53" y="127"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="m6o-aI-Pa7">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Xj9-iQ-TFj" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <viewController storyboardIdentifier="Next" id="6Jl-Ig-hfY" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="9ek-WN-c1z">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <navigationBar contentMode="scaleToFill" id="EPJ-0x-e5V">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <items>
+                                    <navigationItem title="旧暦カレンダー（仮）" id="TYf-vy-WQn"/>
+                                </items>
+                            </navigationBar>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="jz6-YS-7Dr"/>
+                </viewController>
+            </objects>
+            <point key="canvasLocation" x="455" y="127"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
