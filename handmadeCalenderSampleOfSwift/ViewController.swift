@@ -474,7 +474,7 @@ class ViewController: UIViewController {
     }
     
     // Windowを開くアクション
-    internal func openWindow(button: UIButton){
+/*    internal func openWindow(button: UIButton){
         
         popUpWindow.backgroundColor = UIColor.whiteColor()
         popUpWindow.frame = CGRectMake(0, 0, 200, 250)
@@ -513,6 +513,7 @@ class ViewController: UIViewController {
         self.popUpWindow.addSubview(windowTextView)
         
     }
+
     
     // Windowを閉じるイベント
     internal func onClickCloseButton(sendar: UIButton){
@@ -523,7 +524,7 @@ class ViewController: UIViewController {
         // メインウインドウをキーウインドウにする。
         UIApplication.sharedApplication().windows.first?.makeKeyAndVisible()
     }
-    
+  */
     // スケジュール画面に遷移
     internal func toSchedule(button: UIButton){
         // 遷移するViewを定義する

@@ -10,7 +10,6 @@
 		BB1B2CF71B67DDE5002B296C /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2CF61B67DDE4002B296C /* FirstViewController.swift */; };
 		BB1B2CF91B67E078002B296C /* SecondViewContoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2CF81B67E078002B296C /* SecondViewContoller.swift */; };
 		BB1B2CFB1B67E979002B296C /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2CFA1B67E979002B296C /* ScheduleView.swift */; };
-		BBB6C5B41B701EFE00F97BBA /* CalendarTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB6C5B31B701EFE00F97BBA /* CalendarTableViewController.swift */; };
 		DE3BE56F1A5EDA2800C49B3C /* DeviseSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3BE56E1A5EDA2700C49B3C /* DeviseSize.swift */; };
 		DEA4E48F1A2B03F100601B26 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA4E48E1A2B03F100601B26 /* QuartzCore.framework */; };
 		DEA538A31A2A0AE30092DCBA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA538A21A2A0AE30092DCBA /* AppDelegate.swift */; };
@@ -35,7 +34,6 @@
 		BB1B2CF61B67DDE4002B296C /* FirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
 		BB1B2CF81B67E078002B296C /* SecondViewContoller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecondViewContoller.swift; sourceTree = "<group>"; };
 		BB1B2CFA1B67E979002B296C /* ScheduleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
-		BBB6C5B31B701EFE00F97BBA /* CalendarTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarTableViewController.swift; sourceTree = "<group>"; };
 		DE3BE56E1A5EDA2700C49B3C /* DeviseSize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviseSize.swift; sourceTree = "<group>"; };
 		DEA4E48E1A2B03F100601B26 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		DEA5389D1A2A0AE30092DCBA /* handmadeCalenderSampleOfSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = handmadeCalenderSampleOfSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -96,7 +94,6 @@
 				BB1B2CF81B67E078002B296C /* SecondViewContoller.swift */,
 				DE3BE56E1A5EDA2700C49B3C /* DeviseSize.swift */,
 				DEA538A41A2A0AE30092DCBA /* ViewController.swift */,
-				BBB6C5B31B701EFE00F97BBA /* CalendarTableViewController.swift */,
 				BB1B2CFA1B67E979002B296C /* ScheduleView.swift */,
 				DEA538A61A2A0AE40092DCBA /* Main.storyboard */,
 				DEA538A91A2A0AE40092DCBA /* Images.xcassets */,
@@ -234,7 +231,6 @@
 				BB1B2CF91B67E078002B296C /* SecondViewContoller.swift in Sources */,
 				DEA538A51A2A0AE30092DCBA /* ViewController.swift in Sources */,
 				DEA538A31A2A0AE30092DCBA /* AppDelegate.swift in Sources */,
-				BBB6C5B41B701EFE00F97BBA /* CalendarTableViewController.swift in Sources */,
 				DE3BE56F1A5EDA2800C49B3C /* DeviseSize.swift in Sources */,
 				BB1B2CF71B67DDE5002B296C /* FirstViewController.swift in Sources */,
 				BB1B2CFB1B67E979002B296C /* ScheduleView.swift in Sources */,
