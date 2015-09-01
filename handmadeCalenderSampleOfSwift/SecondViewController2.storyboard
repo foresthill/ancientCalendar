@@ -7,7 +7,7 @@
         <!--Second View Controller2-->
         <scene sceneID="lbe-F7-AKh">
             <objects>
-                <viewController id="VQX-af-3In" customClass="SecondViewController2" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="top" useStoryboardIdentifierAsRestorationIdentifier="YES" id="VQX-af-3In" customClass="SecondViewController2" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="3pQ-5f-BoX"/>
                         <viewControllerLayoutGuide type="bottom" id="4s1-LH-a1M"/>

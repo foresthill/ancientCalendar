@@ -610,7 +610,7 @@ class ViewController: UIViewController {
         }
         
         var storyboard: UIStoryboard = UIStoryboard(name: "SecondViewController2", bundle: NSBundle.mainBundle())
-        var secondViewController: SecondViewController = storyboard.instantiateViewControllerWithIdentifier("next") as! SecondViewController
+        var secondViewController: SecondViewController = storyboard.instantiateViewControllerWithIdentifier("top") as! SecondViewController
         //self.presentViewController(nex, animated: true, completion: nil);
         self.navigationController?.pushViewController(secondViewController, animated: true)
         
