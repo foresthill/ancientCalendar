@@ -609,9 +609,10 @@ class ViewController: UIViewController {
             }
         }
         
-        var nex = UIStoryboard(name: "NextView", bundle: nil).instantiateViewControllerWithIdentifier("next") as! UIViewController
-        self.presentViewController(nex, animated: true, completion: nil);
-
+        var storyboard: UIStoryboard = UIStoryboard(name: "SecondViewController2", bundle: NSBundle.mainBundle())
+        var secondViewController: SecondViewController = storyboard.instantiateViewControllerWithIdentifier("next") as! SecondViewController
+        //self.presentViewController(nex, animated: true, completion: nil);
+        self.navigationController?.pushViewController(secondViewController, animated: true)
         
         // 画面遷移.
         //moveViewController(eventItems)

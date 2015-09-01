@@ -82,10 +82,10 @@
             </objects>
             <point key="canvasLocation" x="53" y="127"/>
         </scene>
-        <!--Table View Controller-->
+        <!--NextView-->
         <scene sceneID="ooT-pL-qce">
             <objects>
-                <tableViewController storyboardIdentifier="NextView" id="mBC-Q8-ksN" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="NextView" title="NextView" useStoryboardIdentifierAsRestorationIdentifier="YES" id="mBC-Q8-ksN" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="UDl-Uc-KAc">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

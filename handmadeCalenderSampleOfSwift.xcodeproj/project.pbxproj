@@ -10,6 +10,9 @@
 		BB1B2CF71B67DDE5002B296C /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2CF61B67DDE4002B296C /* FirstViewController.swift */; };
 		BB1B2CF91B67E078002B296C /* SecondViewContoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2CF81B67E078002B296C /* SecondViewContoller.swift */; };
 		BB1B2CFB1B67E979002B296C /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2CFA1B67E979002B296C /* ScheduleView.swift */; };
+		BBF198941B964BA200DBE4AE /* SecondViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBF198931B964BA200DBE4AE /* SecondViewController.storyboard */; };
+		BBF198961B964F4900DBE4AE /* TabBarController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBF198951B964F4900DBE4AE /* TabBarController.storyboard */; };
+		BBF198981B96506500DBE4AE /* SecondViewController2.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBF198971B96506500DBE4AE /* SecondViewController2.storyboard */; };
 		DE3BE56F1A5EDA2800C49B3C /* DeviseSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3BE56E1A5EDA2700C49B3C /* DeviseSize.swift */; };
 		DEA4E48F1A2B03F100601B26 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA4E48E1A2B03F100601B26 /* QuartzCore.framework */; };
 		DEA538A31A2A0AE30092DCBA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA538A21A2A0AE30092DCBA /* AppDelegate.swift */; };
@@ -34,6 +37,9 @@
 		BB1B2CF61B67DDE4002B296C /* FirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
 		BB1B2CF81B67E078002B296C /* SecondViewContoller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecondViewContoller.swift; sourceTree = "<group>"; };
 		BB1B2CFA1B67E979002B296C /* ScheduleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
+		BBF198931B964BA200DBE4AE /* SecondViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SecondViewController.storyboard; sourceTree = "<group>"; };
+		BBF198951B964F4900DBE4AE /* TabBarController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = TabBarController.storyboard; sourceTree = "<group>"; };
+		BBF198971B96506500DBE4AE /* SecondViewController2.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SecondViewController2.storyboard; sourceTree = "<group>"; };
 		DE3BE56E1A5EDA2700C49B3C /* DeviseSize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviseSize.swift; sourceTree = "<group>"; };
 		DEA4E48E1A2B03F100601B26 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		DEA5389D1A2A0AE30092DCBA /* handmadeCalenderSampleOfSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = handmadeCalenderSampleOfSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,8 +100,11 @@
 				BB1B2CF81B67E078002B296C /* SecondViewContoller.swift */,
 				DE3BE56E1A5EDA2700C49B3C /* DeviseSize.swift */,
 				DEA538A41A2A0AE30092DCBA /* ViewController.swift */,
+				BBF198971B96506500DBE4AE /* SecondViewController2.storyboard */,
 				BB1B2CFA1B67E979002B296C /* ScheduleView.swift */,
 				DEA538A61A2A0AE40092DCBA /* Main.storyboard */,
+				BBF198931B964BA200DBE4AE /* SecondViewController.storyboard */,
+				BBF198951B964F4900DBE4AE /* TabBarController.storyboard */,
 				DEA538A91A2A0AE40092DCBA /* Images.xcassets */,
 				DEA538AB1A2A0AE40092DCBA /* LaunchScreen.xib */,
 				DEA538A01A2A0AE30092DCBA /* Supporting Files */,
@@ -209,6 +218,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEA538A81A2A0AE40092DCBA /* Main.storyboard in Resources */,
+				BBF198941B964BA200DBE4AE /* SecondViewController.storyboard in Resources */,
+				BBF198981B96506500DBE4AE /* SecondViewController2.storyboard in Resources */,
+				BBF198961B964F4900DBE4AE /* TabBarController.storyboard in Resources */,
 				DEA538AD1A2A0AE40092DCBA /* LaunchScreen.xib in Resources */,
 				DEA538AA1A2A0AE40092DCBA /* Images.xcassets in Resources */,
 			);
