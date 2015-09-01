@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "handmadeCalenderSampleOfSwift/ViewController.swift"
-            timestampString = "460331478.453169"
+            timestampString = "462833807.202292"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "575"
-            endingLineNumber = "575"
+            startingLineNumber = "524"
+            endingLineNumber = "524"
             landmarkName = "ViewController"
             landmarkType = "3">
             <Locations>
