@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="M3C-8U-SNl">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="M3C-8U-SNl">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
     </dependencies>
     <scenes>
         <!--Tab View Controller-->
@@ -15,6 +15,7 @@
                     <tabView key="tabView" type="noTabsNoBorder" id="eki-W5-9UA">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                         <font key="font" metaFont="message"/>
                         <tabViewItems/>
                     </tabView>
@@ -34,6 +35,7 @@
                     <view key="view" id="vxY-9R-itC">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                     </view>
                 </viewController>
                 <customObject id="ckz-yo-Xsa" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -47,6 +49,7 @@
                     <view key="view" id="ueZ-GQ-bRq">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                     </view>
                 </viewController>
                 <customObject id="Edd-9K-BNt" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

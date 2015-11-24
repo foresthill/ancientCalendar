@@ -43,7 +43,7 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         self.view.addSubview(myTableView)
         
         for x in myItems {
-            println(x)
+            print(x)
         }
     }
     
@@ -57,8 +57,8 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
     Cellが選択された際に呼び出される
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
-        println("Num: \(indexPath.row)")
-        println("Value: \(myItems[indexPath.row])")
+        print("Num: \(indexPath.row)")
+        print("Value: \(myItems[indexPath.row])")
     }
     
     /**
@@ -74,7 +74,7 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         // Cellの.を取得する
-        let cell = tableView.dequeueReusableCellWithIdentifier("MyCell", forIndexPath: indexPath) as! UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("MyCell", forIndexPath: indexPath) 
         
         // Cellに値を設定する
         cell.textLabel!.text = "\(myItems[indexPath.row])"
