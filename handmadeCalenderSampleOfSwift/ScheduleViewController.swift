@@ -9,10 +9,13 @@
 import Foundation
 import UIKit
 
-class TableViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ScheduleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     // Tableで使用する配列を設定する
     var myItems: NSArray = []
+    
+    // テーブルビュー（2015/12/23）
+    @IBOutlet var myTableView :UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +31,7 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         let displayHeight: CGFloat = self.view.frame.height
         
         // TableViewの生成する（status barの高さ分ずらして表示）
-        let myTableView: UITableView = UITableView(frame: CGRect(x: 0, y: barHeight, width: displayWidth, height: displayHeight - barHeight))
+        //let myTableView: UITableView = UITableView(frame: CGRect(x: 0, y: barHeight, width: displayWidth, height: displayHeight - barHeight)) //2015/12/23
         
         // Cell名の登録を行う
         myTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "MyCell")
@@ -54,7 +57,7 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
     /** 以下、tableview系メソッド **/
     
     /**
-    Cellが選択された際に呼び出される
+    Cellがタップ（選択）された際に呼び出される
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         print("Num: \(indexPath.row)")

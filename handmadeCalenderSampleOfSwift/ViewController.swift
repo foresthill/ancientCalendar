@@ -66,6 +66,9 @@ class ViewController: UIViewController {
     // 旧暦
 //    var jpnMonth: NSArray!
     
+    // 発見したイベントを格納する配列を生成（Segueで呼び出すために外だし）2015/12/23
+    var eventItems = [String]()
+    
     
     override func viewDidLoad() {
         
@@ -473,6 +476,7 @@ class ViewController: UIViewController {
         toScheduleView()
     }
     
+    /*
     // スケジュール画面に遷移
     internal func toSchedule(button: UIButton){
         // 遷移するViewを定義する
@@ -485,73 +489,7 @@ class ViewController: UIViewController {
         //self.presentViewController(mySecondViewController, animated: true, completion: nil)
         
      }
-    
-    /**
-    認証ステータスを取得
-    **/
-    func getAuthorization_status() -> Bool {
-        
-        // ステータスを取得
-        let status: EKAuthorizationStatus = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
-        
-        // ステータスを表示 許可されている場合のみtrueを返す
-        switch status {
-        case EKAuthorizationStatus.NotDetermined:
-            print("NotDetermined")
-            return false
-        
-        case EKAuthorizationStatus.Denied:
-            print("Denied")
-            return false
-            
-        case EKAuthorizationStatus.Authorized:
-            print("Authorized")
-            return true
-        
-        case EKAuthorizationStatus.Restricted:
-            print("Restricted")
-            return false
-            
-        default:
-            print("error")
-            return false
-            
-        }
-    }
-    
-    /**
-    認証許可
-    **/
-    func allowAuthorization() {
-        
-        // 許可されていなかった場合、認証許可を求める
-        if getAuthorization_status() {
-            return
-        } else {
-            
-            // ユーザーに許可を求める
-            myEventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
-                (granted, error) -> Void in
-                
-                // 許可を得られなかった場合アラート発動
-                if granted {
-                    return
-                }
-                else {
-                    
-                    // メインスレッド 画面制御.非同期.
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        
-                        // アラート作成
-                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertControllerStyle.Alert)
-                        
-                        // アラートアクション
-                        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
-                    })
-                }
-            })
-        }
-    }
+    */
     
     /**
     スケジュール画面に遷移する
@@ -593,8 +531,7 @@ class ViewController: UIViewController {
         // 述語にマッチする全てのイベントをフェッチ
         let events = myEventStore.eventsMatchingPredicate(predicate) 
         
-        // 発見したイベントを格納する配列を生成
-        var eventItems = [String]()
+
         
         // イベントが見つかった
         if !events.isEmpty {
@@ -626,22 +563,31 @@ class ViewController: UIViewController {
     func moveViewController(events: NSArray) {
         print("moveViewController")
         
-        let myTableViewController = TableViewController()
+        //let scheduleViewController = ScheduleViewController()
         
-        print(myTableViewController)
+        //print(scheduleViewController)
         
         // TableViewに表示する内容として発見したイベントを入れた配列を渡す
-        myTableViewController.myItems = events
+        //scheduleViewController.myItems = events                     //'NSUnknownKeyException',setValue:forUndefinedKey:
         
         // 画面遷移
         //self.navigationController?.pushViewController(myTableViewController, animated: true)
  
         // アニメーションを定義する
-        myTableViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
+        //scheduleViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
         
         // Viewの移動する
-        self.presentViewController(myTableViewController, animated: true, completion: nil)
+//        self.presentViewController(scheduleViewController, animated: true, completion: nil)
+        performSegueWithIdentifier("toScheduleView", sender: self)
         
+    }
+    
+    //画面遷移時に呼ばれるメソッド
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
+        var svc = segue.destinationViewController as! ScheduleViewController
+        //変数を渡す
+        svc.myItems = eventItems;
     }
     
     //前の月のボタンを押した際のアクション
@@ -679,6 +625,75 @@ class ViewController: UIViewController {
         generateCalendar()
         setupCalendarTitleLabel()
     }
+    
+    /**
+     認証ステータスを取得
+     **/
+    func getAuthorization_status() -> Bool {
+        
+        // ステータスを取得
+        let status: EKAuthorizationStatus = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
+        
+        // ステータスを表示 許可されている場合のみtrueを返す
+        switch status {
+        case EKAuthorizationStatus.NotDetermined:
+            print("NotDetermined")
+            return false
+            
+        case EKAuthorizationStatus.Denied:
+            print("Denied")
+            return false
+            
+        case EKAuthorizationStatus.Authorized:
+            print("Authorized")
+            return true
+            
+        case EKAuthorizationStatus.Restricted:
+            print("Restricted")
+            return false
+            
+        default:
+            print("error")
+            return false
+            
+        }
+    }
+    
+    /**
+     認証許可
+     **/
+    func allowAuthorization() {
+        
+        // 許可されていなかった場合、認証許可を求める
+        if getAuthorization_status() {
+            return
+        } else {
+            
+            // ユーザーに許可を求める
+            myEventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+                (granted, error) -> Void in
+                
+                // 許可を得られなかった場合アラート発動
+                if granted {
+                    return
+                }
+                else {
+                    
+                    // メインスレッド 画面制御.非同期.
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        
+                        // アラート作成
+                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertControllerStyle.Alert)
+                        
+                        // アラートアクション
+                        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
+                    })
+                }
+            })
+        }
+    }
+    
+
     
     // どのクラスにもあるメソッド Memory監視？
     override func didReceiveMemoryWarning() {
