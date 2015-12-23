@@ -8,11 +8,13 @@
 
 import Foundation
 import UIKit
+import EventKit
 
 class ScheduleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     // Tableで使用する配列を設定する
     var myItems: NSArray = []
+    var myEvents: [EKEvent]!
     
     // テーブルビュー（2015/12/23）
     @IBOutlet var myTableView :UITableView!
@@ -42,8 +44,13 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         // Delegateを設定する
         myTableView.delegate = self
         
+        // Cellの高さを可変にする
+        myTableView.estimatedRowHeight = 80
+        myTableView.rowHeight = UITableViewAutomaticDimension
+
         // Viewに追加する
         self.view.addSubview(myTableView)
+        
         
         for x in myItems {
             print(x)
@@ -61,30 +68,56 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         print("Num: \(indexPath.row)")
-        print("Value: \(myItems[indexPath.row])")
+        print("Value: \(myEvents[indexPath.row])")
     }
     
     /**
     Cellの総数を返す
     **/
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return myItems.count
+        //return myItems.count
+        return myEvents.count
     }
     
     /**
-    Cellに値を設定する
+    Cellの内容を指定する
     **/
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         // Cellの.を取得する
-        let cell = tableView.dequeueReusableCellWithIdentifier("MyCell", forIndexPath: indexPath) 
+        //let cell = tableView.dequeueReusableCellWithIdentifier("MyCell", forIndexPath: indexPath) //これだとdetailが取れない？
+        let cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "MyCell")
         
         // Cellに値を設定する
-        cell.textLabel!.text = "\(myItems[indexPath.row])"
-        cell.textLabel!.font = UIFont.systemFontOfSize(13)
+        //cell.textLabel!.text = "\(myItems[indexPath.row])"
+        //cell.textLabel!.font = UIFont.systemFontOfSize(13)
+        
+        cell.textLabel?.text = myEvents[indexPath.row].title
+//        cell.detailTextLabel?.text = "\(myEvents[indexPath.row].startDate)" + " - " + "\(myEvents[indexPath.row].endDate)"
+//        cell.detailTextLabel?.text = "\(myEvents[indexPath.row].startDate)"// + " - " + "\(myEvents[indexPath.row].endDate)"
+        
+        let tmp = "\(myEvents[indexPath.row].startDate)" + " - " + "\(myEvents[indexPath.row].endDate)"
+        print("tmpは\(tmp)")
+        
+        cell.detailTextLabel?.text = tmp
+        
+//        print(myEvents[indexPath.row].startDate)
+        print(cell.detailTextLabel?.text)
+
+        cell.textLabel?.numberOfLines = 2
         
         return cell
     }
+    
+    /**
+    Cellの高さを指定する
+
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        let cell = tableView.dequeueReusableCellWithIdentifier("MyCell", forIndexPath: indexPath)
+        
+        return
+    }
+    **/
 
 }
 

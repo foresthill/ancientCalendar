@@ -67,7 +67,8 @@ class ViewController: UIViewController {
 //    var jpnMonth: NSArray!
     
     // 発見したイベントを格納する配列を生成（Segueで呼び出すために外だし）2015/12/23
-    var eventItems = [String]()
+    var eventItems = [String]()   //配列を渡す
+    var events: [EKEvent]!
     
     
     override func viewDidLoad() {
@@ -529,7 +530,7 @@ class ViewController: UIViewController {
             endDate: oneYearFromNow, calendars: nil)
         
         // 述語にマッチする全てのイベントをフェッチ
-        let events = myEventStore.eventsMatchingPredicate(predicate) 
+        events = myEventStore.eventsMatchingPredicate(predicate)
         
 
         
@@ -556,11 +557,12 @@ class ViewController: UIViewController {
         */
         
         // 画面遷移.
-        moveViewController(eventItems)
-        
+        //moveViewController(eventItems)
+        moveViewController()
     }
     
-    func moveViewController(events: NSArray) {
+//    func moveViewController(events: NSArray) {
+    func moveViewController() {
         print("moveViewController")
         
         //let scheduleViewController = ScheduleViewController()
@@ -587,7 +589,8 @@ class ViewController: UIViewController {
         //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
         var svc = segue.destinationViewController as! ScheduleViewController
         //変数を渡す
-        svc.myItems = eventItems;
+        //svc.myItems = eventItems;
+        svc.myEvents = events
     }
     
     //前の月のボタンを押した際のアクション
