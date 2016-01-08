@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="NFw-Rd-0Bv">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
@@ -68,12 +68,13 @@
                             <outletCollection property="gestureRecognizers" destination="GWr-8F-AmV" appends="YES" id="NMt-tG-84c"/>
                         </connections>
                     </view>
+                    <navigationItem key="navigationItem" id="keL-y3-qtm"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
                         <outlet property="calendarBar" destination="B5a-7P-bLg" id="nVo-rs-7Sk"/>
                         <outlet property="nextMonthButton" destination="AT1-Bb-NnH" id="c6K-3d-jyk"/>
                         <outlet property="prevMonthButton" destination="wII-sV-LBg" id="Lvy-eU-TCG"/>
-                        <segue destination="0mC-JM-akN" kind="presentation" identifier="toScheduleView" id="4ZX-hL-3LX"/>
+                        <segue destination="0mC-JM-akN" kind="show" identifier="toScheduleView" id="4ZX-hL-3LX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -88,7 +89,7 @@
                     </connections>
                 </swipeGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="664" y="134"/>
+            <point key="canvasLocation" x="1476" y="134"/>
         </scene>
         <!--Schedule View Controller-->
         <scene sceneID="hxi-rq-p9n">
@@ -102,13 +103,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="105-rm-qLl">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="105-rm-qLl">
                                 <rect key="frame" x="0.0" y="20" width="320" height="548"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" rowHeight="80" id="s8G-2R-iOX">
-                                        <rect key="frame" x="0.0" y="28" width="320" height="80"/>
+                                        <rect key="frame" x="0.0" y="92" width="320" height="80"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="s8G-2R-iOX" id="wqP-nY-cLG">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="79.5"/>
@@ -141,7 +142,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lpd-lD-BJx" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1430" y="134"/>
+            <point key="canvasLocation" x="2242" y="134"/>
         </scene>
         <!--Calendar Detail View Controller-->
         <scene sceneID="L3h-cD-k5O">
@@ -250,7 +251,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="68c-ZN-0he" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2255" y="134"/>
+            <point key="canvasLocation" x="3067" y="134"/>
         </scene>
         <!--Calendar Change View Controller-->
         <scene sceneID="DxF-Aj-GE6">
@@ -368,7 +369,26 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Kn0-GR-Dc6" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3102" y="134"/>
+            <point key="canvasLocation" x="3914" y="134"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="TFP-Ud-NqE">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="NFw-Rd-0Bv" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="mPI-pB-KvW">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="vXZ-lx-hvc" kind="relationship" relationship="rootViewController" id="hZL-wK-5f8"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="WFB-Eu-D45" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="664" y="134"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
