@@ -67,9 +67,18 @@ class CalendarChangeViewController: UIViewController {
             
         }
         
-        performSegueWithIdentifier("changed", sender: nil)
+        //performSegueWithIdentifier("changed", sender: nil)
         
+        //元の画面に戻る
+        dismissViewControllerAnimated(true, completion: nil)
         
+    }
+    
+    @IBAction func backAction(sender: UIButton){
+        print("back")
+        
+        //dismissViewControllerAnimated(false, completion: nil)
+        //navigationController?.popViewControllerAnimated(true)
     }
     
     //画面遷移時に呼ばれるメソッド
