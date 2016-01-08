@@ -587,7 +587,7 @@ class ViewController: UIViewController {
     //画面遷移時に呼ばれるメソッド
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
-        var svc = segue.destinationViewController as! ScheduleViewController
+        let svc = segue.destinationViewController as! ScheduleViewController
         //変数を渡す
         //svc.myItems = eventItems;
         svc.myEvents = events

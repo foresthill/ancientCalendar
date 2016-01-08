@@ -16,6 +16,9 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     var myItems: NSArray = []
     var myEvents: [EKEvent]!
     
+    // segueで渡す時の変数
+    var calNum: Int!
+    
     // テーブルビュー（2015/12/23）
     @IBOutlet var myTableView :UITableView!
     
@@ -56,10 +59,17 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
             print(x)
         }
     }
+
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    //画面遷移時に呼ばれるメソッド
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
+        let cdvc = segue.destinationViewController as! CalendarDetailViewController
+        //変数を渡す
+        //svc.myItems = eventItems;
+        cdvc.myEvent = myEvents[calNum]
     }
+    
     
     /** 以下、tableview系メソッド **/
     
@@ -69,6 +79,10 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         print("Num: \(indexPath.row)")
         print("Value: \(myEvents[indexPath.row])")
+        calNum = indexPath.row
+        
+        performSegueWithIdentifier("toCalendarDetailView", sender: self)
+        
     }
     
     /**
@@ -96,18 +110,24 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
 //        cell.detailTextLabel?.text = "\(myEvents[indexPath.row].startDate)" + " - " + "\(myEvents[indexPath.row].endDate)"
 //        cell.detailTextLabel?.text = "\(myEvents[indexPath.row].startDate)"// + " - " + "\(myEvents[indexPath.row].endDate)"
         
-        let tmp = "\(myEvents[indexPath.row].startDate)" + " - " + "\(myEvents[indexPath.row].endDate)"
-        print("tmpは\(tmp)")
+        let df:NSDateFormatter = NSDateFormatter()
+        df.dateFormat = "yyyy/MM/dd"
         
-        cell.detailTextLabel?.text = tmp
+        let detailText = "\(df.stringFromDate(myEvents[indexPath.row].startDate))" + "\n - "
+            + "\(df.stringFromDate(myEvents[indexPath.row].endDate))"
+//        print("tmpは\(tmp)")
+        
+        cell.detailTextLabel?.text = detailText
         
 //        print(myEvents[indexPath.row].startDate)
-        print(cell.detailTextLabel?.text)
+//        print(cell.detailTextLabel?.text)
 
         cell.textLabel?.numberOfLines = 2
+        cell.detailTextLabel?.numberOfLines = 2
         
         return cell
     }
+
     
     /**
     Cellの高さを指定する
@@ -118,6 +138,10 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         return
     }
     **/
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+    }
 
 }
 
