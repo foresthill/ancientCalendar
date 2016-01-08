@@ -153,7 +153,7 @@
                         <viewControllerLayoutGuide type="bottom" id="bUf-dU-0Tu"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="caF-cD-su2">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="開始時間" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J9u-yg-lgW">
@@ -189,7 +189,7 @@
                                 <animations/>
                                 <state key="normal" title="編集する"/>
                                 <connections>
-                                    <segue destination="bFS-GY-hjU" kind="show" id="EKA-Nn-QoZ"/>
+                                    <segue destination="bFS-GY-hjU" kind="push" id="jch-ei-f1p"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="12月10日 18:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5rK-IX-NEC">
@@ -222,7 +222,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="タイトル" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YfI-O5-FQN">
-                                <rect key="frame" x="180" y="20" width="240" height="20.5"/>
+                                <rect key="frame" x="40" y="20" width="240" height="20.5"/>
                                 <animations/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="240" id="zFh-lL-wDS"/>
@@ -262,32 +262,32 @@
                         <viewControllerLayoutGuide type="bottom" id="i6b-NP-4JL"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="hC5-ym-xNQ">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="開始時間" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aUe-qL-BNj">
-                                <rect key="frame" x="51" y="78" width="68" height="21"/>
+                                <rect key="frame" x="52" y="113" width="68" height="21"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="終了時間" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="K8l-8Q-Pax">
-                                <rect key="frame" x="51" y="130" width="68" height="21"/>
+                                <rect key="frame" x="52" y="165" width="68" height="21"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="場所" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rOQ-cV-1Xo">
-                                <rect key="frame" x="68" y="184" width="34" height="21"/>
+                                <rect key="frame" x="69" y="219" width="34" height="21"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="詳細" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I6I-ch-q5V">
-                                <rect key="frame" x="68" y="235" width="34" height="21"/>
+                                <rect key="frame" x="69" y="270" width="34" height="21"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -301,11 +301,18 @@
                                 </state>
                                 <connections>
                                     <action selector="updateAction:" destination="bFS-GY-hjU" eventType="touchUpInside" id="P2f-46-KDD"/>
-                                    <segue destination="Iay-gB-zFX" kind="show" action="showDetailViewController:sender:" id="XP8-Z5-blY"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="タイトル" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mqq-Yw-z9f">
-                                <rect key="frame" x="180" y="20" width="240" height="20.5"/>
+                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DgI-AY-nXV">
+                                <rect key="frame" x="116" y="472" width="90" height="30"/>
+                                <animations/>
+                                <state key="normal" title="更新せず戻る"/>
+                                <connections>
+                                    <action selector="backAction:" destination="bFS-GY-hjU" eventType="touchUpInside" id="UUa-fF-476"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="タイトル" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mqq-Yw-z9f">
+                                <rect key="frame" x="40" y="70" width="240" height="20.5"/>
                                 <animations/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="240" id="JHL-PQ-xlZ"/>
@@ -316,21 +323,21 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="12月10日 18:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BqE-5k-8Yp">
-                                <rect key="frame" x="152" y="78" width="137" height="20.5"/>
+                                <rect key="frame" x="152" y="121" width="137" height="20.5"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="12月10日 20:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IjW-Xg-jNy">
-                                <rect key="frame" x="152" y="130" width="121" height="21"/>
+                                <rect key="frame" x="152" y="172.5" width="121" height="21"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="iwM-eT-FPe">
-                                <rect key="frame" x="128" y="235" width="161" height="161"/>
+                                <rect key="frame" x="128" y="270" width="284" height="135.5"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
@@ -338,29 +345,23 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="森戸海岸" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j3P-Cr-0cb">
-                                <rect key="frame" x="152" y="184" width="121" height="21"/>
+                                <rect key="frame" x="152" y="226.5" width="121" height="21"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DgI-AY-nXV">
-                                <rect key="frame" x="116" y="472" width="90" height="30"/>
-                                <animations/>
-                                <state key="normal" title="更新せず戻る"/>
-                                <connections>
-                                    <action selector="backAction:" destination="bFS-GY-hjU" eventType="touchUpInside" id="UUa-fF-476"/>
-                                    <segue destination="Iay-gB-zFX" kind="show" id="AGy-Gu-ikj"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="mqq-Yw-z9f" firstAttribute="top" secondItem="hC5-ym-xNQ" secondAttribute="topMargin" constant="20" id="KJB-u8-Grq"/>
                             <constraint firstItem="mqq-Yw-z9f" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="XdG-Yj-f6R"/>
+                            <constraint firstItem="mqq-Yw-z9f" firstAttribute="top" secondItem="hvc-e5-TM4" secondAttribute="bottom" constant="50" id="lNz-XT-uu3"/>
+                            <constraint firstItem="DgI-AY-nXV" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="nfd-Lx-MmR"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="KEC-kQ-Myt"/>
                     <connections>
                         <outlet property="backButton" destination="DgI-AY-nXV" id="mHS-hI-nMU"/>
                         <outlet property="detailText" destination="iwM-eT-FPe" id="hLg-oA-Arn"/>
@@ -395,7 +396,4 @@
             <point key="canvasLocation" x="664" y="134"/>
         </scene>
     </scenes>
-    <inferredMetricsTieBreakers>
-        <segue reference="XP8-Z5-blY"/>
-    </inferredMetricsTieBreakers>
 </document>

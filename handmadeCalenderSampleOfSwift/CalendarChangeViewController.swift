@@ -78,7 +78,7 @@ class CalendarChangeViewController: UIViewController {
         print("back")
         
         //dismissViewControllerAnimated(false, completion: nil)
-        //navigationController?.popViewControllerAnimated(true)
+        navigationController?.popViewControllerAnimated(true)
     }
     
     //画面遷移時に呼ばれるメソッド
