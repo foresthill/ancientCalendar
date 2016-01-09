@@ -184,9 +184,14 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TDX-Kc-Ib1">
-                                <rect key="frame" x="130" y="473" width="60" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TDX-Kc-Ib1">
+                                <rect key="frame" x="70" y="469" width="180" height="30"/>
                                 <animations/>
+                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="180" id="6Pp-dt-ROa"/>
+                                </constraints>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <state key="normal" title="編集する"/>
                                 <connections>
                                     <segue destination="bFS-GY-hjU" kind="push" id="jch-ei-f1p"/>
@@ -236,7 +241,9 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="YfI-O5-FQN" firstAttribute="top" secondItem="caF-cD-su2" secondAttribute="topMargin" constant="20" id="7As-dK-wQv"/>
+                            <constraint firstItem="TDX-Kc-Ib1" firstAttribute="centerY" secondItem="caF-cD-su2" secondAttribute="centerY" constant="200" id="aGh-Hw-HIr"/>
                             <constraint firstItem="YfI-O5-FQN" firstAttribute="centerX" secondItem="caF-cD-su2" secondAttribute="centerX" id="rgP-iZ-cWq"/>
+                            <constraint firstItem="TDX-Kc-Ib1" firstAttribute="centerX" secondItem="caF-cD-su2" secondAttribute="centerX" id="uc0-65-nvp"/>
                             <constraint firstItem="YfI-O5-FQN" firstAttribute="centerX" secondItem="caF-cD-su2" secondAttribute="centerX" id="x6a-Kh-rW1"/>
                         </constraints>
                     </view>
@@ -293,9 +300,14 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sWw-uz-XiC">
-                                <rect key="frame" x="109" y="423" width="105" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sWw-uz-XiC">
+                                <rect key="frame" x="40" y="419" width="240" height="30"/>
                                 <animations/>
+                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="240" id="SvP-cM-TAh"/>
+                                </constraints>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <state key="normal" title="予定を更新する">
                                     <color key="titleShadowColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
@@ -303,16 +315,20 @@
                                     <action selector="updateAction:" destination="bFS-GY-hjU" eventType="touchUpInside" id="P2f-46-KDD"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DgI-AY-nXV">
-                                <rect key="frame" x="116" y="472" width="90" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DgI-AY-nXV">
+                                <rect key="frame" x="40" y="462" width="240" height="30"/>
                                 <animations/>
+                                <color key="backgroundColor" white="0.89253771551724137" alpha="0.59999999999999998" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="240" id="8U1-lx-POX"/>
+                                </constraints>
                                 <state key="normal" title="更新せず戻る"/>
                                 <connections>
                                     <action selector="backAction:" destination="bFS-GY-hjU" eventType="touchUpInside" id="UUa-fF-476"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="JPR-CL-EGA">
-                                <rect key="frame" x="146" y="219" width="97" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" tag="3" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="JPR-CL-EGA">
+                                <rect key="frame" x="146" y="219" width="114" height="30"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
@@ -335,33 +351,67 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nB8-P3-Uc6">
-                                <rect key="frame" x="142" y="113" width="105" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" tag="1" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cJ7-7W-NN4">
+                                <rect key="frame" x="146" y="110" width="114" height="30"/>
                                 <animations/>
-                                <state key="normal" title="12月10日 18:00"/>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hEx-fa-srp">
-                                <rect key="frame" x="142" y="161" width="107" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" tag="2" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="0tV-JL-YU1">
+                                <rect key="frame" x="146" y="165" width="114" height="30"/>
                                 <animations/>
-                                <state key="normal" title="12月10日 20:00"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fTx-en-o1k">
+                                <rect key="frame" x="40" y="519" width="240" height="30"/>
+                                <animations/>
+                                <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="240" id="QVZ-oy-nHZ"/>
+                                </constraints>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <state key="normal" title="確定"/>
+                                <connections>
+                                    <action selector="decideDatePicker:" destination="bFS-GY-hjU" eventType="touchUpInside" id="VQk-2b-I0V"/>
+                                </connections>
                             </button>
+                            <datePicker contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="ter-D8-nwj" colorLabel="IBBuiltInLabel-Blue">
+                                <rect key="frame" x="0.0" y="248" width="320" height="256"/>
+                                <animations/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.59999999999999998" colorSpace="calibratedRGB"/>
+                                <date key="date" timeIntervalSinceReferenceDate="473995653.55878001">
+                                    <!--2016-01-09 01:27:33 +0000-->
+                                </date>
+                            </datePicker>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="11n-2w-cxu" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="1fU-Ls-cBo"/>
+                            <constraint firstItem="ter-D8-nwj" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="Fcq-x8-VJH"/>
+                            <constraint firstItem="DgI-AY-nXV" firstAttribute="centerY" secondItem="hC5-ym-xNQ" secondAttribute="centerY" constant="180" id="KZB-W9-fXc"/>
+                            <constraint firstItem="i6b-NP-4JL" firstAttribute="top" secondItem="ter-D8-nwj" secondAttribute="bottom" constant="56" id="SDz-A7-dcV"/>
+                            <constraint firstItem="ter-D8-nwj" firstAttribute="centerY" secondItem="hC5-ym-xNQ" secondAttribute="centerY" constant="100" id="dGE-ca-Zga"/>
+                            <constraint firstItem="fTx-en-o1k" firstAttribute="centerY" secondItem="hC5-ym-xNQ" secondAttribute="centerY" constant="250" id="fa1-5r-fcl"/>
                             <constraint firstItem="11n-2w-cxu" firstAttribute="top" secondItem="hC5-ym-xNQ" secondAttribute="topMargin" constant="65" id="fzk-MW-Dzr"/>
                             <constraint firstItem="DgI-AY-nXV" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="nfd-Lx-MmR"/>
+                            <constraint firstItem="sWw-uz-XiC" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="s2c-qf-AUE"/>
+                            <constraint firstItem="DgI-AY-nXV" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="sle-SB-Lmo"/>
+                            <constraint firstItem="fTx-en-o1k" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="xB4-EF-4y1"/>
+                            <constraint firstItem="sWw-uz-XiC" firstAttribute="centerY" secondItem="hC5-ym-xNQ" secondAttribute="centerY" constant="150" id="xKv-xV-HDm"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="KEC-kQ-Myt"/>
                     <connections>
                         <outlet property="backButton" destination="DgI-AY-nXV" id="mHS-hI-nMU"/>
+                        <outlet property="dateDecideButton" destination="fTx-en-o1k" id="axW-AU-ZQW"/>
+                        <outlet property="datePicker" destination="ter-D8-nwj" id="cY4-CT-yV6"/>
                         <outlet property="detailText" destination="yM6-8Q-3ma" id="p5j-7L-OSL"/>
-                        <outlet property="endTime" destination="hEx-fa-srp" id="0Zc-zZ-lH0"/>
+                        <outlet property="endTime" destination="0tV-JL-YU1" id="pu2-BN-kyB"/>
                         <outlet property="eventTitle" destination="11n-2w-cxu" id="7wp-Ow-1Gj"/>
                         <outlet property="location" destination="JPR-CL-EGA" id="XaP-EH-nIh"/>
-                        <outlet property="startTime" destination="nB8-P3-Uc6" id="RFK-l9-swt"/>
+                        <outlet property="startTime" destination="cJ7-7W-NN4" id="LlF-j9-rdx"/>
                         <outlet property="updateButton" destination="sWw-uz-XiC" id="qdS-BT-JXA"/>
                     </connections>
                 </viewController>

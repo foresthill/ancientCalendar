@@ -29,6 +29,22 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
 //    @IBOutlet weak var startTime: UIButton!
 //    @IBOutlet weak var endTime: UIButton!
     
+    //DatePicker（開始時間・終了時間を決定）
+    @IBOutlet weak var datePicker: UIDatePicker!
+    
+    //DatePickerの表示・非表示フラグ
+    var datePickerIsHidden: Bool = false
+    
+    //DatePickerを確定するボタン
+    @IBOutlet weak var dateDecideButton: UIButton!
+    
+    //DatePickerの値を一時的に格納する変数
+    var datePickerValue: NSDate!
+    
+    
+    //編集中のtagを格納する変数
+    var textfieldTag: Int!
+    
     //前画面から取ってきたイベント
     var myEvent: EKEvent!
     
@@ -38,11 +54,61 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         eventTitle.text = myEvent.title
-        startTime.setTitle("\(myEvent.startDate)", forState: .Normal)
-        endTime.setTitle("\(myEvent.endDate)", forState: .Normal)
+        startTime.text = "\(myEvent.startDate)"
+        endTime.text = "\(myEvent.endDate)"
+//        startTime.setTitle("\(myEvent.startDate)", forState: .Normal)
+//        endTime.setTitle("\(myEvent.endDate)", forState: .Normal)
         location.text = myEvent.location
         detailText.text = myEvent.description
+        
+        //textFieldの初期処理
+        textFieldInit()
+        
+        //DatePickerを非表示にする
+        hideDatePicker()
+        
+        //self.datePicker = UIDatePicker()
+        
+        datePicker.addTarget(self, action: "onDatePickerValueChanged", forControlEvents: UIControlEvents.ValueChanged)
 
+    }
+    
+    /*
+    datePickerの値変更時に呼ばれる
+    */
+    func onDatePickerValueChanged(sendar: AnyObject) {
+        let dateFormatter: NSDateFormatter = NSDateFormatter()
+        dateFormatter.dateStyle = NSDateFormatterStyle.ShortStyle
+
+        switch textfieldTag{
+        case 1:
+            startTime.text = dateFormatter.stringFromDate((sendar as! UIDatePicker).date)    //あずあず
+            break
+        case 2:
+            endTime.text = dateFormatter.stringFromDate((sendar as! UIDatePicker).date)    //あずあず
+            break
+        default:
+            hideDatePicker()
+            
+        }
+        
+        
+    }
+    
+    func textFieldInit(){
+        print(startTime.tag)
+        print(endTime.tag)
+        
+        //これは必要
+        eventTitle.delegate = self
+        startTime.delegate = self
+        endTime.delegate = self
+        location.delegate = self
+        
+        eventTitle.tag = 0
+        startTime.tag = 1
+        endTime.tag = 2
+        location.tag = 3
     }
     
     /*
@@ -57,6 +123,90 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
 //        myEvent.description = detailText.text
         
         return true
+    }
+    
+    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
+        
+        switch textField.tag{
+        case 1:
+            textfieldTag = 1
+            showDatePicker()
+            break
+        case 2:
+            textfieldTag = 2
+            showDatePicker()
+            break
+        default:
+            textfieldTag = 0
+            hideDatePicker()
+            break
+        }
+        
+        return true
+        
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        switch textField.tag{
+        case 1:
+            textField.resignFirstResponder()
+            break
+        case 2:
+            textField.resignFirstResponder()
+            break
+        default: break
+            
+        }
+        return true
+    }
+    
+    /*
+    UIDatePickerの表示・非表示を切り替える
+    */
+    /*
+    func dspDatePicker() {
+        //フラグを見て切り替える
+        if(datePickerIsHidden){
+            showDatePicker()
+        } else {
+            hideDatePicker()
+        }
+    }
+    */
+    
+    func showDatePicker(){
+        
+        if(datePickerIsHidden){
+            //フラグ更新
+            datePickerIsHidden = false
+            
+            datePicker.hidden = false
+            datePicker.alpha = 0
+            
+            dateDecideButton.hidden = false
+    //        UIView.animateKeyframesWithDuration(0.25,animations: { () -> Void in datePicker.alpha = 1.0}, delay:, option:nil, completion: {(Bool) -> Void in })
+            
+            UIView.animateWithDuration(0.25, animations:{ () -> Void in self.datePicker.alpha = 1.0}
+            )
+        }
+        
+    }
+    
+    func hideDatePicker() {
+        //フラグ更新
+        
+        if(!datePickerIsHidden){
+            datePickerIsHidden = true
+            
+            dateDecideButton.hidden = true
+            
+            //datePicker.hidden = true
+            datePicker.alpha = 0
+            //        UIView.animateKeyframesWithDuration(0.25,animations: { () -> Void in datePicker.alpha = 1.0}, delay:, option:nil, completion: {(Bool) -> Void in })
+            
+            UIView.animateWithDuration(0.25, animations:{ () -> Void in self.datePicker.alpha = 0}, completion: {(Bool) -> Void in self.datePicker.hidden = true
+            })
+        }
     }
     
     /*
@@ -76,6 +226,28 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
     }
     */
+    
+    @IBAction func decideDatePicker(sender: UIButton){
+        print("decideDate")
+        
+        /*
+        var dpdf: NSDateFormatter = NSDateFormatter()
+        dpdf.dateStyle = NSDateFormatterStyle.ShortStyle
+
+        switch textfieldTag{
+        case 1:
+
+        case 2:
+
+        default:
+            hideDatePicker()
+        }
+        */
+        
+        hideDatePicker()
+
+        
+    }
 
     @IBAction func updateAction(sender: UIButton){
         print("setCalendar")
