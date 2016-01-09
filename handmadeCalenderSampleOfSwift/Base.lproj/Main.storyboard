@@ -210,7 +210,7 @@
                                 <rect key="frame" x="95" y="254" width="176" height="184"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                <mutableString key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</mutableString>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
@@ -311,64 +311,57 @@
                                     <action selector="backAction:" destination="bFS-GY-hjU" eventType="touchUpInside" id="UUa-fF-476"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="タイトル" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mqq-Yw-z9f">
-                                <rect key="frame" x="40" y="70" width="240" height="20.5"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="JPR-CL-EGA">
+                                <rect key="frame" x="146" y="219" width="97" height="30"/>
                                 <animations/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="240" id="JHL-PQ-xlZ"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="240" id="m4N-XS-SgJ"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="12月10日 18:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BqE-5k-8Yp">
-                                <rect key="frame" x="152" y="121" width="137" height="20.5"/>
-                                <animations/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="12月10日 20:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IjW-Xg-jNy">
-                                <rect key="frame" x="152" y="172.5" width="121" height="21"/>
-                                <animations/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="iwM-eT-FPe">
-                                <rect key="frame" x="128" y="270" width="284" height="135.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="yM6-8Q-3ma">
+                                <rect key="frame" x="136" y="270" width="164" height="128"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="森戸海岸" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j3P-Cr-0cb">
-                                <rect key="frame" x="152" y="226.5" width="121" height="21"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="11n-2w-cxu">
+                                <rect key="frame" x="60" y="65" width="200" height="30"/>
                                 <animations/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="Pcq-iT-uej"/>
+                                    <constraint firstAttribute="height" constant="30" id="hzv-3W-88v"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nB8-P3-Uc6">
+                                <rect key="frame" x="142" y="113" width="105" height="30"/>
+                                <animations/>
+                                <state key="normal" title="12月10日 18:00"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hEx-fa-srp">
+                                <rect key="frame" x="142" y="161" width="107" height="30"/>
+                                <animations/>
+                                <state key="normal" title="12月10日 20:00"/>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="mqq-Yw-z9f" firstAttribute="top" secondItem="hC5-ym-xNQ" secondAttribute="topMargin" constant="20" id="KJB-u8-Grq"/>
-                            <constraint firstItem="mqq-Yw-z9f" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="XdG-Yj-f6R"/>
-                            <constraint firstItem="mqq-Yw-z9f" firstAttribute="top" secondItem="hvc-e5-TM4" secondAttribute="bottom" constant="50" id="lNz-XT-uu3"/>
+                            <constraint firstItem="11n-2w-cxu" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="1fU-Ls-cBo"/>
+                            <constraint firstItem="11n-2w-cxu" firstAttribute="top" secondItem="hC5-ym-xNQ" secondAttribute="topMargin" constant="65" id="fzk-MW-Dzr"/>
                             <constraint firstItem="DgI-AY-nXV" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="nfd-Lx-MmR"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="KEC-kQ-Myt"/>
                     <connections>
                         <outlet property="backButton" destination="DgI-AY-nXV" id="mHS-hI-nMU"/>
-                        <outlet property="detailText" destination="iwM-eT-FPe" id="hLg-oA-Arn"/>
-                        <outlet property="endTime" destination="IjW-Xg-jNy" id="IqY-qK-ut6"/>
-                        <outlet property="eventTitle" destination="mqq-Yw-z9f" id="R3Z-gv-6Kb"/>
-                        <outlet property="location" destination="j3P-Cr-0cb" id="UdQ-eD-5qH"/>
-                        <outlet property="startTime" destination="BqE-5k-8Yp" id="HvH-FI-co4"/>
+                        <outlet property="detailText" destination="yM6-8Q-3ma" id="p5j-7L-OSL"/>
+                        <outlet property="endTime" destination="hEx-fa-srp" id="0Zc-zZ-lH0"/>
+                        <outlet property="eventTitle" destination="11n-2w-cxu" id="7wp-Ow-1Gj"/>
+                        <outlet property="location" destination="JPR-CL-EGA" id="XaP-EH-nIh"/>
+                        <outlet property="startTime" destination="nB8-P3-Uc6" id="RFK-l9-swt"/>
                         <outlet property="updateButton" destination="sWw-uz-XiC" id="qdS-BT-JXA"/>
                     </connections>
                 </viewController>
