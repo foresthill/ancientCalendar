@@ -38,6 +38,9 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     //DatePickerを確定するボタン
     @IBOutlet weak var dateDecideButton: UIButton!
     
+    //DatePickerの背景
+    @IBOutlet weak var datePickerBg: UIButton!
+    
     //DatePickerの値を一時的に格納する変数
     var datePickerValue: NSDate!
     
@@ -69,7 +72,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         //self.datePicker = UIDatePicker()
         
-        datePicker.addTarget(self, action: "onDatePickerValueChanged", forControlEvents: UIControlEvents.ValueChanged)
+        //datePicker.addTarget(self, action: "onDatePickerValueChanged", forControlEvents: UIControlEvents.ValueChanged)
 
     }
     
@@ -105,10 +108,12 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         endTime.delegate = self
         location.delegate = self
         
+        /* storyboardで指定したため不要
         eventTitle.tag = 0
         startTime.tag = 1
         endTime.tag = 2
         location.tag = 3
+        */
     }
     
     /*
@@ -181,9 +186,11 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             datePickerIsHidden = false
             
             datePicker.hidden = false
-            datePicker.alpha = 0
+            //datePicker.alpha = 0
             
             dateDecideButton.hidden = false
+            
+            datePickerBg.hidden = false
     //        UIView.animateKeyframesWithDuration(0.25,animations: { () -> Void in datePicker.alpha = 1.0}, delay:, option:nil, completion: {(Bool) -> Void in })
             
             UIView.animateWithDuration(0.25, animations:{ () -> Void in self.datePicker.alpha = 1.0}
@@ -199,9 +206,10 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             datePickerIsHidden = true
             
             dateDecideButton.hidden = true
+            datePickerBg.hidden = true
             
             //datePicker.hidden = true
-            datePicker.alpha = 0
+            //datePicker.alpha = 0
             //        UIView.animateKeyframesWithDuration(0.25,animations: { () -> Void in datePicker.alpha = 1.0}, delay:, option:nil, completion: {(Bool) -> Void in })
             
             UIView.animateWithDuration(0.25, animations:{ () -> Void in self.datePicker.alpha = 0}, completion: {(Bool) -> Void in self.datePicker.hidden = true
@@ -247,6 +255,13 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         hideDatePicker()
 
         
+    }
+    
+    
+    @IBAction func datePickerBg(sender: UIButton){
+        print("datePickerBg")
+        
+        hideDatePicker()
     }
 
     @IBAction func updateAction(sender: UIButton){

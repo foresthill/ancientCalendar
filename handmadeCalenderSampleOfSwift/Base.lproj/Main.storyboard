@@ -363,6 +363,25 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
+                            <button opaque="NO" alpha="0.40000000000000002" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RAJ-jN-XXj">
+                                <rect key="frame" x="145" y="269" width="30" height="30"/>
+                                <animations/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
+                                <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="datePickerBg"/>
+                                <connections>
+                                    <action selector="datePickerBg:" destination="bFS-GY-hjU" eventType="touchUpInside" id="nK2-7Q-q3j"/>
+                                </connections>
+                            </button>
+                            <datePicker contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="ter-D8-nwj" colorLabel="IBBuiltInLabel-Blue">
+                                <rect key="frame" x="0.0" y="248" width="320" height="256"/>
+                                <animations/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <date key="date" timeIntervalSinceReferenceDate="473995653.55878001">
+                                    <!--2016-01-09 01:27:33 +0000-->
+                                </date>
+                            </datePicker>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fTx-en-o1k">
                                 <rect key="frame" x="40" y="519" width="240" height="30"/>
                                 <animations/>
@@ -376,26 +395,22 @@
                                     <action selector="decideDatePicker:" destination="bFS-GY-hjU" eventType="touchUpInside" id="VQk-2b-I0V"/>
                                 </connections>
                             </button>
-                            <datePicker contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="ter-D8-nwj" colorLabel="IBBuiltInLabel-Blue">
-                                <rect key="frame" x="0.0" y="248" width="320" height="256"/>
-                                <animations/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.59999999999999998" colorSpace="calibratedRGB"/>
-                                <date key="date" timeIntervalSinceReferenceDate="473995653.55878001">
-                                    <!--2016-01-09 01:27:33 +0000-->
-                                </date>
-                            </datePicker>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="11n-2w-cxu" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="1fU-Ls-cBo"/>
                             <constraint firstItem="ter-D8-nwj" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="Fcq-x8-VJH"/>
+                            <constraint firstItem="RAJ-jN-XXj" firstAttribute="centerY" secondItem="hC5-ym-xNQ" secondAttribute="centerY" id="HzH-Zj-8SN"/>
                             <constraint firstItem="DgI-AY-nXV" firstAttribute="centerY" secondItem="hC5-ym-xNQ" secondAttribute="centerY" constant="180" id="KZB-W9-fXc"/>
                             <constraint firstItem="i6b-NP-4JL" firstAttribute="top" secondItem="ter-D8-nwj" secondAttribute="bottom" constant="56" id="SDz-A7-dcV"/>
+                            <constraint firstItem="RAJ-jN-XXj" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="WVk-kL-0w2"/>
                             <constraint firstItem="ter-D8-nwj" firstAttribute="centerY" secondItem="hC5-ym-xNQ" secondAttribute="centerY" constant="100" id="dGE-ca-Zga"/>
                             <constraint firstItem="fTx-en-o1k" firstAttribute="centerY" secondItem="hC5-ym-xNQ" secondAttribute="centerY" constant="250" id="fa1-5r-fcl"/>
                             <constraint firstItem="11n-2w-cxu" firstAttribute="top" secondItem="hC5-ym-xNQ" secondAttribute="topMargin" constant="65" id="fzk-MW-Dzr"/>
+                            <constraint firstItem="RAJ-jN-XXj" firstAttribute="height" secondItem="hC5-ym-xNQ" secondAttribute="height" id="i2J-r5-7NZ"/>
                             <constraint firstItem="DgI-AY-nXV" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="nfd-Lx-MmR"/>
+                            <constraint firstItem="RAJ-jN-XXj" firstAttribute="width" secondItem="hC5-ym-xNQ" secondAttribute="width" id="q7s-NL-otV"/>
                             <constraint firstItem="sWw-uz-XiC" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="s2c-qf-AUE"/>
                             <constraint firstItem="DgI-AY-nXV" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="sle-SB-Lmo"/>
                             <constraint firstItem="fTx-en-o1k" firstAttribute="centerX" secondItem="hC5-ym-xNQ" secondAttribute="centerX" id="xB4-EF-4y1"/>
@@ -407,6 +422,7 @@
                         <outlet property="backButton" destination="DgI-AY-nXV" id="mHS-hI-nMU"/>
                         <outlet property="dateDecideButton" destination="fTx-en-o1k" id="axW-AU-ZQW"/>
                         <outlet property="datePicker" destination="ter-D8-nwj" id="cY4-CT-yV6"/>
+                        <outlet property="datePickerBg" destination="RAJ-jN-XXj" id="RiV-pR-Cbe"/>
                         <outlet property="detailText" destination="yM6-8Q-3ma" id="p5j-7L-OSL"/>
                         <outlet property="endTime" destination="0tV-JL-YU1" id="pu2-BN-kyB"/>
                         <outlet property="eventTitle" destination="11n-2w-cxu" id="7wp-Ow-1Gj"/>
