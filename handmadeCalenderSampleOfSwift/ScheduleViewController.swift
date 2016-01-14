@@ -111,10 +111,10 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
 //        cell.detailTextLabel?.text = "\(myEvents[indexPath.row].startDate)"// + " - " + "\(myEvents[indexPath.row].endDate)"
         
         let df:NSDateFormatter = NSDateFormatter()
-        df.dateFormat = "yyyy/MM/dd"
+        //df.dateFormat = "yyyy/MM/dd"
+        df.dateFormat = "yyyy/MM/dd hh:mm"
         
-        let detailText = "\(df.stringFromDate(myEvents[indexPath.row].startDate))" + "\n - "
-            + "\(df.stringFromDate(myEvents[indexPath.row].endDate))"
+        let detailText = "\(df.stringFromDate(myEvents[indexPath.row].startDate))" + "\n - " + "\(df.stringFromDate(myEvents[indexPath.row].endDate))"
 //        print("tmpは\(tmp)")
         
         cell.detailTextLabel?.text = detailText

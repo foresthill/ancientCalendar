@@ -23,9 +23,12 @@ class CalendarDetailViewController: UIViewController {
     @IBOutlet weak var changeButton: UIButton!
     
     override func viewDidLoad() {
+        let dateFormatter: NSDateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
+        
         scheduleTitle.text = myEvent.title
-        startTime.text = "\(myEvent.startDate)"
-        endTime.text = "\(myEvent.endDate)"
+        startTime.text = dateFormatter.stringFromDate(myEvent.startDate)
+        endTime.text = dateFormatter.stringFromDate(myEvent.endDate)
         place.text = myEvent.location
         detailText.text = myEvent.description
 

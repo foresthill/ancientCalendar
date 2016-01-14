@@ -56,9 +56,12 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     
     
     override func viewDidLoad() {
+        let dateFormatter: NSDateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
+        
         eventTitle.text = myEvent.title
-        startTime.text = "\(myEvent.startDate)"
-        endTime.text = "\(myEvent.endDate)"
+        startTime.text = dateFormatter.stringFromDate(myEvent.startDate)
+        endTime.text = dateFormatter.stringFromDate(myEvent.endDate)
 //        startTime.setTitle("\(myEvent.startDate)", forState: .Normal)
 //        endTime.setTitle("\(myEvent.endDate)", forState: .Normal)
         location.text = myEvent.location
@@ -70,16 +73,24 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         //DatePickerを非表示にする
         hideDatePicker()
         
+        datePicker.backgroundColor = UIColor.whiteColor()
+        
         //self.datePicker = UIDatePicker()
         
+        //アクション追加
         //datePicker.addTarget(self, action: "onDatePickerValueChanged", forControlEvents: UIControlEvents.ValueChanged)
 
     }
     
     /*
-    datePickerの値変更時に呼ばれる
+    datePickerの値変更時に呼ばれる→不要
     */
     func onDatePickerValueChanged(sendar: AnyObject) {
+        
+        //一時的に値を格納する？する必要あんのか？
+        //datePickerValue = datePicker.date
+
+        /*
         let dateFormatter: NSDateFormatter = NSDateFormatter()
         dateFormatter.dateStyle = NSDateFormatterStyle.ShortStyle
 
@@ -94,6 +105,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             hideDatePicker()
             
         }
+        */
         
         
     }
@@ -191,6 +203,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             dateDecideButton.hidden = false
             
             datePickerBg.hidden = false
+            
     //        UIView.animateKeyframesWithDuration(0.25,animations: { () -> Void in datePicker.alpha = 1.0}, delay:, option:nil, completion: {(Bool) -> Void in })
             
             UIView.animateWithDuration(0.25, animations:{ () -> Void in self.datePicker.alpha = 1.0}
@@ -238,19 +251,22 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     @IBAction func decideDatePicker(sender: UIButton){
         print("decideDate")
         
-        /*
-        var dpdf: NSDateFormatter = NSDateFormatter()
-        dpdf.dateStyle = NSDateFormatterStyle.ShortStyle
+        let dpdf: NSDateFormatter = NSDateFormatter()
+        //dpdf.dateStyle = NSDateFormatterStyle.ShortStyle
+        dpdf.dateFormat = "yyyy年MM月dd日 hh:mm"
 
         switch textfieldTag{
         case 1:
-
+            startTime.text = dpdf.stringFromDate(datePicker.date)
+            break
         case 2:
-
+            endTime.text = dpdf.stringFromDate(datePicker.date)
+            break
         default:
             hideDatePicker()
         }
-        */
+        
+        
         
         hideDatePicker()
 
@@ -329,7 +345,8 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         if status != EKAuthorizationStatus.Authorized {
             //ユーザに許可を求める
-            myEventStore.requestAccessToEntityType(EKEntityType.Event, completion: {(granted, error) -> Void in
+            myEventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+                (granted, error) -> Void in
                 
                 //許可が得られなかった場合アラート発動
                 if granted {
@@ -353,6 +370,42 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             })
         }
     }
+    
+    
+    /**
+     認証ステータスを取得→不要？
+
+    func getAuthorization_status() -> Bool {
+        
+        // ステータスを取得
+        let status: EKAuthorizationStatus = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
+        
+        // ステータスを表示 許可されている場合のみtrueを返す
+        switch status {
+        case EKAuthorizationStatus.NotDetermined:
+            print("NotDetermined")
+            return false
+            
+        case EKAuthorizationStatus.Denied:
+            print("Denied")
+            return false
+            
+        case EKAuthorizationStatus.Authorized:
+            print("Authorized")
+            return true
+            
+        case EKAuthorizationStatus.Restricted:
+            print("Restricted")
+            return false
+            
+        default:
+            print("error")
+            return false
+            
+        }
+    }
+**/
+
     
     // どのクラスにもあるメソッド Memory監視？
     override func didReceiveMemoryWarning() {
