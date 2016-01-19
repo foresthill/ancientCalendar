@@ -74,11 +74,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "handmadeCalenderSampleOfSwift/CalendarChangeViewController.swift"
-            timestampString = "474030436.562483"
+            timestampString = "474924477.872697"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "292"
-            endingLineNumber = "292"
+            startingLineNumber = "316"
+            endingLineNumber = "316"
+            landmarkName = "updateAction(_:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "handmadeCalenderSampleOfSwift/CalendarChangeViewController.swift"
+            timestampString = "474924477.872697"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "332"
+            endingLineNumber = "332"
             landmarkName = "updateAction(_:)"
             landmarkType = "5">
          </BreakpointContent>

@@ -283,19 +283,68 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     @IBAction func updateAction(sender: UIButton){
         print("setCalendar")
         
-        myEventStore = EKEventStore()
+        let eventStore:EKEventStore = EKEventStore()
         
         //イベントを登録する
-        myEvent.calendar = myEventStore.defaultCalendarForNewEvents
+        //myEvent.calendar = myEventStore.defaultCalendarForNewEvents
         
+        //今のイベントを登録したい
+        
+        //イベントを追加
+        switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
+        case .Authorized:
+            insertEvent(eventStore)
+        case .Denied:
+            print("Access denied")
+        case .NotDetermined:
+            eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+                //[weak self](granted:Bool, error:NSError!) -> Void in
+                granted, error in
+                if granted {
+                    self.insertEvent(eventStore)
+                } else {
+                    print("Access denied")
+                }
+            })
+        default:
+            print("Case Default")
+        }
+        
+        /*
         //イベントを保存
         var result:Bool = true
+        
+        myEventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+            granted, error in
+            if(granted) && (error == nil) {
+                print("granted \(granted)")
+                print("error \(error)")
+                
+                //var event:EKEvent = EKEvent(eventStore: myEventStore)
+                self.myEvent.notes = "This is a note"
+                self.myEvent.calendar = myEventStore.defaultCalendarForNewEvents
+                
+                do {
+                    print(self.myEvent)
+                    try myEventStore.saveEvent(self.myEvent, span: EKSpan.ThisEvent)
+                    print("Save Event")
+                    
+                } catch _{
+                    result = false
+                    print("not Save Event")
 
-        do {
-            try myEventStore.saveEvent(myEvent, span: EKSpan.ThisEvent, commit: true)   //error:nil→commit:true
-        } catch _ {
-            result = false
-        }
+                }
+                
+            }
+        })
+
+        
+
+//        do {
+//            try myEventStore.saveEvent(myEvent, span: EKSpan.ThisEvent, commit: true)   //error:nil→commit:true
+//        } catch _ {
+//            result = false
+//        }
         
         if result {     //Bool? cannnot be used as a boolean; test for !=nil instead
             print("OK")
@@ -309,14 +358,83 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             
             myAlert.addAction(okAlertAction)
             
+            self.presentViewController(myAlert, animated: true, completion: nil)  //これを実行するとなぜか戻れなくなる→まぁいいか
+            
         }
+*/
         
         //performSegueWithIdentifier("changed", sender: nil)
         
         //元の画面に戻る
-        dismissViewControllerAnimated(true, completion: nil)
+        //dismissViewControllerAnimated(true, completion: nil)
+        navigationController?.popViewControllerAnimated(true)
+
+        
         
     }
+    
+    func insertEvent(store: EKEventStore){
+        print("insertEvent")
+        
+        let calendars = store.calendarsForEntityType(EKEntityType.Event) as! [EKCalendar]
+        
+        for calendar in calendars {
+                print(calendar)
+//            if calendar.title == "ioscreator" {
+                let startDate = NSDate()
+                let endDate = startDate.dateByAddingTimeInterval(2*60*60)
+                
+                //Create Event
+                var event = EKEvent(eventStore: store)
+                event.calendar = calendar
+                
+                event.title = "New Meeting"
+                event.startDate = startDate
+                event.endDate = endDate
+            
+                myEvent.calendar = calendar          //2016/01/20add
+                //myEvent.recurrenceRules = nil
+                myEvent.timeZone = event.timeZone
+                
+                /*
+                var error: NSError?
+                let result = store.saveEvent(event, span: EKSpan.ThisEvent)
+                
+                if (result == false) {
+                    if let theError = error {
+                        print("An error occured \(theError)")
+                    }
+                }
+                */
+                
+                do {
+                    print("event = \(event)")
+                    print("myEvent = \(self.myEvent)")
+                    print("try Save Event")
+                    
+                    //try store.saveEvent(event, span: EKSpan.ThisEvent)
+                    try store.saveEvent(myEvent, span: EKSpan.ThisEvent)
+                    
+                    print("complete Save Event")
+                    
+                    if(myEvent)
+                    
+                } catch _{
+                    print("not Save Event")
+                    
+                    let myAlert = UIAlertController(title: "カレンダーの更新に失敗しました", message: "\(eventTitle)", preferredStyle: UIAlertControllerStyle.Alert)
+                    
+                    let okAlertAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
+                    
+                    myAlert.addAction(okAlertAction)
+                    
+                    self.presentViewController(myAlert, animated: true, completion: nil)  //これを実行するとなぜか戻れなくなる→まぁいいか
+                    
+                }
+//            }
+        }
+    }
+    
     
     @IBAction func backAction(sender: UIButton){
         print("back")
