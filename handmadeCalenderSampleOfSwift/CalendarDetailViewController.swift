@@ -30,7 +30,8 @@ class CalendarDetailViewController: UIViewController {
         startTime.text = dateFormatter.stringFromDate(myEvent.startDate)
         endTime.text = dateFormatter.stringFromDate(myEvent.endDate)
         place.text = myEvent.location
-        detailText.text = myEvent.description
+//        detailText.text = myEvent.description
+        detailText.text = myEvent.notes
 
         
     }

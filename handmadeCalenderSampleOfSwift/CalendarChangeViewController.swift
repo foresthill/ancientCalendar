@@ -54,9 +54,13 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     //イベント登録時の変数
     var myEventStore: EKEventStore!
     
+    //フォーマッター外だし
+    let dateFormatter: NSDateFormatter = NSDateFormatter()
+
+    
     
     override func viewDidLoad() {
-        let dateFormatter: NSDateFormatter = NSDateFormatter()
+        
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
         eventTitle.text = myEvent.title
@@ -65,7 +69,8 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
 //        startTime.setTitle("\(myEvent.startDate)", forState: .Normal)
 //        endTime.setTitle("\(myEvent.endDate)", forState: .Normal)
         location.text = myEvent.location
-        detailText.text = myEvent.description
+//        detailText.text = myEvent.description
+        detailText.text = myEvent.notes
         
         //textFieldの初期処理
         textFieldInit()
@@ -365,6 +370,9 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         //performSegueWithIdentifier("changed", sender: nil)
         
+
+        
+        
         //元の画面に戻る
         //dismissViewControllerAnimated(true, completion: nil)
         navigationController?.popViewControllerAnimated(true)
@@ -376,25 +384,35 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     func insertEvent(store: EKEventStore){
         print("insertEvent")
         
-        let calendars = store.calendarsForEntityType(EKEntityType.Event) as! [EKCalendar]
+        let calendars = store.calendarsForEntityType(EKEntityType.Event)
+        
+        var entrySuccess:Bool = false
+        
+        dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
         for calendar in calendars {
                 print(calendar)
 //            if calendar.title == "ioscreator" {
-                let startDate = NSDate()
-                let endDate = startDate.dateByAddingTimeInterval(2*60*60)
+                //let startDate = NSDate()
+                //let endDate = startDate.dateByAddingTimeInterval(2*60*60)
                 
-                //Create Event
-                var event = EKEvent(eventStore: store)
-                event.calendar = calendar
-                
-                event.title = "New Meeting"
-                event.startDate = startDate
-                event.endDate = endDate
+               //var event = myEvent.copy() as! EKEvent    //unrecognized selector sent to instance 0x7f9362b9d0a0
             
-                myEvent.calendar = calendar          //2016/01/20add
+                //Create Event
+                var newEvent = EKEvent(eventStore: store)
+
+                newEvent.calendar = calendar                   //必要
+            
+                newEvent.title = eventTitle.text!
+                newEvent.startDate = dateFormatter.dateFromString(startTime.text!)!
+                newEvent.endDate = dateFormatter.dateFromString(endTime.text!)!
+                newEvent.location = location.text
+                newEvent.notes = detailText.text
+                newEvent.timeZone = myEvent.timeZone
+            
+                //myEvent.calendar = calendar          //2016/01/20add
                 //myEvent.recurrenceRules = nil
-                myEvent.timeZone = event.timeZone
+                //myEvent.timeZone = event.timeZone
                 
                 /*
                 var error: NSError?
@@ -408,34 +426,64 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
                 */
                 
                 do {
-                    print("event = \(event)")
+                    print("event = \(newEvent)")
                     print("myEvent = \(self.myEvent)")
                     print("try Save Event")
                     
-                    //try store.saveEvent(event, span: EKSpan.ThisEvent)
-                    try store.saveEvent(myEvent, span: EKSpan.ThisEvent)
+                    try store.saveEvent(newEvent, span: EKSpan.ThisEvent)
+                    //try store.saveEvent(myEvent, span: EKSpan.ThisEvent)
                     
                     print("complete Save Event")
                     
-                    if(myEvent)
+                    entrySuccess = true
+                    
+                    //遷移前の画面を更新する
+                    var array:NSArray = (navigationController?.viewControllers)!
+                    var arrayCount = array.count
+                    var cdvc:CalendarDetailViewController = array.objectAtIndex(arrayCount - 2) as! CalendarDetailViewController
+                    cdvc.myEvent = newEvent
+                    
+                    cdvc.scheduleTitle.text = eventTitle.text!
+                    cdvc.startTime.text = startTime.text
+                    cdvc.endTime.text = endTime.text
+                    cdvc.place.text = location.text
+                    cdvc.detailText = detailText
+                    
+//                    navigationController?.viewControllers.popLast()
+//                    navigationController?.viewControllers.
+                    
+                    navigationController?.viewControllers.removeAtIndex(arrayCount-2)
+                    navigationController?.viewControllers.insert(cdvc, atIndex: arrayCount-2)
+
+                    /*
+                    if(myEvent != nil){
+                        store.delete(myEvent)
+                    }
+*/
+                    //try store.removeEvent(myEvent, span: EKSpan.ThisEvent)    //これはうまくいかない
                     
                 } catch _{
                     print("not Save Event")
                     
-                    let myAlert = UIAlertController(title: "カレンダーの更新に失敗しました", message: "\(eventTitle)", preferredStyle: UIAlertControllerStyle.Alert)
-                    
-                    let okAlertAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
-                    
-                    myAlert.addAction(okAlertAction)
-                    
-                    self.presentViewController(myAlert, animated: true, completion: nil)  //これを実行するとなぜか戻れなくなる→まぁいいか
-                    
-                }
+
 //            }
+            }
         }
+        
+        if(!entrySuccess){
+            let myAlert = UIAlertController(title: "カレンダーの更新に失敗しました", message: "\(eventTitle)", preferredStyle: UIAlertControllerStyle.Alert)
+            
+            let okAlertAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
+            
+            myAlert.addAction(okAlertAction)
+            
+            self.presentViewController(myAlert, animated: true, completion: nil)  //これを実行するとなぜか戻れなくなる→まぁいいか
+        }
+    
+    
     }
-    
-    
+
+
     @IBAction func backAction(sender: UIButton){
         print("back")
         
