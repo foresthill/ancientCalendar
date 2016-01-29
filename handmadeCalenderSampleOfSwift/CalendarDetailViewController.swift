@@ -32,7 +32,11 @@ class CalendarDetailViewController: UIViewController {
         place.text = myEvent.location
 //        detailText.text = myEvent.description
         detailText.text = myEvent.notes
-
+        
+        print("myEvent.notes=")
+        print(myEvent.notes)
+        
+        self.navigationItem.title = myEvent.title
         
     }
     

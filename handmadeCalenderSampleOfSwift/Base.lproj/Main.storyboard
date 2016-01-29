@@ -128,16 +128,19 @@
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="105-rm-qLl" firstAttribute="top" secondItem="olz-rL-Bmx" secondAttribute="bottom" id="4RQ-ET-iku"/>
                             <constraint firstAttribute="trailingMargin" secondItem="105-rm-qLl" secondAttribute="trailing" constant="-16" id="MBz-ue-m4r"/>
                             <constraint firstItem="105-rm-qLl" firstAttribute="leading" secondItem="P2G-wi-HaA" secondAttribute="leadingMargin" constant="-16" id="WW7-7e-p09"/>
-                            <constraint firstItem="Lt4-fr-Aa7" firstAttribute="top" secondItem="105-rm-qLl" secondAttribute="bottom" id="sdc-5O-2BV"/>
+                            <constraint firstItem="105-rm-qLl" firstAttribute="top" secondItem="olz-rL-Bmx" secondAttribute="bottom" id="WZp-3t-mbD"/>
+                            <constraint firstItem="Lt4-fr-Aa7" firstAttribute="top" secondItem="105-rm-qLl" secondAttribute="bottom" id="wkY-Wa-r9N"/>
                         </constraints>
                     </view>
+                    <toolbarItems/>
                     <navigationItem key="navigationItem" id="vXS-sY-y7h"/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="myTableView" destination="105-rm-qLl" id="DMv-EF-vka"/>
                         <segue destination="Iay-gB-zFX" kind="show" identifier="toCalendarDetailView" id="a2Y-pU-fep"/>
+                        <segue destination="bFS-GY-hjU" kind="show" identifier="toAddNewEvent" id="Hsd-6d-mzQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lpd-lD-BJx" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -258,7 +261,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="68c-ZN-0he" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3067" y="134"/>
+            <point key="canvasLocation" x="3071" y="-246"/>
         </scene>
         <!--Calendar Change View Controller-->
         <scene sceneID="DxF-Aj-GE6">
@@ -446,6 +449,11 @@
                         <animations/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="27d-ul-Sdf">
+                        <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
+                    </toolbar>
                     <connections>
                         <segue destination="vXZ-lx-hvc" kind="relationship" relationship="rootViewController" id="hZL-wK-5f8"/>
                     </connections>
@@ -455,4 +463,7 @@
             <point key="canvasLocation" x="664" y="134"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="Hsd-6d-mzQ"/>
+    </inferredMetricsTieBreakers>
 </document>

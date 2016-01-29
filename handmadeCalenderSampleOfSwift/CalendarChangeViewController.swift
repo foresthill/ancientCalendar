@@ -56,8 +56,12 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     
     //フォーマッター外だし
     let dateFormatter: NSDateFormatter = NSDateFormatter()
-
     
+    //前画面（二画面前）に戻すためのイベント一覧
+    var events: [EKEvent]!
+
+    //どの画面から来たか？
+    var previousScreen: NSString!
     
     override func viewDidLoad() {
         
@@ -375,8 +379,11 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         //元の画面に戻る
         //dismissViewControllerAnimated(true, completion: nil)
-        navigationController?.popViewControllerAnimated(true)
+        
+        
+        //navigationController?.popViewControllerAnimated(true)
 
+        //二画面前に戻る
         
         
     }
@@ -438,32 +445,19 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
                     entrySuccess = true
                     
                     //遷移前の画面を更新する
-                    var array:NSArray = (navigationController?.viewControllers)!
-                    var arrayCount = array.count
-                    var cdvc:CalendarDetailViewController = array.objectAtIndex(arrayCount - 2) as! CalendarDetailViewController
-                    cdvc.myEvent = newEvent
-                    
-                    cdvc.scheduleTitle.text = eventTitle.text!
-                    cdvc.startTime.text = startTime.text
-                    cdvc.endTime.text = endTime.text
-                    cdvc.place.text = location.text
-                    cdvc.detailText = detailText
-                    
-//                    navigationController?.viewControllers.popLast()
-//                    navigationController?.viewControllers.
-                    
-                    navigationController?.viewControllers.removeAtIndex(arrayCount-2)
-                    navigationController?.viewControllers.insert(cdvc, atIndex: arrayCount-2)
+                    updatePreviousScreen()
 
-                    /*
-                    if(myEvent != nil){
-                        store.delete(myEvent)
-                    }
-*/
-                    //try store.removeEvent(myEvent, span: EKSpan.ThisEvent)    //これはうまくいかない
+                    //イベントを削除
+                    /*if(myEvent != nil){
+                        store.delete(myEvent)                   //これはうまくいかない
+                    }*/
+                    try store.removeEvent(myEvent, span: EKSpan.ThisEvent)
+                    
+                    print("complete Delete Event")
+                    
                     
                 } catch _{
-                    print("not Save Event")
+                    print("not Save (or Delete) Event")
                     
 
 //            }
@@ -481,6 +475,114 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         }
     
     
+    }
+    
+    //前画面を更新する
+    func updatePreviousScreen(){
+        
+        var array:NSArray = (navigationController?.viewControllers)!
+        
+        //var arrayCount = array.count
+        
+//        let svc:ScheduleViewController = 0
+        
+//        navigationController?.viewControllers.indexOf(svc)
+        
+        
+        //戻る画面（二画面前の場合はarrya.count - 3）
+        
+        //let previousScreen = array.count - 3
+        
+        //一画面戻る
+        /*var cdvc:CalendarDetailViewController = array.objectAtIndex(arrayCount - 2) as! CalendarDetailViewController
+        cdvc.myEvent = newEvent
+        
+        cdvc.scheduleTitle.text = eventTitle.text!
+        cdvc.startTime.text = startTime.text
+        cdvc.endTime.text = endTime.text
+        cdvc.place.text = location.text
+        cdvc.detailText = detailText
+        
+        //                    navigationController?.viewControllers.popLast()
+        //                    navigationController?.viewControllers.
+
+        
+        navigationController?.viewControllers.removeAtIndex(arrayCount-2)
+        navigationController?.viewControllers.insert(cdvc, atIndex: arrayCount-2)
+        */
+        
+        //var svc:ScheduleViewController = array.objectAtIndex(previousScreen) as! ScheduleViewController
+        
+//        var svc:ScheduleViewController = array.objectAtIndex(previousScreen) as! ScheduleViewController
+        var svc:ScheduleViewController = array.objectAtIndex(1) as! ScheduleViewController
+        
+        svc.myEvents = getCalendar()
+        
+//        navigationController?.viewControllers.removeAtIndex(previousScreen)
+//        navigationController?.viewControllers.insert(svc, atIndex: previousScreen)
+        
+        navigationController?.viewControllers.removeAtIndex(1)
+        navigationController?.viewControllers.insert(svc, atIndex: 1)
+
+        
+  /*      for i in 2...3{
+            
+        }
+*/
+        //navigationController?.popViewControllerAnimated(true)
+        
+        svc.viewDidLoad()
+        
+        print("return to svc")
+        print(svc.myEvents)
+        
+        navigationController?.popToViewController(svc, animated: true)
+        
+        
+        
+
+    }
+    
+    func getCalendar() -> [EKEvent]{
+        // NSCalendarを生成
+        let myCalendar: NSCalendar = NSCalendar.currentCalendar()
+        
+        // EventStoreを作成する（2016/01/27）
+        myEventStore = EKEventStore()
+        
+        // ユーザのカレンダーを取得
+        var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)
+        
+        // 開始日（昨日）コンポーネントの生成
+        let oneDayAgoComponents: NSDateComponents = NSDateComponents()
+        oneDayAgoComponents.day = -1
+        
+        // 昨日から今日までのNSDateを生成
+        let oneDayAgo: NSDate = myCalendar.dateByAddingComponents(oneDayAgoComponents,
+            toDate: NSDate(),
+            options: NSCalendarOptions())!
+        
+        // 終了日（一年後）コンポーネントの生成
+        let oneYearFromNowComponents: NSDateComponents = NSDateComponents()
+        oneYearFromNowComponents.year = 1
+        
+        // 今日から一年後までのNSDateを生成
+        let oneYearFromNow: NSDate = myCalendar.dateByAddingComponents(oneYearFromNowComponents,
+            toDate: NSDate(),
+            options: NSCalendarOptions())!
+        
+        // イベントストアのインスタントメソッドで述語を生成
+        var predicate = NSPredicate()
+        
+        // ユーザーの全てのカレンダーからフェッチせよ
+        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
+            endDate: oneYearFromNow, calendars: nil)
+        
+        // 述語にマッチする全てのイベントをフェッチ
+        events = myEventStore.eventsMatchingPredicate(predicate)
+        
+        return events
+        
     }
 
 

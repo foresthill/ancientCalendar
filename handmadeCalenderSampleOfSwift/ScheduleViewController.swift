@@ -3,7 +3,7 @@
 //  handmadeCalenderSampleOfSwift
 //
 //  Created by Morioka Naoya on H27/07/29.
-//  Copyright (c) 平成27年 just1factory. All rights reserved.
+//  Copyright (c) 2016 foresthill. All rights reserved.
 //
 
 import Foundation
@@ -21,6 +21,14 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     
     // テーブルビュー（2015/12/23）
     @IBOutlet var myTableView :UITableView!
+    
+    //引き渡された日時（2016/01/29）
+    var year: Int!
+    var month: Int!
+    var day: Int!
+    
+    //遷移先の画面（メニューフラグ）
+    var menuFlg: Int!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,6 +62,28 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         // Viewに追加する
         self.view.addSubview(myTableView)
         
+        //タイトル
+        self.navigationItem.title = "\(year)年\(month)月\(day)日の予定"
+        
+        //編集ボタンの配置
+        //navigationItem.leftBarButtonItem = editButtonItem()
+        navigationItem.rightBarButtonItem = editButtonItem()
+        
+        //ツールバーを表示
+        self.navigationController!.toolbarHidden = false
+        let delButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "onClickDelButton")
+        let addButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: "onClickAddButton")
+
+        //追加するのはこれじゃない
+        self.navigationController!.toolbarItems = [delButton, addButton]
+//        self.navigationController!.toolbarItem = append(addButton)
+        
+//        self.navigationItem.leftBarButtonItem = delButton
+//        self.navigationItem.rightBarButtonItem = addButton
+//        
+        
+        //ツールバーのスタイルを黒色に指定
+//        self.navigationController?.toolbar.barStyle = UIBarStyle.Black
         
         for x in myItems {
             print(x)
@@ -64,10 +94,20 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     //画面遷移時に呼ばれるメソッド
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
-        let cdvc = segue.destinationViewController as! CalendarDetailViewController
+        if(segue.identifier == "toAddNewEvent"){
+            let ccvc = segue.destinationViewController as! CalendarChangeViewController
+//            ccvc.myEvent = EKEvent()  //You must use [EKEvent eventWithEventStore:] to create an event'
+            //ccvc.myEvent = EKEvent.eventWithEventStore(EKEvent(eventStore))) //EKEvent.eventWithEventStore()
+            var eventStore:EKEventStore = EKEventStore()
+            
+            ccvc.myEvent = EKEvent(eventStore: eventStore)
+            
+        } else {
+            let cdvc = segue.destinationViewController as! CalendarDetailViewController
         //変数を渡す
         //svc.myItems = eventItems;
         cdvc.myEvent = myEvents[calNum]
+        }
     }
     
     
@@ -128,6 +168,104 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         return cell
     }
 
+    //Editボタンを押した時の処理
+    override func setEditing(editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        myTableView.editing = editing
+        
+        //編集中の時のみaddButtonをナビゲーションバーの左に表示する
+        if editing {
+            print("編集中")
+            let addButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "addCell:")
+            self.navigationItem.setLeftBarButtonItem(addButton, animated: true)
+        } else {
+            print("通常モード")
+            self.navigationItem.setLeftBarButtonItem(nil, animated: true)
+        }
+    }
+    
+    /*
+    addButtonが押された時に呼び出される
+    */
+    func addCell(sender: AnyObject) {
+        print("追加")
+        
+        performSegueWithIdentifier("toAddNewEvent", sender: self)
+    }
+    
+    //削除可能なセルのindexPath
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    //実際に削除された時の処理を実装する
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+        /*
+        
+        let eventStore:EKEventStore = EKEventStore()
+//        let sharedEventKitSotre:
+        let delEvent = myEvents[indexPath.row]
+//        eventStore.delete(delEvent)
+        
+        do {
+            try eventStore.removeEvent(delEvent, span: EKSpan.ThisEvent)
+//            try eventStore.removeEvent(delEvent, span: EKSpan.ThisEvent, commit: true)
+        } catch _{
+            print("イベント削除できていない。")
+        }
+//
+        */
+        
+        //先にデータを更新する
+        removeEvent(indexPath.row)
+        myEvents.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
+        
+        
+        //それからテーブルの更新
+        tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
+    }
+    
+    //イベントをカレンダーから削除するメソッド
+    func removeEvent(index:Int){
+        
+        let eventStore:EKEventStore = EKEventStore()
+        
+        switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
+        
+        case .Authorized:
+//            print(myEvents)
+            print(myEvents[index])
+            do{
+                try eventStore.removeEvent(myEvents[index], span: EKSpan.ThisEvent)
+            } catch _{
+                print("イベント削除されていない。（１）")
+            }
+        case .Denied:
+            print("Access denied")
+        case .NotDetermined:
+            eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+                //[weak self](granted:Bool, error:NSError!) -> Void in
+                granted, error in
+                if granted {
+                    do{
+                        try eventStore.removeEvent(self.myEvents[index], span: EKSpan.ThisEvent)
+                    } catch _{
+                        print("イベント削除されていない。（２）")
+                    }
+
+                } else {
+                    print("Access denied")
+                }
+            })
+        default:
+            print("Case Default")
+        }
+
+    }
+    
+        
+    
     
     /**
     Cellの高さを指定する

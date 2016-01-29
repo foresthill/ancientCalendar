@@ -1,9 +1,9 @@
 //
 //  ViewController.swift
-//  handmadeCalenderSampleOfSwift
+//  旧暦カレンダー
 //
-//  Created by 酒井文也 on 2014/11/29.
-//  Copyright (c) 2014年 just1factory. All rights reserved.
+//  Created by foresthill on 2016/1/29.
+//  Copyright (c) 2016 foresthill. All rights reserved.
 //
 
 import UIKit
@@ -74,6 +74,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
+        //NavigationViewControllerのタイトル
+        self.navigationItem.title = "旧暦カレンダー"
         
         //現在起動中のデバイスを取得（スクリーンの幅・高さ）
         let screenWidth  = DeviseSize.screenWidth()
@@ -535,6 +538,7 @@ class ViewController: UIViewController {
 
         
         // イベントが見つかった
+        /*
         if !events.isEmpty {
             for i in events{
                 print(i.title)
@@ -546,6 +550,7 @@ class ViewController: UIViewController {
                 
             }
         }
+        */
         
         /*
         let storyboard: UIStoryboard = UIStoryboard(name: "SecondViewController2", bundle: NSBundle.mainBundle())
@@ -591,6 +596,12 @@ class ViewController: UIViewController {
         //変数を渡す
         //svc.myItems = eventItems;
         svc.myEvents = events
+        
+        //タップされた日を渡す
+        svc.year = year
+        svc.month = month
+        svc.day = day
+        
     }
     
     //前の月のボタンを押した際のアクション
