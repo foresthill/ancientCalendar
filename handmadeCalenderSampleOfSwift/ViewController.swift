@@ -215,6 +215,12 @@ class ViewController: UIViewController {
         // ユーザーにカレンダーの使用許可を求める（2015/08/06）
         allowAuthorization()
         
+        //ツールバー表示（2016/01/30）
+        self.navigationController!.toolbarHidden = false
+        let delButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "onClickDelButton")
+        let addButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: "onClickAddButton")
+        
+        self.navigationController!.toolbarItems = [delButton, addButton]
 
      }
     
@@ -467,93 +473,27 @@ class ViewController: UIViewController {
         
         // コンソール表示
         print("\(year)年\(month)月\(button.tag)日が選択されました！")
-        
-        // Windowを開く
-        //openWindow(button)
-        
-        // 画面遷移１
-        //toSchedule(button)
-        
+
         day = button.tag
-        
-        // 画面遷移２
-        toScheduleView()
-    }
-    
-    /*
-    // スケジュール画面に遷移
-    internal func toSchedule(button: UIButton){
-        // 遷移するViewを定義する
-        let mySecondViewController: UIViewController = SecondViewController()
-        
-        // アニメーションを定義する
-        mySecondViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
-        
-        // Viewの移動する
-        //self.presentViewController(mySecondViewController, animated: true, completion: nil)
-        
-     }
-    */
-    
-    /**
-    スケジュール画面に遷移する
-    **/
-    func toScheduleView() {
-        print("toScheduleView")
         
         // NSCalendarを生成
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
         
         // ユーザのカレンダーを取得
         var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)
-        
-        
-        /*
-        // 開始日（昨日）コンポーネントの生成
-        let oneDayAgoComponents: NSDateComponents = NSDateComponents()
-        oneDayAgoComponents.day = -1
-        
-        // 昨日から今日までのNSDateを生成
-        let oneDayAgo: NSDate = myCalendar.dateByAddingComponents(oneDayAgoComponents,
-            toDate: NSDate(),
-            options: NSCalendarOptions())!
-        
-        
-        // 終了日（一年後）コンポーネントの生成
-        let oneYearFromNowComponents: NSDateComponents = NSDateComponents()
-        oneYearFromNowComponents.year = 1
-        
-        // 今日から一年後までのNSDateを生成
-        let oneYearFromNow: NSDate = myCalendar.dateByAddingComponents(oneYearFromNowComponents,
-            toDate: NSDate(),
-            options: NSCalendarOptions())!
-        */
-        
+
         // 終了日（一日後）コンポーネントの作成
         let comps: NSDateComponents = NSDateComponents()
         comps.year = year
         comps.month = month
-//        comps.day = day - 1
         comps.day = day
         
-        print("コンポーネント作る時。year=\(year) month=\(month) day=\(day)")
-        print("コンポーネント作る時。comps.year=\(comps.year) comps.month=\(comps.month) comps.day=\(comps.day)")
-        
-        print("comps=\(comps)")
-        
         let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        //
-        //let oneDayAgoSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-//        let oneDayAgoSelectedDay: NSDate = myCalendar.dateByAddingComponents(comps, toDate: NSDate(), options: NSCalendarOptions())!
         
-//        print("oneDayAgoSelectedDay=\(oneDayAgoSelectedDay)")
-        
-//        comps.day += 2
         comps.day += 1
         
         
         let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-//        let oneDayFromSelectedDay: NSDate = myCalendar.dateByAddingComponents(comps, toDate: NSDate(), options: NSCalendarOptions())! //なんかおかしい oneDayFromSelcetedDay=4032-03-18 03:24:00 +0000
         
         print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
 
@@ -561,70 +501,17 @@ class ViewController: UIViewController {
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
-        // ユーザーの全てのカレンダーからフェッチせよ
-//        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
-//            endDate: oneYearFromNow, calendars: nil)
-        
         predicate = myEventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
         
         print("predicate=\(predicate)")
         
-        // 述語にマッチする全てのイベントをフェッチ
+        // 選択された一日分をフェッチ
         events = myEventStore.eventsMatchingPredicate(predicate)
         
 
-        
-        // イベントが見つかった
-        /*
-        if !events.isEmpty {
-            for i in events{
-                print(i.title)
-                print(i.startDate)
-                print(i.endDate)
-                
-                // 配列に格納
-                eventItems += ["\(i.title): \(i.startDate)"]
-                
-            }
-        }
-        */
-        
-        /*
-        let storyboard: UIStoryboard = UIStoryboard(name: "SecondViewController2", bundle: NSBundle.mainBundle())
-        //var secondViewController: UIViewController = storyboard.instantiateViewControllerWithIdentifier("top") as! UIViewController
-        //let secondViewController: SecondViewController = storyboard.instantiateViewControllerWithIdentifier("top") as! SecondViewController
-
-        //self.presentViewController(nex, animated: true, completion: nil);
-        self.navigationController?.pushViewController(secondViewController, animated: true)
-        */
-        
-        // 画面遷移.
-        //moveViewController(eventItems)
-        moveViewController()
+        performSegueWithIdentifier("toScheduleView", sender: self)
     }
     
-//    func moveViewController(events: NSArray) {
-    func moveViewController() {
-        print("moveViewController")
-        
-        //let scheduleViewController = ScheduleViewController()
-        
-        //print(scheduleViewController)
-        
-        // TableViewに表示する内容として発見したイベントを入れた配列を渡す
-        //scheduleViewController.myItems = events                     //'NSUnknownKeyException',setValue:forUndefinedKey:
-        
-        // 画面遷移
-        //self.navigationController?.pushViewController(myTableViewController, animated: true)
- 
-        // アニメーションを定義する
-        //scheduleViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
-        
-        // Viewの移動する
-//        self.presentViewController(scheduleViewController, animated: true, completion: nil)
-        performSegueWithIdentifier("toScheduleView", sender: self)
-        
-    }
     
     //画面遷移時に呼ばれるメソッド
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {

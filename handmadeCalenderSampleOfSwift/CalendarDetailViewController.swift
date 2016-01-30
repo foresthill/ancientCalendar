@@ -30,13 +30,11 @@ class CalendarDetailViewController: UIViewController {
         startTime.text = dateFormatter.stringFromDate(myEvent.startDate)
         endTime.text = dateFormatter.stringFromDate(myEvent.endDate)
         place.text = myEvent.location
-//        detailText.text = myEvent.description
         detailText.text = myEvent.notes
+
+        print(myEvent.notes)    //なぜか、更新後表示されない（初期画面に戻ると表示される）
         
-        print("myEvent.notes=")
-        print(myEvent.notes)
-        
-        self.navigationItem.title = myEvent.title
+        self.navigationItem.title = "\(myEvent.title) 予定詳細"
         
     }
     
@@ -45,7 +43,6 @@ class CalendarDetailViewController: UIViewController {
         //セゲエ用にダウンキャストしたCalendarChangeViewControllerのインスタンス
         let ccvc = segue.destinationViewController as! CalendarChangeViewController
         //変数を渡す
-        //svc.myItems = eventItems;
         ccvc.myEvent = myEvent
     }
     

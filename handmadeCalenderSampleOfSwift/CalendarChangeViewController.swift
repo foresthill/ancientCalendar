@@ -12,11 +12,6 @@ import EventKit
 
 class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     
-    //@IBOutlet weak var scheduleTitle: UILabel!
-//    @IBOutlet weak var eventTitle: UILabel!
-//    @IBOutlet weak var startTime: UILabel!
-//    @IBOutlet weak var endTime: UILabel!
-//    @IBOutlet weak var location: UILabel!
     @IBOutlet weak var detailText: UITextView!
     @IBOutlet weak var updateButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
@@ -25,9 +20,6 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var startTime: UITextField!
     @IBOutlet weak var endTime: UITextField!
     @IBOutlet weak var location: UITextField!
-
-//    @IBOutlet weak var startTime: UIButton!
-//    @IBOutlet weak var endTime: UIButton!
     
     //DatePicker（開始時間・終了時間を決定）
     @IBOutlet weak var datePicker: UIDatePicker!
@@ -54,7 +46,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     var myEventStore: EKEventStore!
     
     //フォーマッター外だし
-//    var dateFormatter: NSDateFormatter! //letにしてると（あるいは!つけないと）no initializerといって怒られる。
+    var dateFormatter: NSDateFormatter! //letにしてると（あるいは!つけないと）no initializerといって怒られる。
     
     //前画面（二画面前）に戻すためのイベント一覧
     var events: [EKEvent]!
@@ -70,10 +62,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         eventTitle.text = myEvent.title
         startTime.text = dateFormatter.stringFromDate(myEvent.startDate)
         endTime.text = dateFormatter.stringFromDate(myEvent.endDate)
-//        startTime.setTitle("\(myEvent.startDate)", forState: .Normal)
-//        endTime.setTitle("\(myEvent.endDate)", forState: .Normal)
         location.text = myEvent.location
-//        detailText.text = myEvent.description
         detailText.text = myEvent.notes
         
         //textFieldの初期処理
@@ -84,39 +73,8 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         datePicker.backgroundColor = UIColor.whiteColor()
         
-        //self.datePicker = UIDatePicker()
-        
-        //アクション追加
-        //datePicker.addTarget(self, action: "onDatePickerValueChanged", forControlEvents: UIControlEvents.ValueChanged)
+        self.navigationItem.title = "\(myEvent.title) 予定詳細"
 
-    }
-    
-    /*
-    datePickerの値変更時に呼ばれる→不要
-    */
-    func onDatePickerValueChanged(sendar: AnyObject) {
-        
-        //一時的に値を格納する？する必要あんのか？
-        //datePickerValue = datePicker.date
-
-        /*
-        let dateFormatter: NSDateFormatter = NSDateFormatter()
-        dateFormatter.dateStyle = NSDateFormatterStyle.ShortStyle
-
-        switch textfieldTag{
-        case 1:
-            startTime.text = dateFormatter.stringFromDate((sendar as! UIDatePicker).date)    //あずあず
-            break
-        case 2:
-            endTime.text = dateFormatter.stringFromDate((sendar as! UIDatePicker).date)    //あずあず
-            break
-        default:
-            hideDatePicker()
-            
-        }
-        */
-        
-        
     }
     
     func textFieldInit(){
@@ -186,20 +144,6 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
-    /*
-    UIDatePickerの表示・非表示を切り替える
-    */
-    /*
-    func dspDatePicker() {
-        //フラグを見て切り替える
-        if(datePickerIsHidden){
-            showDatePicker()
-        } else {
-            hideDatePicker()
-        }
-    }
-    */
-    
     func showDatePicker(){
         
         if(datePickerIsHidden){
@@ -230,24 +174,21 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             dateDecideButton.hidden = true
             datePickerBg.hidden = true
             
-            //datePicker.hidden = true
-            //datePicker.alpha = 0
-            //        UIView.animateKeyframesWithDuration(0.25,animations: { () -> Void in datePicker.alpha = 1.0}, delay:, option:nil, completion: {(Bool) -> Void in })
-            
             UIView.animateWithDuration(0.25, animations:{ () -> Void in self.datePicker.alpha = 0}, completion: {(Bool) -> Void in self.datePicker.hidden = true
             })
         }
     }
     
-    /*
-    func FormatFromStringToDate(str:String){
+    
+    func dfFromStringToDate(str:String) -> NSDate{
         let df = NSDateFormatter()
-        df.dateFormat = "yyyy/mm/dd hh:mm"
+        //df.dateFormat = "yyyy/mm/dd hh:mm"
+        df.dateFormat = "yyyy年MM月dd日 hh:mm"
         //let mySelectDateString = df.stringFromDate(<#T##date: NSDate##NSDate#>)
-        
+        return df.dateFromString(str)!
     }
 
-    func FormatFromDateToString(date:NSDate){
+    func dfFromDateToString(date:NSDate){
         let df = NSDateFormatter()
         df.dateFormat = "yyyy/mm/dd hh:mm"
         let mySelectDateString = df.stringFromDate(date)
@@ -255,7 +196,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         //myDate = NSDate(timeInterval: 0, sinceDate: mySelectDate)
         
     }
-    */
+    
     
     @IBAction func decideDatePicker(sender: UIButton){
         print("decideDate")
@@ -319,73 +260,6 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             print("Case Default")
         }
         
-        /*
-        //イベントを保存
-        var result:Bool = true
-        
-        myEventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
-            granted, error in
-            if(granted) && (error == nil) {
-                print("granted \(granted)")
-                print("error \(error)")
-                
-                //var event:EKEvent = EKEvent(eventStore: myEventStore)
-                self.myEvent.notes = "This is a note"
-                self.myEvent.calendar = myEventStore.defaultCalendarForNewEvents
-                
-                do {
-                    print(self.myEvent)
-                    try myEventStore.saveEvent(self.myEvent, span: EKSpan.ThisEvent)
-                    print("Save Event")
-                    
-                } catch _{
-                    result = false
-                    print("not Save Event")
-
-                }
-                
-            }
-        })
-
-        
-
-//        do {
-//            try myEventStore.saveEvent(myEvent, span: EKSpan.ThisEvent, commit: true)   //error:nil→commit:true
-//        } catch _ {
-//            result = false
-//        }
-        
-        if result {     //Bool? cannnot be used as a boolean; test for !=nil instead
-            print("OK")
-            
-        } else {
-            print("NG")
-
-            let myAlert = UIAlertController(title: "カレンダーの更新に失敗しました", message: "\(eventTitle)", preferredStyle: UIAlertControllerStyle.Alert)
-            
-            let okAlertAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
-            
-            myAlert.addAction(okAlertAction)
-            
-            self.presentViewController(myAlert, animated: true, completion: nil)  //これを実行するとなぜか戻れなくなる→まぁいいか
-            
-        }
-*/
-        
-        //performSegueWithIdentifier("changed", sender: nil)
-        
-
-        
-        
-        //元の画面に戻る
-        //dismissViewControllerAnimated(true, completion: nil)
-        
-        
-        //navigationController?.popViewControllerAnimated(true)
-
-        //二画面前に戻る
-        
-        
     }
     
     func insertEvent(store: EKEventStore){
@@ -399,12 +273,6 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
         for calendar in calendars {
-                print(calendar)
-//            if calendar.title == "ioscreator" {
-                //let startDate = NSDate()
-                //let endDate = startDate.dateByAddingTimeInterval(2*60*60)
-                
-               //var event = myEvent.copy() as! EKEvent    //unrecognized selector sent to instance 0x7f9362b9d0a0
             
                 //Create Event
                 var newEvent = EKEvent(eventStore: store)
@@ -417,29 +285,14 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
                 newEvent.location = location.text
                 newEvent.notes = detailText.text
                 newEvent.timeZone = myEvent.timeZone
-            
-                //myEvent.calendar = calendar          //2016/01/20add
-                //myEvent.recurrenceRules = nil
-                //myEvent.timeZone = event.timeZone
                 
-                /*
-                var error: NSError?
-                let result = store.saveEvent(event, span: EKSpan.ThisEvent)
-                
-                if (result == false) {
-                    if let theError = error {
-                        print("An error occured \(theError)")
-                    }
-                }
-                */
-                
+
                 do {
                     print("event = \(newEvent)")
                     print("myEvent = \(self.myEvent)")
                     print("try Save Event")
                     
                     try store.saveEvent(newEvent, span: EKSpan.ThisEvent)
-                    //try store.saveEvent(myEvent, span: EKSpan.ThisEvent)
                     
                     print("complete Save Event")
                     
@@ -459,9 +312,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
                     
                 } catch _{
                     print("not Save (or Delete) Event")
-                    
 
-//            }
             }
         }
         
@@ -483,38 +334,6 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         var array:NSArray = (navigationController?.viewControllers)!
         
-        //var arrayCount = array.count
-        
-//        let svc:ScheduleViewController = 0
-        
-//        navigationController?.viewControllers.indexOf(svc)
-        
-        
-        //戻る画面（二画面前の場合はarrya.count - 3）
-        
-        //let previousScreen = array.count - 3
-        
-        //一画面戻る
-        /*var cdvc:CalendarDetailViewController = array.objectAtIndex(arrayCount - 2) as! CalendarDetailViewController
-        cdvc.myEvent = newEvent
-        
-        cdvc.scheduleTitle.text = eventTitle.text!
-        cdvc.startTime.text = startTime.text
-        cdvc.endTime.text = endTime.text
-        cdvc.place.text = location.text
-        cdvc.detailText = detailText
-        
-        //                    navigationController?.viewControllers.popLast()
-        //                    navigationController?.viewControllers.
-
-        
-        navigationController?.viewControllers.removeAtIndex(arrayCount-2)
-        navigationController?.viewControllers.insert(cdvc, atIndex: arrayCount-2)
-        */
-        
-        //var svc:ScheduleViewController = array.objectAtIndex(previousScreen) as! ScheduleViewController
-        
-//        var svc:ScheduleViewController = array.objectAtIndex(previousScreen) as! ScheduleViewController
         var svc:ScheduleViewController = array.objectAtIndex(1) as! ScheduleViewController
         
         svc.myEvents = getCalendar()
@@ -524,24 +343,8 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         svc.viewDidLoad()
         
-//        navigationController?.viewControllers.removeAtIndex(previousScreen)
-//        navigationController?.viewControllers.insert(svc, atIndex: previousScreen)
-        
-        
-        
         navigationController?.viewControllers.removeAtIndex(1)
         navigationController?.viewControllers.insert(svc, atIndex: 1)
-
-        
-  /*      for i in 2...3{
-            
-        }
-*/
-        //navigationController?.popViewControllerAnimated(true)
-        
-        
-        
-        //self.navigationItem.title = "\()年\(month)月\(day)日の予定"
         
         print("return to svc")
         
@@ -556,54 +359,22 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     func getCalendar() -> [EKEvent]{
         // NSCalendarを生成
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
-        
-//        let eventStore:EKEventStore = EKEventStore()
         let myEventStore:EKEventStore = EKEventStore()
-
-        // ユーザのカレンダーを取得
-//        var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)
-//        let myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)
-        
-        
-        // 終了日（一日後）コンポーネントの作成
-        //let comps: NSDateComponents = NSDateComponents()
-        
-/*        comps.year = startTime.text
-        comps.month = month
-        //        comps.day = day - 1
-        comps.day = day*/
         
         let dateFormatter: NSDateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         var date:NSDate = dateFormatter.dateFromString(startTime.text!)!
         
-//        let comps:NSDateComponents = myCalendar.component([.Year, .Month, .Day], fromDate: date) //componentぢゃない！！！
         let comps:NSDateComponents = myCalendar.components([.Year, .Month, .Day], fromDate: date)
-        
-
-        
-//        comps.date = dateFormatter.dateFromString("yyyy年MM月dd日 hh:mm")
-        
-        //comps.year = date.
-        
-//        print("コンポーネント作る時。year=\(year) month=\(month) day=\(day)")
-//        print("コンポーネント作る時。comps.year=\(comps.year) comps.month=\(comps.month) comps.day=\(comps.day)")
         
         print("comps=\(comps)")
         
         let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        //
-        //let oneDayAgoSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        //        let oneDayAgoSelectedDay: NSDate = myCalendar.dateByAddingComponents(comps, toDate: NSDate(), options: NSCalendarOptions())!
-        
-        //        print("oneDayAgoSelectedDay=\(oneDayAgoSelectedDay)")
-        
-        //        comps.day += 2
+ 
         comps.day += 1
         
         
         let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        //        let oneDayFromSelectedDay: NSDate = myCalendar.dateByAddingComponents(comps, toDate: NSDate(), options: NSCalendarOptions())! //なんかおかしい oneDayFromSelcetedDay=4032-03-18 03:24:00 +0000
         
         print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
         
@@ -611,9 +382,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
-        // ユーザーの全てのカレンダーからフェッチせよ
-        //        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
-        //            endDate: oneYearFromNow, calendars: nil)
+
         
         predicate = myEventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
         
@@ -621,35 +390,6 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         // 述語にマッチする全てのイベントをフェッチ
         events = myEventStore.eventsMatchingPredicate(predicate)
-        
-        
-        
-        // イベントが見つかった
-        /*
-        if !events.isEmpty {
-        for i in events{
-        print(i.title)
-        print(i.startDate)
-        print(i.endDate)
-        
-        // 配列に格納
-        eventItems += ["\(i.title): \(i.startDate)"]
-        
-        }
-        }
-        */
-        
-        /*
-        let storyboard: UIStoryboard = UIStoryboard(name: "SecondViewController2", bundle: NSBundle.mainBundle())
-        //var secondViewController: UIViewController = storyboard.instantiateViewControllerWithIdentifier("top") as! UIViewController
-        //let secondViewController: SecondViewController = storyboard.instantiateViewControllerWithIdentifier("top") as! SecondViewController
-        
-        //self.presentViewController(nex, animated: true, completion: nil);
-        self.navigationController?.pushViewController(secondViewController, animated: true)
-        */
-        
-        // 画面遷移.
-
         
         return events
         
@@ -708,43 +448,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             })
         }
     }
-    
-    
-    /**
-     認証ステータスを取得→不要？
 
-    func getAuthorization_status() -> Bool {
-        
-        // ステータスを取得
-        let status: EKAuthorizationStatus = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
-        
-        // ステータスを表示 許可されている場合のみtrueを返す
-        switch status {
-        case EKAuthorizationStatus.NotDetermined:
-            print("NotDetermined")
-            return false
-            
-        case EKAuthorizationStatus.Denied:
-            print("Denied")
-            return false
-            
-        case EKAuthorizationStatus.Authorized:
-            print("Authorized")
-            return true
-            
-        case EKAuthorizationStatus.Restricted:
-            print("Restricted")
-            return false
-            
-        default:
-            print("error")
-            return false
-            
-        }
-    }
-**/
-
-    
     // どのクラスにもあるメソッド Memory監視？
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

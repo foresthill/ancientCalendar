@@ -69,25 +69,9 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         //navigationItem.leftBarButtonItem = editButtonItem()
         navigationItem.rightBarButtonItem = editButtonItem()
         
-        //ツールバーを表示
-        self.navigationController!.toolbarHidden = false
-        let delButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "onClickDelButton")
-        let addButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: "onClickAddButton")
-
-        //追加するのはこれじゃない
-        self.navigationController!.toolbarItems = [delButton, addButton]
-//        self.navigationController!.toolbarItem = append(addButton)
-        
-//        self.navigationItem.leftBarButtonItem = delButton
-//        self.navigationItem.rightBarButtonItem = addButton
-//        
-        
-        //ツールバーのスタイルを黒色に指定
-//        self.navigationController?.toolbar.barStyle = UIBarStyle.Black
-        
-        for x in myItems {
-            print(x)
-        }
+        //ツールバー非表示（2016/01/30）
+        self.navigationController!.toolbarHidden = true
+   
     }
 
     
@@ -96,8 +80,7 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
         if(segue.identifier == "toAddNewEvent"){
             let ccvc = segue.destinationViewController as! CalendarChangeViewController
-//            ccvc.myEvent = EKEvent()  //You must use [EKEvent eventWithEventStore:] to create an event'
-            //ccvc.myEvent = EKEvent.eventWithEventStore(EKEvent(eventStore))) //EKEvent.eventWithEventStore()
+            
             let eventStore:EKEventStore = EKEventStore()
             
             var newEvent = EKEvent(eventStore: eventStore)
@@ -114,7 +97,6 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         } else {
             let cdvc = segue.destinationViewController as! CalendarDetailViewController
         //変数を渡す
-        //svc.myItems = eventItems;
         cdvc.myEvent = myEvents[calNum]
         }
     }
@@ -152,13 +134,8 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         let cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "MyCell")
         
         // Cellに値を設定する
-        //cell.textLabel!.text = "\(myItems[indexPath.row])"
-        //cell.textLabel!.font = UIFont.systemFontOfSize(13)
-        
         cell.textLabel?.text = myEvents[indexPath.row].title
-//        cell.detailTextLabel?.text = "\(myEvents[indexPath.row].startDate)" + " - " + "\(myEvents[indexPath.row].endDate)"
-//        cell.detailTextLabel?.text = "\(myEvents[indexPath.row].startDate)"// + " - " + "\(myEvents[indexPath.row].endDate)"
-        
+
         let df:NSDateFormatter = NSDateFormatter()
         let df2:NSDateFormatter = NSDateFormatter()
         //df.dateFormat = "yyyy/MM/dd"
@@ -211,28 +188,13 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     
     //実際に削除された時の処理を実装する
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        
-        /*
-        
-        let eventStore:EKEventStore = EKEventStore()
-//        let sharedEventKitSotre:
-        let delEvent = myEvents[indexPath.row]
-//        eventStore.delete(delEvent)
-        
-        do {
-            try eventStore.removeEvent(delEvent, span: EKSpan.ThisEvent)
-//            try eventStore.removeEvent(delEvent, span: EKSpan.ThisEvent, commit: true)
-        } catch _{
-            print("イベント削除できていない。")
-        }
-//
-        */
+
+        //実データ削除メソッド
+        removeEvent(indexPath.row)
         
         //先にデータを更新する
-        removeEvent(indexPath.row)
         myEvents.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
-        
-        
+
         //それからテーブルの更新
         tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
     }
