@@ -54,7 +54,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     var myEventStore: EKEventStore!
     
     //フォーマッター外だし
-    let dateFormatter: NSDateFormatter = NSDateFormatter()
+//    var dateFormatter: NSDateFormatter! //letにしてると（あるいは!つけないと）no initializerといって怒られる。
     
     //前画面（二画面前）に戻すためのイベント一覧
     var events: [EKEvent]!
@@ -64,6 +64,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         
+        let dateFormatter: NSDateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
         eventTitle.text = myEvent.title
@@ -259,16 +260,16 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     @IBAction func decideDatePicker(sender: UIButton){
         print("decideDate")
         
-        let dpdf: NSDateFormatter = NSDateFormatter()
+        let dateFormatter: NSDateFormatter = NSDateFormatter()
         //dpdf.dateStyle = NSDateFormatterStyle.ShortStyle
-        dpdf.dateFormat = "yyyy年MM月dd日 hh:mm"
+        dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
 
         switch textfieldTag{
         case 1:
-            startTime.text = dpdf.stringFromDate(datePicker.date)
+            startTime.text = dateFormatter.stringFromDate(datePicker.date)
             break
         case 2:
-            endTime.text = dpdf.stringFromDate(datePicker.date)
+            endTime.text = dateFormatter.stringFromDate(datePicker.date)
             break
         default:
             hideDatePicker()
@@ -394,6 +395,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         var entrySuccess:Bool = false
         
+        let dateFormatter: NSDateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
         for calendar in calendars {
@@ -517,8 +519,15 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         svc.myEvents = getCalendar()
         
+        print(svc.myEvents)
+        
+        
+        svc.viewDidLoad()
+        
 //        navigationController?.viewControllers.removeAtIndex(previousScreen)
 //        navigationController?.viewControllers.insert(svc, atIndex: previousScreen)
+        
+        
         
         navigationController?.viewControllers.removeAtIndex(1)
         navigationController?.viewControllers.insert(svc, atIndex: 1)
@@ -530,10 +539,12 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
 */
         //navigationController?.popViewControllerAnimated(true)
         
-        svc.viewDidLoad()
+        
+        
+        //self.navigationItem.title = "\()年\(month)月\(day)日の予定"
         
         print("return to svc")
-        print(svc.myEvents)
+        
         
         navigationController?.popToViewController(svc, animated: true)
         
@@ -546,39 +557,99 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         // NSCalendarを生成
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
         
-        // EventStoreを作成する（2016/01/27）
-        myEventStore = EKEventStore()
-        
+//        let eventStore:EKEventStore = EKEventStore()
+        let myEventStore:EKEventStore = EKEventStore()
+
         // ユーザのカレンダーを取得
-        var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)
+//        var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)
+//        let myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)
         
-        // 開始日（昨日）コンポーネントの生成
-        let oneDayAgoComponents: NSDateComponents = NSDateComponents()
-        oneDayAgoComponents.day = -1
         
-        // 昨日から今日までのNSDateを生成
-        let oneDayAgo: NSDate = myCalendar.dateByAddingComponents(oneDayAgoComponents,
-            toDate: NSDate(),
-            options: NSCalendarOptions())!
+        // 終了日（一日後）コンポーネントの作成
+        //let comps: NSDateComponents = NSDateComponents()
         
-        // 終了日（一年後）コンポーネントの生成
-        let oneYearFromNowComponents: NSDateComponents = NSDateComponents()
-        oneYearFromNowComponents.year = 1
+/*        comps.year = startTime.text
+        comps.month = month
+        //        comps.day = day - 1
+        comps.day = day*/
         
-        // 今日から一年後までのNSDateを生成
-        let oneYearFromNow: NSDate = myCalendar.dateByAddingComponents(oneYearFromNowComponents,
-            toDate: NSDate(),
-            options: NSCalendarOptions())!
+        let dateFormatter: NSDateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
+        var date:NSDate = dateFormatter.dateFromString(startTime.text!)!
+        
+//        let comps:NSDateComponents = myCalendar.component([.Year, .Month, .Day], fromDate: date) //componentぢゃない！！！
+        let comps:NSDateComponents = myCalendar.components([.Year, .Month, .Day], fromDate: date)
+        
+
+        
+//        comps.date = dateFormatter.dateFromString("yyyy年MM月dd日 hh:mm")
+        
+        //comps.year = date.
+        
+//        print("コンポーネント作る時。year=\(year) month=\(month) day=\(day)")
+//        print("コンポーネント作る時。comps.year=\(comps.year) comps.month=\(comps.month) comps.day=\(comps.day)")
+        
+        print("comps=\(comps)")
+        
+        let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        //
+        //let oneDayAgoSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        //        let oneDayAgoSelectedDay: NSDate = myCalendar.dateByAddingComponents(comps, toDate: NSDate(), options: NSCalendarOptions())!
+        
+        //        print("oneDayAgoSelectedDay=\(oneDayAgoSelectedDay)")
+        
+        //        comps.day += 2
+        comps.day += 1
+        
+        
+        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        //        let oneDayFromSelectedDay: NSDate = myCalendar.dateByAddingComponents(comps, toDate: NSDate(), options: NSCalendarOptions())! //なんかおかしい oneDayFromSelcetedDay=4032-03-18 03:24:00 +0000
+        
+        print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
+        
         
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
         // ユーザーの全てのカレンダーからフェッチせよ
-        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
-            endDate: oneYearFromNow, calendars: nil)
+        //        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
+        //            endDate: oneYearFromNow, calendars: nil)
+        
+        predicate = myEventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
+        
+        print("predicate=\(predicate)")
         
         // 述語にマッチする全てのイベントをフェッチ
         events = myEventStore.eventsMatchingPredicate(predicate)
+        
+        
+        
+        // イベントが見つかった
+        /*
+        if !events.isEmpty {
+        for i in events{
+        print(i.title)
+        print(i.startDate)
+        print(i.endDate)
+        
+        // 配列に格納
+        eventItems += ["\(i.title): \(i.startDate)"]
+        
+        }
+        }
+        */
+        
+        /*
+        let storyboard: UIStoryboard = UIStoryboard(name: "SecondViewController2", bundle: NSBundle.mainBundle())
+        //var secondViewController: UIViewController = storyboard.instantiateViewControllerWithIdentifier("top") as! UIViewController
+        //let secondViewController: SecondViewController = storyboard.instantiateViewControllerWithIdentifier("top") as! SecondViewController
+        
+        //self.presentViewController(nex, animated: true, completion: nil);
+        self.navigationController?.pushViewController(secondViewController, animated: true)
+        */
+        
+        // 画面遷移.
+
         
         return events
         
