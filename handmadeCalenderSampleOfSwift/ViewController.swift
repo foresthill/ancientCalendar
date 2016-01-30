@@ -507,6 +507,8 @@ class ViewController: UIViewController {
         // ユーザのカレンダーを取得
         var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)
         
+        
+        /*
         // 開始日（昨日）コンポーネントの生成
         let oneDayAgoComponents: NSDateComponents = NSDateComponents()
         oneDayAgoComponents.day = -1
@@ -516,6 +518,7 @@ class ViewController: UIViewController {
             toDate: NSDate(),
             options: NSCalendarOptions())!
         
+        
         // 終了日（一年後）コンポーネントの生成
         let oneYearFromNowComponents: NSDateComponents = NSDateComponents()
         oneYearFromNowComponents.year = 1
@@ -524,13 +527,47 @@ class ViewController: UIViewController {
         let oneYearFromNow: NSDate = myCalendar.dateByAddingComponents(oneYearFromNowComponents,
             toDate: NSDate(),
             options: NSCalendarOptions())!
+        */
+        
+        // 終了日（一日後）コンポーネントの作成
+        let comps: NSDateComponents = NSDateComponents()
+        comps.year = year
+        comps.month = month
+//        comps.day = day - 1
+        comps.day = day
+        
+        print("コンポーネント作る時。year=\(year) month=\(month) day=\(day)")
+        print("コンポーネント作る時。comps.year=\(comps.year) comps.month=\(comps.month) comps.day=\(comps.day)")
+        
+        print("comps=\(comps)")
+        
+        let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        //
+        //let oneDayAgoSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+//        let oneDayAgoSelectedDay: NSDate = myCalendar.dateByAddingComponents(comps, toDate: NSDate(), options: NSCalendarOptions())!
+        
+//        print("oneDayAgoSelectedDay=\(oneDayAgoSelectedDay)")
+        
+//        comps.day += 2
+        comps.day += 1
+        
+        
+        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+//        let oneDayFromSelectedDay: NSDate = myCalendar.dateByAddingComponents(comps, toDate: NSDate(), options: NSCalendarOptions())! //なんかおかしい oneDayFromSelcetedDay=4032-03-18 03:24:00 +0000
+        
+        print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
+
         
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
         // ユーザーの全てのカレンダーからフェッチせよ
-        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
-            endDate: oneYearFromNow, calendars: nil)
+//        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
+//            endDate: oneYearFromNow, calendars: nil)
+        
+        predicate = myEventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
+        
+        print("predicate=\(predicate)")
         
         // 述語にマッチする全てのイベントをフェッチ
         events = myEventStore.eventsMatchingPredicate(predicate)

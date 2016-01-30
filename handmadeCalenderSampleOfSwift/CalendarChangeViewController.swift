@@ -44,7 +44,6 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     //DatePickerの値を一時的に格納する変数
     var datePickerValue: NSDate!
     
-    
     //編集中のtagを格納する変数
     var textfieldTag: Int!
     

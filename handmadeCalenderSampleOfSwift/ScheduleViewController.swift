@@ -98,9 +98,18 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
             let ccvc = segue.destinationViewController as! CalendarChangeViewController
 //            ccvc.myEvent = EKEvent()  //You must use [EKEvent eventWithEventStore:] to create an event'
             //ccvc.myEvent = EKEvent.eventWithEventStore(EKEvent(eventStore))) //EKEvent.eventWithEventStore()
-            var eventStore:EKEventStore = EKEventStore()
+            let eventStore:EKEventStore = EKEventStore()
             
-            ccvc.myEvent = EKEvent(eventStore: eventStore)
+            var newEvent = EKEvent(eventStore: eventStore)
+            
+            let df:NSDateFormatter = NSDateFormatter()
+            //df.dateFormat = "yyyy/MM/dd"
+            df.dateFormat = "yyyy/MM/dd hh:mm"
+            
+            newEvent.startDate = df.dateFromString("\(year)/\(month)/\(day) 01:00")!
+            newEvent.endDate = df.dateFromString("\(year)/\(month)/\(day) 02:00")!
+            
+            ccvc.myEvent = newEvent
             
         } else {
             let cdvc = segue.destinationViewController as! CalendarDetailViewController
