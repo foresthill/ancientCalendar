@@ -26,6 +26,9 @@ class CalendarDetailViewController: UIViewController {
         let dateFormatter: NSDateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
+        //デバッグコード、なぜdetailTextがでん？（2016/01/30）
+        print(navigationController?.viewControllers)
+        
         scheduleTitle.text = myEvent.title
         startTime.text = dateFormatter.stringFromDate(myEvent.startDate)
         endTime.text = dateFormatter.stringFromDate(myEvent.endDate)

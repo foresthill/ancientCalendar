@@ -51,8 +51,8 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     //前画面（二画面前）に戻すためのイベント一覧
     var events: [EKEvent]!
 
-    //どの画面から来たか？
-    var previousScreen: NSString!
+    //どの画面から来たか？（新規or編集モード）
+    var mode: NSString!
     
     override func viewDidLoad() {
         
@@ -180,7 +180,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     }
     
     
-    func dfFromStringToDate(str:String) -> NSDate{
+    func dfDateFromString(str:String) -> NSDate{
         let df = NSDateFormatter()
         //df.dateFormat = "yyyy/mm/dd hh:mm"
         df.dateFormat = "yyyy年MM月dd日 hh:mm"
@@ -188,32 +188,39 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         return df.dateFromString(str)!
     }
 
-    func dfFromDateToString(date:NSDate){
+    
+    func dfStringFromDate(date:NSDate) -> String{
         let df = NSDateFormatter()
-        df.dateFormat = "yyyy/mm/dd hh:mm"
-        let mySelectDateString = df.stringFromDate(date)
-        let mySelectDate = df.dateFromString(mySelectDateString)!
+        //df.dateFormat = "yyyy/mm/dd hh:mm"
+        df.dateFormat = "yyyy年MM月dd日 hh:mm"
+        //let mySelectDateString = df.stringFromDate(date)
+        //let mySelectDate = df.dateFromString(mySelectDateString)!
         //myDate = NSDate(timeInterval: 0, sinceDate: mySelectDate)
-        
+        return df.stringFromDate(date)
     }
     
     
     @IBAction func decideDatePicker(sender: UIButton){
         print("decideDate")
         
+        /*
         let dateFormatter: NSDateFormatter = NSDateFormatter()
         //dpdf.dateStyle = NSDateFormatterStyle.ShortStyle
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
-
+*/
+        
         switch textfieldTag{
         case 1:
-            startTime.text = dateFormatter.stringFromDate(datePicker.date)
+//            startTime.text = dateFormatter.stringFromDate(datePicker.date)
+            startTime.text = dfStringFromDate(datePicker.date)
             break
         case 2:
-            endTime.text = dateFormatter.stringFromDate(datePicker.date)
+            //endTime.text = dateFormatter.stringFromDate(datePicker.date)
+            endTime.text = dfStringFromDate(datePicker.date)
             break
         default:
-            hideDatePicker()
+            //hideDatePicker()
+            break
         }
         
         
@@ -269,8 +276,8 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         var entrySuccess:Bool = false
         
-        let dateFormatter: NSDateFormatter = NSDateFormatter()
-        dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
+//        let dateFormatter: NSDateFormatter = NSDateFormatter()
+//        dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
         for calendar in calendars {
             
@@ -280,8 +287,9 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
                 newEvent.calendar = calendar                   //必要
             
                 newEvent.title = eventTitle.text!
-                newEvent.startDate = dateFormatter.dateFromString(startTime.text!)!
-                newEvent.endDate = dateFormatter.dateFromString(endTime.text!)!
+                newEvent.startDate = dfDateFromString(startTime.text!)
+//                newEvent.endDate = dateFormatter.dateFromString(endTime.text!)!
+                newEvent.endDate = dfDateFromString(endTime.text!)
                 newEvent.location = location.text
                 newEvent.notes = detailText.text
                 newEvent.timeZone = myEvent.timeZone
@@ -305,6 +313,8 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
                     /*if(myEvent != nil){
                         store.delete(myEvent)                   //これはうまくいかない
                     }*/
+                    
+                    store.eventWithIdentifier(myEvent.eventIdentifier)  //これを入れました。（2016/1/31）でもダメ。なんで？
                     try store.removeEvent(myEvent, span: EKSpan.ThisEvent)
                     
                     print("complete Delete Event")
@@ -329,6 +339,76 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     
     }
     
+    func editEvent(store: EKEventStore){
+        print("editEvent")
+        
+        let calendars = store.calendarsForEntityType(EKEntityType.Event)
+        
+        var entrySuccess:Bool = false
+        
+        //        let dateFormatter: NSDateFormatter = NSDateFormatter()
+        //        dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
+        
+        for calendar in calendars {
+            
+            myEvent.calendar = calendar                   //必要
+            
+            myEvent.title = eventTitle.text!
+            myEvent.startDate = dfDateFromString(startTime.text!)
+            //                myEvent.endDate = dateFormatter.dateFromString(endTime.text!)!
+            myEvent.endDate = dfDateFromString(endTime.text!)
+            myEvent.location = location.text
+            myEvent.notes = detailText.text
+            myEvent.timeZone = myEvent.timeZone
+            
+            
+            do {
+                print("event = \(myEvent)")
+                print("myEvent = \(self.myEvent)")
+                print("try Save Event")
+                
+                try store.saveEvent(myEvent, span: EKSpan.ThisEvent)
+                
+                print("complete Save Event")
+                
+                entrySuccess = true
+                
+                //遷移前の画面を更新する
+                updatePreviousScreen()
+                
+                //イベントを削除
+                /*if(myEvent != nil){
+                store.delete(myEvent)                   //これはうまくいかない
+                }*/
+                
+                store.eventWithIdentifier(myEvent.eventIdentifier)  //これを入れました。（2016/1/31）
+                try store.removeEvent(myEvent, span: EKSpan.ThisEvent)
+                
+                print("complete Delete Event")
+                
+                
+            } catch _{
+                print("not Save (or Delete) Event")
+                
+            }
+        }
+        
+        if(!entrySuccess){
+            let myAlert = UIAlertController(title: "カレンダーの更新に失敗しました", message: "\(eventTitle)", preferredStyle: UIAlertControllerStyle.Alert)
+            
+            let okAlertAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
+            
+            myAlert.addAction(okAlertAction)
+            
+            self.presentViewController(myAlert, animated: true, completion: nil)  //これを実行するとなぜか戻れなくなる→まぁいいか
+        }
+        
+        
+    }
+
+    
+    
+    
     //前画面を更新する
     func updatePreviousScreen(){
         
@@ -341,7 +421,10 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         print(svc.myEvents)
         
         
-        svc.viewDidLoad()
+        //svc.viewDidLoad()
+        
+        //svc.reloadInputViews()
+        svc.myTableView.reloadData()
         
         navigationController?.viewControllers.removeAtIndex(1)
         navigationController?.viewControllers.insert(svc, atIndex: 1)
@@ -405,11 +488,14 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     
     //画面遷移時に呼ばれるメソッド
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        /*
         //セゲエ用にダウンキャストしたCalendarChangeViewControllerのインスタンス
         let cdvc = segue.destinationViewController as! CalendarDetailViewController
         //変数を渡す
         //svc.myItems = eventItems;
         cdvc.myEvent = myEvent
+        */
     }
     
     /*

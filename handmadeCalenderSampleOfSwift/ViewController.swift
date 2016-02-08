@@ -8,6 +8,7 @@
 
 import UIKit
 import EventKit
+import Foundation   //floor関数使用のため
 
 //CALayerクラスのインポート
 import QuartzCore
@@ -25,6 +26,7 @@ class ViewController: UIViewController {
     var day: Int!
     var maxDay: Int!
     var dayOfWeek: Int!
+    var isLeapMonth:Int! //閏月の場合は-1（2016/02/06）
     
     //メンバ変数の設定（カレンダー関数から取得したものを渡す）
     var comps: NSDateComponents!
@@ -36,6 +38,8 @@ class ViewController: UIViewController {
     @IBOutlet var calendarBar: UILabel!
     @IBOutlet var prevMonthButton: UIButton!
     @IBOutlet var nextMonthButton: UIButton!
+    @IBOutlet weak var presentMode: UILabel!
+    @IBOutlet weak var toolBar: UIToolbar!
     
     //カレンダーの位置決め用メンバ変数
     var calendarLabelIntervalX: Int!
@@ -70,14 +74,77 @@ class ViewController: UIViewController {
     var eventItems = [String]()   //配列を渡す
     var events: [EKEvent]!
     
+    //旧暦・新暦変換テーブル（秘伝のタレ）
+    let o2ntbl = [[611,2350],[468,3222]	,[316,7317]	,[559,3402]	,[416,3493]
+        ,[288,2901]	,[520,1388]	,[384,5467]	,[637,605]	,[494,2349]	,[343,6443]
+        ,[585,2709]	,[442,2890]	,[302,5962]	,[533,2901]	,[412,2741]	,[650,1210]
+        ,[507,2651]	,[369,2647]	,[611,1323]	,[468,2709]	,[329,5781]	,[559,1706]
+        ,[416,2773]	,[288,2741]	,[533,1206]	,[383,5294]	,[624,2647]	,[494,1319]
+        ,[356,3366]	,[572,3475]	,[442,1450]];
+    
+    //カレンダーの閾値（1999年〜2030年まで閲覧可能）
+    let minYear = 1999
+    let maxYear = 2030
+    
+    //旧暦テーブル（ディクショナリではなく二次元配列）
+//    var otbl: [Int:Int]
+//    var ancientTbl: [[Int]]!
+    var ancientTbl: [[Int]] = Array(count: 14, repeatedValue:[0, 0])
+//    var ancientTbl: [[Int]] = Array<Int>[14]
+    
+    //モード（通常モード、旧暦モード）
+    var calendarMode: Int!      //一旦いいや→ゆくゆくは３モード切替にしたいため、boolではなくintで。（量子コンピュータ）1:通常（新暦）-1:旧暦
+    
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
-        //NavigationViewControllerのタイトル
-        self.navigationItem.title = "旧暦カレンダー"
+        //カレンダーモード（2016/02/06追加）
+        calendarMode = 1    //1:通常（新暦）-1:旧暦
         
+        //閏月（2016/02/06、なぜかエラー出るように）
+        isLeapMonth = 0
+        
+        //画面初期化・最適化
+        screenInit()
+        
+        //GregorianCalendarセットアップ
+        setupGregorianCalendar()
+        
+        //ウィンドウ（2015/07/21）
+//        popUpWindow = UIWindow()        // インスタンス化しとかないとダメ
+//        popUpWindowButton = UIButton()  // 同上
+        
+        // EventStoreを作成する（2015/08/05）
+        myEventStore = EKEventStore()
+        
+        // ユーザーにカレンダーの使用許可を求める（2015/08/06）
+        allowAuthorization()
+        
+        //NavigationViewControllerのタイトル
+//        self.navigationItem.title = "旧暦カレンダー"
+        self.navigationItem.title = "\(year)年"
+        
+        //ツールバー表示（2016/01/30）
+//        self.navigationController!.toolbarHidden = false
+//        let delButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "onClickDelButton")
+//        let addButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: "onClickAddButton")
+//        
+//        self.navigationController!.toolbarItems = [delButton, addButton]
+//        toolbarItems?.append(delButton)
+        
+        //Editボタンを作成
+//        var btn: UIBarButtonItem = UIBarButtonItem.init(title: "" , style: UIBarButtonItemStyle.Plain, target: self, action: "calendarChange")
+        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Undo , target: self, action: "calendarChange")
+        navigationItem.rightBarButtonItem = btn
+        
+        
+
+     }
+    
+    //画面初期化・最適化
+    func screenInit(){
         //現在起動中のデバイスを取得（スクリーンの幅・高さ）
         let screenWidth  = DeviseSize.screenWidth()
         let screenHeight = DeviseSize.screenHeight()
@@ -101,7 +168,7 @@ class ViewController: UIViewController {
             calendarSize           = 40;
             calendarFontSize       = 17;
             
-        //iPhone5またはiPhone5s
+            //iPhone5またはiPhone5s
         }else if (screenWidth == 320 && screenHeight == 568){
             
             calendarLabelIntervalX = 5;
@@ -120,7 +187,7 @@ class ViewController: UIViewController {
             calendarSize           = 40;
             calendarFontSize       = 17;
             
-        //iPhone6
+            //iPhone6
         }else if (screenWidth == 375 && screenHeight == 667){
             
             calendarLabelIntervalX = 15;
@@ -142,7 +209,7 @@ class ViewController: UIViewController {
             self.prevMonthButton.frame = CGRectMake(15, 438, CGFloat(calendarSize), CGFloat(calendarSize));
             self.nextMonthButton.frame = CGRectMake(314, 438, CGFloat(calendarSize), CGFloat(calendarSize));
             
-        //iPhone6 plus
+            //iPhone6 plus
         }else if (screenWidth == 414 && screenHeight == 736){
             
             calendarLabelIntervalX = 15;
@@ -169,15 +236,28 @@ class ViewController: UIViewController {
         //prevMonthButton.layer.cornerRadius = CGFloat(buttonRadius)
         //nextMonthButton.layer.cornerRadius = CGFloat(buttonRadius)
         
+
+    }
+    
+    //GregorianCalendarセットアップ
+    func setupGregorianCalendar(){
         //現在の日付を取得する
         now = NSDate()
         
         //inUnit:で指定した単位（月）の中で、rangeOfUnit:で指定した単位（日）が取り得る範囲
         let calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
+//        let calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierJapanese)!
         let range: NSRange = calendar.rangeOfUnit(NSCalendarUnit.Day, inUnit:NSCalendarUnit.Month, forDate:now)
         
         //最初にメンバ変数に格納するための現在日付の情報を取得する
         comps = calendar.components([NSCalendarUnit.Year, NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Weekday],fromDate:now)
+        
+        /*
+        if(calendarMode == -1){
+            //ConvertAncientCalendar
+            convertForAncientCalendar(comps)
+        }
+*/
         
         //年月日と最後の日付と曜日を取得(NSIntegerをintへのキャスト不要)
         let orgYear: NSInteger      = comps.year
@@ -192,90 +272,267 @@ class ViewController: UIViewController {
         dayOfWeek = orgDayOfWeek
         maxDay    = max
         
+        print("\(year),\(month),\(day),\(dayOfWeek),\(maxDay)")
+        
         //空の配列を作成する（カレンダーデータの格納用）
         mArray = NSMutableArray()
         
         //曜日ラベル初期定義
-        let monthName:[String] = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+        var monthName:[String]
+        
+        switch calendarMode{
+            case -1:
+                monthName = ["大安","赤口","先勝","友引","先負","仏滅"]
+                break
+            default:
+                monthName = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+                break
+        }
         
         //曜日ラベルを動的に配置
         setupCalendarLabel(monthName)
         
         //初期表示時のカレンダーをセットアップする
         setupCurrentCalendar()
+    }
+    
+    //TODO:旧暦変換（2016/02/06）
+    func convertForAncientCalendar(comps:NSDateComponents) -> [Int]{
         
-        //ウィンドウ（2015/07/21）
-        popUpWindow = UIWindow()        // インスタンス化しとかないとダメ
-        popUpWindowButton = UIButton()  // 同上
+        print("In convertForAncientCalendar")
+        
+        var yearByAncient:Int = comps.year
+        var monthByAncient:Int = comps.month
+        var dayByAncient:Int = comps.day
+        
+        print("yearByAncient=\(yearByAncient) ,monthByAncient=\(monthByAncient), dayByAncient=\(dayByAncient)")
+        
+        let calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
+        
+//        let comps2 = calendar.components([.Year, .Month, .Day, .Weekday],fromDate:now)
+        var dayOfYear = calendar.ordinalityOfUnit(.Day, inUnit:.Year, forDate: now)
+        
+//        var yearByAncient:Int = comps2.year
         
         
-        // EventStoreを作成する（2015/08/05）
-        myEventStore = EKEventStore()
+//        print(comps2)
+//        print(o2ntbl[0])
+//        print(o2ntbl[0][1])
         
-        // ユーザーにカレンダーの使用許可を求める（2015/08/06）
-        allowAuthorization()
+        //旧暦テーブルを作成する
+//        tblExpand(yearByAncient)
+        tblExpand()
         
-        //ツールバー表示（2016/01/30）
-        self.navigationController!.toolbarHidden = false
-        let delButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "onClickDelButton")
-        let addButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: "onClickAddButton")
+        print("yearByAncient=\(yearByAncient)")
         
-        self.navigationController!.toolbarItems = [delButton, addButton]
-
-     }
+        if(dayOfYear < ancientTbl[0][0]){   //旧暦で表すと、１年前になる場合
+            yearByAncient--;
+            dayOfYear += (365 + isleapYear(yearByAncient))
+//            tblExpand(yearByAncient)    //旧暦テーブル再作成（手間？）
+            tblExpand()
+        }
+        
+       
+        
+        //どの月の、何日目かをancientTblから引き出す
+//        for i in 12...0 {
+        for(var i=12; i>=0; i--){
+            if(ancientTbl[i][1] != 0){
+                if(ancientTbl[i][0] <= dayOfYear){
+                    monthByAncient = ancientTbl[i][1]
+                    dayByAncient = dayOfYear - ancientTbl[i][0] + 1
+                    break
+                }
+            }
+        }
+        
+        //閏月判定
+        if (monthByAncient < 0){
+            isLeapMonth = -1;
+            monthByAncient = -monthByAncient
+        } else {
+            isLeapMonth = 0
+        }
+        
+//        comps.year = yearByAncient
+//        comps.month = monthByAncient
+//        comps.day = dayByAncient
+        
+        print(yearByAncient,monthByAncient,dayByAncient,isLeapMonth)
+        return [yearByAncient,monthByAncient,dayByAncient,isLeapMonth]
+        
+    }
+    
+    //閏年判定（trueなら1、falseなら0を返す）→逆になっているのは、閏年の場合convertForAncientCalendar内で365に1追加したいため
+    func isleapYear(year: Int) -> Int{
+        var isLeap = 0
+        if(year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)){
+            isLeap = 1
+        }
+        return isLeap
+    }
+    
+    //旧暦・新暦テーブル生成（ancientTbl）
+//    func tblExpand(inYear: Int){
+    func tblExpand(){
+        var ommax:Int
+//        var year = comps.year
+        
+        print(year - minYear)
+        print(year)
+        print(minYear)
+        var days:Double = Double(o2ntbl[year - minYear][0])
+        var bits:Int = o2ntbl[year - minYear][1]    //bit？
+        let leap:Int = Int(days) % 13;          //閏月
+        
+        days = floor((Double(days) / 13.0) + 0.001) //旧暦年初の新暦年初からの日数
+        
+        ancientTbl[0] = [Int(days), 1]  //旧暦正月の通日と、月数
+//        ancientTbl.append([Int(days), 1])
+        
+        if(leap == 0){
+            bits *= 2   //閏無しなら、１２ヶ月
+            ommax = 12
+        } else {
+            ommax = 13
+        }
+        
+        for i in 1...ommax {
+            ancientTbl[i] = [ancientTbl[i-1][0]+29, i+1]    //[旧暦の日数, 月]をループで入れる
+            if(bits >= 4096) {
+                ancientTbl[i][0]++    //大の月（30日ある月）
+            }
+            bits = (bits % 4096) * 2;
+            
+        }
+        ancientTbl[ommax][1] = 0    //テーブルの終わり＆旧暦の翌年年初
+        
+        if (ommax > 12){    //閏月のある年
+            for i in leap+1 ... 12{
+                ancientTbl[i][1] = i    //月を再計算
+            }
+            ancientTbl[leap][1] = -leap;   //識別のため閏月はマイナスで記録
+        } else {
+            ancientTbl[13] = [0, 0] //使ってないけどエラー防止で。
+        }
+    
+    }
+    
     
     //曜日ラベルの動的配置関数
     func setupCalendarLabel(array: NSArray) {
         
-        let calendarLabelCount = 7
+        let calendarLabelCount = array.count
+        print("calendarLabelCount=\(calendarLabelCount)")
         
-        for i in 0...6{
+        if(calendarLabelCount == 6){ //六曜
             
-            //ラベルを作成
-            let calendarBaseLabel: UILabel = UILabel()
-            
-            //X座標の値をCGFloat型へ変換して設定
-            calendarBaseLabel.frame = CGRectMake(
-                CGFloat(calendarLabelIntervalX + calendarLabelX * (i % calendarLabelCount)),
-                CGFloat(calendarLabelY),
-                CGFloat(calendarLabelWidth),
-                CGFloat(calendarLabelHeight)
-            )
-            
-            //日曜日の場合は赤色を指定
-            if(i == 0){
+            for i in 0...5{
                 
-                //RGBカラーの設定は小数値をCGFloat型にしてあげる
-                calendarBaseLabel.textColor = UIColor(
-                    red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0)
-                )
-            
-            //土曜日の場合は青色を指定
-            }else if(i == 6){
+                //ラベルを作成
+                let calendarBaseLabel: UILabel = UILabel()
                 
-                //RGBカラーの設定は小数値をCGFloat型にしてあげる
-                calendarBaseLabel.textColor = UIColor(
-                    red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0)
+                //X座標の値をCGFloat型へ変換して設定
+                calendarBaseLabel.frame = CGRectMake(
+                    CGFloat(calendarLabelIntervalX + calendarLabelX * (i % calendarLabelCount)),
+                    CGFloat(calendarLabelY),
+                    CGFloat(calendarLabelWidth),
+                    CGFloat(calendarLabelHeight)
                 )
                 
-            //平日の場合は灰色を指定
-            }else{
+                //大安の場合は赤色を指定
+                if(i == 0){
+                    
+                    //RGBカラーの設定は小数値をCGFloat型にしてあげる
+                    calendarBaseLabel.textColor = UIColor(
+                        red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0)
+                    )
+                    
+                    //仏滅の場合は青色を指定
+                }else if(i == 5){
+                    
+                    //RGBカラーの設定は小数値をCGFloat型にしてあげる
+                    calendarBaseLabel.textColor = UIColor(
+                        red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0)
+                    )
+                    
+                    //その他の場合は灰色を指定
+                }else{
+                    
+                    //既に用意されている配色パターンの場合
+                    calendarBaseLabel.textColor = UIColor.lightGrayColor()
+                    
+                }
                 
-                //既に用意されている配色パターンの場合
-                calendarBaseLabel.textColor = UIColor.lightGrayColor()
+                //曜日ラベルの配置
+                calendarBaseLabel.text = String(array[i] as! NSString)
+                calendarBaseLabel.textAlignment = NSTextAlignment.Center
+                calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(calendarLableFontSize))
+                self.view.addSubview(calendarBaseLabel)
+            }
+
+            
+        } else {   //七曜
+            
+            //let calendarLabelCount = 7
+            
+            
+            for i in 0...6{
                 
+                //ラベルを作成
+                let calendarBaseLabel: UILabel = UILabel()
+                
+                //X座標の値をCGFloat型へ変換して設定
+                calendarBaseLabel.frame = CGRectMake(
+                    CGFloat(calendarLabelIntervalX + calendarLabelX * (i % calendarLabelCount)),
+                    CGFloat(calendarLabelY),
+                    CGFloat(calendarLabelWidth),
+                    CGFloat(calendarLabelHeight)
+                )
+                
+                //日曜日の場合は赤色を指定
+                if(i == 0){
+                    
+                    //RGBカラーの設定は小数値をCGFloat型にしてあげる
+                    calendarBaseLabel.textColor = UIColor(
+                        red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0)
+                    )
+                    
+                    //土曜日の場合は青色を指定
+                }else if(i == 6){
+                    
+                    //RGBカラーの設定は小数値をCGFloat型にしてあげる
+                    calendarBaseLabel.textColor = UIColor(
+                        red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0)
+                    )
+                    
+                    //平日の場合は灰色を指定
+                }else{
+                    
+                    //既に用意されている配色パターンの場合
+                    calendarBaseLabel.textColor = UIColor.lightGrayColor()
+                    
+                }
+                
+                //曜日ラベルの配置
+                calendarBaseLabel.text = String(array[i] as! NSString)
+                calendarBaseLabel.textAlignment = NSTextAlignment.Center
+                calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(calendarLableFontSize))
+                self.view.addSubview(calendarBaseLabel)
             }
             
-            //曜日ラベルの配置
-            calendarBaseLabel.text = String(array[i] as! NSString)
-            calendarBaseLabel.textAlignment = NSTextAlignment.Center
-            calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(calendarLableFontSize))
-            self.view.addSubview(calendarBaseLabel)
         }
+        
+
     }
     
     //カレンダーを生成する関数
     func generateCalendar(){
+        
+        //イマを刻むコンポーネント（2016/02/07）
+        let nowCalendar: NSCalendar = NSCalendar.currentCalendar()
+        let nowComps = nowCalendar.components([.Year, .Month, .Day], fromDate: NSDate())
+        
         
         //タグナンバーとトータルカウントの定義
         var tagNumber = 1
@@ -299,6 +556,11 @@ class ViewController: UIViewController {
                 CGFloat(buttonSizeY)
             );
             
+            //ボタンのデザインを決定する
+            button.backgroundColor = calendarBackGroundColor
+            button.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            button.titleLabel!.font = UIFont(name: "System", size: CGFloat(calendarFontSize))
+            
             //ボタンの初期設定をする
             if(i < dayOfWeek - 1){
                 
@@ -309,7 +571,31 @@ class ViewController: UIViewController {
             }else if(i == dayOfWeek - 1 || i < dayOfWeek + maxDay - 1){
                 
                 //日付の入る部分はボタンのタグを設定する（日にち）
-                button.setTitle(String(tagNumber), forState: .Normal)
+//                button.setTitle(String(tagNumber), forState: .Normal)
+                
+                var strBtn :String = String(tagNumber) + " "
+                var atrBtn :NSAttributedString = NSAttributedString.init(string: strBtn)
+//                atrBtn.attribute(<#T##attrName: String##String#>, atIndex: 0, effectiveRange: NSMakeRange(0, text.length))
+                
+                var tmpComps :NSDateComponents = nowCalendar.components([.Year, .Month, .Day], fromDate: NSDate())
+                tmpComps.year = year
+                tmpComps.month = month
+                tmpComps.day = i
+                
+                var array:[Int] = convertForAncientCalendar(tmpComps)
+                
+                if(array[3] == 1){
+                    strBtn += "閏"
+                }
+                strBtn += "\(array[1])/\(array[2])"
+                
+                button.setTitle(strBtn, forState: .Normal)
+                
+                if(nowComps.year == year && nowComps.month == month && nowComps.day == i){   //当日については、赤くする
+                    button.setTitleColor(UIColor.redColor(), forState: .Normal)
+                    print("ここが赤くなっているか→\(year).\(month).\(day)")
+                }
+                
                 button.tag = tagNumber
                 tagNumber++
                 
@@ -335,11 +621,11 @@ class ViewController: UIViewController {
                 calendarBackGroundColor = UIColor.lightGrayColor()
             }
             
-            //ボタンのデザインを決定する
-            button.backgroundColor = calendarBackGroundColor
-            button.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-            button.titleLabel!.font = UIFont(name: "System", size: CGFloat(calendarFontSize))
-            //button.layer.cornerRadius = CGFloat(buttonRadius)
+            
+            //旧暦モードの場合は、日付を丸くする。
+            if(calendarMode == -1){
+                button.layer.cornerRadius = CGFloat(buttonRadius)
+            }
             
             //配置したボタンに押した際のアクションを設定する
             button.addTarget(self, action: "buttonTapped:", forControlEvents: .TouchUpInside)
@@ -354,12 +640,33 @@ class ViewController: UIViewController {
     //タイトル表記を設定する関数
     func setupCalendarTitleLabel() {
         //calendarBar.text = String("\(year)年\(month)月のカレンダー")
+        self.navigationItem.title = "\(year)年"
+        
+        var calendarTitle: String;
         var jpnMonth = ["睦月", "如月", "弥生", "卯月", "皐月", "水無月", "文月", "葉月", "長月", "神無月", "霜月", "師走"]
-        calendarBar.text = String("" + jpnMonth[month-1] + "（旧暦\(month)月）")
+        calendarTitle = "\(month)月"
+        if(isLeapMonth < 0){
+            calendarTitle += "閏\(month)月"
+        }
+        
+        switch calendarMode {
+            case -1:
+                calendarBar.text = String("" + jpnMonth[month-1] + "（旧暦 \(month)月）")
+                presentMode.text = "旧暦モード"
+                break
+            default:
+                calendarBar.text = String("新暦 \(month)月")
+                presentMode.text = "通常モード（新暦）"
+        }
+        
     }
     
     //現在（初期表示時）の年月に該当するデータを取得する関数
-    func setupCurrentCalendarData() {
+    func setupCurrentCalendarData(){
+        setupCurrentCalendarData(1) //通常（新暦）モード　↓↓↓
+    }
+    
+    func setupCurrentCalendarData(calendarMode: Int) {
         
         /*************
          * (重要ポイント)
@@ -368,11 +675,34 @@ class ViewController: UIViewController {
          * 後述の関数 setupPrevCalendarData, setupNextCalendarData も同様です。
          *************/
         let currentCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        let currentComps: NSDateComponents = NSDateComponents()
+        let currentComps: NSDateComponents = NSDateComponents()//ここでインスタンス化してるから、変換するときダメなんや！いや違った。
         
+//        let currentComps = currentCalendar.components([NSCalendarUnit.Year, NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Weekday],fromDate:NSDate())
+        
+        
+        //これ入れないとおかしくなる。なんで？converForAncientCalendarの洗礼を通れなくなるから、みたい。
         currentComps.year  = year
         currentComps.month = month
-        currentComps.day   = 1
+        currentComps.day   = 1        //NavigationViewControllerのタイトル
+        
+        self.navigationItem.title = "旧暦カレンダー"
+        
+        if(calendarMode == -1){  //旧暦モード
+            currentComps.day   = day    //必要？
+            
+            print("convertForAncientCalendar返還前:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
+            let ancientDate:[Int] = convertForAncientCalendar(currentComps)
+            print("convertFor取得後：\(ancientDate)")
+//            year = ancientDate[0]
+//            month = ancientDate[1]
+//            day = ancientDate[2]
+            currentComps.year = ancientDate[0]
+            currentComps.month = ancientDate[1]
+            currentComps.day = ancientDate[2]
+            isLeapMonth = ancientDate[3]
+        }
+        
+        print("setupCurrentCalendar（変換後）:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
         
         let currentDate: NSDate = currentCalendar.dateFromComponents(currentComps)!
         recreateCalendarParameter(currentCalendar, currentDate: currentDate)
@@ -548,6 +878,17 @@ class ViewController: UIViewController {
         nextCalendarSettings()
     }
     
+    // モードを切り替えるメソッド
+    @IBAction func changeCalendarMode(sendar: UIBarButtonItem){
+        calendarMode = calendarMode * -1
+        print("changeCalendarMode :\(calendarMode)")
+
+        removeCalendarButtonObject()
+        setupCurrentCalendarData(calendarMode)
+        generateCalendar()
+        setupCalendarTitleLabel()
+    }
+    
     //前月を表示するメソッド
     func prevCalendarSettings() {
         removeCalendarButtonObject()
@@ -563,6 +904,11 @@ class ViewController: UIViewController {
         generateCalendar()
         setupCalendarTitleLabel()
     }
+    
+    // TODO:旧暦を作成するメソッド（月のデザイン）
+    
+    
+
     
     /**
      認証ステータスを取得

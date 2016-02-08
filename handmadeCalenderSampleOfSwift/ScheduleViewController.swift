@@ -87,10 +87,10 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
             
             let df:NSDateFormatter = NSDateFormatter()
             //df.dateFormat = "yyyy/MM/dd"
-            df.dateFormat = "yyyy/MM/dd hh:mm"
+            df.dateFormat = "yyyy年MM月dd日hh:mm"
             
-            newEvent.startDate = df.dateFromString("\(year)/\(month)/\(day) 01:00")!
-            newEvent.endDate = df.dateFromString("\(year)/\(month)/\(day) 02:00")!
+            newEvent.startDate = df.dateFromString("\(year)年\(month)月\(day)日 01:00")!
+            newEvent.endDate = df.dateFromString("\(year)年\(month)月\(day)日 02:00")!
             
             ccvc.myEvent = newEvent
             
@@ -139,7 +139,7 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         let df:NSDateFormatter = NSDateFormatter()
         let df2:NSDateFormatter = NSDateFormatter()
         //df.dateFormat = "yyyy/MM/dd"
-        df.dateFormat = "yyyy/MM/dd hh:mm"
+        df.dateFormat = "yyyy年MM月dd日 hh:mm"
         df2.dateFormat = "hh:mm"
 
         let detailText = "\(df2.stringFromDate(myEvents[indexPath.row].startDate))" + "\n - " + "\(df.stringFromDate(myEvents[indexPath.row].endDate))"
@@ -202,7 +202,9 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     //イベントをカレンダーから削除するメソッド
     func removeEvent(index:Int){
         
-        let eventStore:EKEventStore = EKEventStore()
+        let eventStore:EKEventStore = EKEventStore.init()
+        
+        print(myEvents[index].eventIdentifier)
         
         switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
         
@@ -210,7 +212,9 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
 //            print(myEvents)
             print(myEvents[index])
             do{
+                eventStore.eventWithIdentifier(myEvents[index].eventIdentifier)
                 try eventStore.removeEvent(myEvents[index], span: EKSpan.ThisEvent)
+                print("削除完了！")
             } catch _{
                 print("イベント削除されていない。（１）")
             }
@@ -238,7 +242,13 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
         
-    
+    /**
+    reloadする
+
+    func reloadTableView(){
+        
+    }
+*/
     
     /**
     Cellの高さを指定する
