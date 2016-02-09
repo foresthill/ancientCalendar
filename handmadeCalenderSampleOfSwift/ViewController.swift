@@ -321,7 +321,7 @@ class ViewController: UIViewController {
         
         //旧暦テーブルを作成する
 //        tblExpand(yearByAncient)
-        tblExpand()
+        tblExpand(yearByAncient)
         
         print("yearByAncient=\(yearByAncient)")
         
@@ -329,7 +329,7 @@ class ViewController: UIViewController {
             yearByAncient--;
             dayOfYear += (365 + isleapYear(yearByAncient))
 //            tblExpand(yearByAncient)    //旧暦テーブル再作成（手間？）
-            tblExpand()
+            tblExpand(yearByAncient)
         }
         
        
@@ -364,7 +364,7 @@ class ViewController: UIViewController {
     }
     
     //旧暦→新暦変換
-    func convertForGregorianCalendar(dateArray:[int]) -> NSDateComponents{
+    func convertForGregorianCalendar(dateArray:[Int]) -> NSDateComponents{
         
         var tempYear = dateArray[0]
         var tempMonth = dateArray[1]
@@ -398,16 +398,16 @@ class ViewController: UIViewController {
     }
     
     //旧暦・新暦テーブル生成（ancientTbl）
-//    func tblExpand(inYear: Int){
-    func tblExpand(){
+    func tblExpand(inYear: Int){
+//    func tblExpand(){
         var ommax:Int
 //        var year = comps.year
         
-        print(year - minYear)
-        print(year)
+        print(inYear - minYear)
+        print(inYear)
         print(minYear)
-        var days:Double = Double(o2ntbl[year - minYear][0])
-        var bits:Int = o2ntbl[year - minYear][1]    //bit？
+        var days:Double = Double(o2ntbl[inYear - minYear][0])
+        var bits:Int = o2ntbl[inYear - minYear][1]    //bit？
         let leap:Int = Int(days) % 13;          //閏月
         
         days = floor((Double(days) / 13.0) + 0.001) //旧暦年初の新暦年初からの日数
