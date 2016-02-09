@@ -363,6 +363,31 @@ class ViewController: UIViewController {
         
     }
     
+    //旧暦→新暦変換
+    func convertForGregorianCalendar(dateArray:[int]) -> NSDateComponents{
+        
+        var tempYear = dateArray[0]
+        var tempMonth = dateArray[1]
+        var tempDay = dateArray[2]
+        var tempLeapMonth = dateArray[3]
+        
+        tblExpand(tempYear)
+        
+        var dayOfYear:Int!
+        
+        for i in 0 ... 13{
+            if(ancientTbl[i][i] == tempMonth){
+                dayOfYear = ancientTbl[i][0] + tempDay - 1
+                break
+            }
+        }
+        if(dayOfYear < 0){
+            //該当日なし
+            return NSCalendar.dateFromComponents(<#T##NSCalendar#>)
+        }
+        
+    }
+    
     //閏年判定（trueなら1、falseなら0を返す）→逆になっているのは、閏年の場合convertForAncientCalendar内で365に1追加したいため
     func isleapYear(year: Int) -> Int{
         var isLeap = 0
@@ -662,11 +687,7 @@ class ViewController: UIViewController {
     }
     
     //現在（初期表示時）の年月に該当するデータを取得する関数
-    func setupCurrentCalendarData(){
-        setupCurrentCalendarData(1) //通常（新暦）モード　↓↓↓
-    }
-    
-    func setupCurrentCalendarData(calendarMode: Int) {
+    func setupCurrentCalendarData() {
         
         /*************
          * (重要ポイント)
@@ -675,34 +696,11 @@ class ViewController: UIViewController {
          * 後述の関数 setupPrevCalendarData, setupNextCalendarData も同様です。
          *************/
         let currentCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        let currentComps: NSDateComponents = NSDateComponents()//ここでインスタンス化してるから、変換するときダメなんや！いや違った。
+        let currentComps: NSDateComponents = NSDateComponents()
         
-//        let currentComps = currentCalendar.components([NSCalendarUnit.Year, NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Weekday],fromDate:NSDate())
-        
-        
-        //これ入れないとおかしくなる。なんで？converForAncientCalendarの洗礼を通れなくなるから、みたい。
         currentComps.year  = year
         currentComps.month = month
-        currentComps.day   = 1        //NavigationViewControllerのタイトル
-        
-        self.navigationItem.title = "旧暦カレンダー"
-        
-        if(calendarMode == -1){  //旧暦モード
-            currentComps.day   = day    //必要？
-            
-            print("convertForAncientCalendar返還前:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
-            let ancientDate:[Int] = convertForAncientCalendar(currentComps)
-            print("convertFor取得後：\(ancientDate)")
-//            year = ancientDate[0]
-//            month = ancientDate[1]
-//            day = ancientDate[2]
-            currentComps.year = ancientDate[0]
-            currentComps.month = ancientDate[1]
-            currentComps.day = ancientDate[2]
-            isLeapMonth = ancientDate[3]
-        }
-        
-        print("setupCurrentCalendar（変換後）:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
+        currentComps.day   = 1
         
         let currentDate: NSDate = currentCalendar.dateFromComponents(currentComps)!
         recreateCalendarParameter(currentCalendar, currentDate: currentDate)
@@ -752,6 +750,50 @@ class ViewController: UIViewController {
         
         let nextDate: NSDate = nextCalendar.dateFromComponents(nextComps)!
         recreateCalendarParameter(nextCalendar, currentDate: nextDate)
+    }
+    
+    //カレンダーモードを変更した際に呼び出す関数
+    func setupAnotherCalendarData(){
+        
+           /*************
+         * (重要ポイント)
+         * 現在月の1日のdayOfWeek(曜日の値)を使ってカレンダーの始まる位置を決めるので、
+         * yyyy年mm月1日のデータを作成する。
+         * 後述の関数 setupPrevCalendarData, setupNextCalendarData も同様です。
+         *************/
+        let currentCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
+        let currentComps: NSDateComponents = NSDateComponents()//ここでインスタンス化してるから、変換するときダメなんや！いや違った。
+        
+        //        let currentComps = currentCalendar.components([NSCalendarUnit.Year, NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Weekday],fromDate:NSDate())
+        
+        
+        //これ入れないとおかしくなる。なんで？converForAncientCalendarの洗礼を通れなくなるから、みたい。
+        currentComps.year  = year
+        currentComps.month = month
+        currentComps.day   = 1        //NavigationViewControllerのタイトル
+        
+        self.navigationItem.title = "旧暦カレンダー"
+        
+        if(calendarMode == -1){  //旧暦モード
+            currentComps.day   = day    //必要？
+            
+            print("convertForAncientCalendar返還前:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
+            let ancientDate:[Int] = convertForAncientCalendar(currentComps)
+            print("convertFor取得後：\(ancientDate)")
+            //            year = ancientDate[0]
+            //            month = ancientDate[1]
+            //            day = ancientDate[2]
+            currentComps.year = ancientDate[0]
+            currentComps.month = ancientDate[1]
+            currentComps.day = ancientDate[2]
+            isLeapMonth = ancientDate[3]
+        }
+        
+        print("setupCurrentCalendar（変換後）:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
+        
+        let currentDate: NSDate = currentCalendar.dateFromComponents(currentComps)!
+        recreateCalendarParameter(currentCalendar, currentDate: currentDate)
+
     }
     
     //カレンダーのパラメータを再作成する関数
@@ -884,7 +926,7 @@ class ViewController: UIViewController {
         print("changeCalendarMode :\(calendarMode)")
 
         removeCalendarButtonObject()
-        setupCurrentCalendarData(calendarMode)
+        setupAnotherCalendarData()
         generateCalendar()
         setupCalendarTitleLabel()
     }
