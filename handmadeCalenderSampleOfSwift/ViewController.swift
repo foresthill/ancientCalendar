@@ -310,7 +310,9 @@ class ViewController: UIViewController {
         let calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
         
 //        let comps2 = calendar.components([.Year, .Month, .Day, .Weekday],fromDate:now)
-        var dayOfYear = calendar.ordinalityOfUnit(.Day, inUnit:.Year, forDate: now)
+        //var dayOfYear = calendar.ordinalityOfUnit(.Day, inUnit:.Year, forDate: now)
+        var dayOfYear = calendar.ordinalityOfUnit(.Day, inUnit:.Year, forDate: calendar.dateFromComponents(comps)!)
+        
         
 //        var yearByAncient:Int = comps2.year
         
@@ -327,7 +329,7 @@ class ViewController: UIViewController {
         
         if(dayOfYear < ancientTbl[0][0]){   //旧暦で表すと、１年前になる場合
             yearByAncient--;
-            dayOfYear += (365 + isleapYear(yearByAncient))
+            dayOfYear += (365 + isLeapYear(yearByAncient))
 //            tblExpand(yearByAncient)    //旧暦テーブル再作成（手間？）
             tblExpand(yearByAncient)
         }
@@ -366,32 +368,69 @@ class ViewController: UIViewController {
     //旧暦→新暦変換
     func convertForGregorianCalendar(dateArray:[Int]) -> NSDateComponents{
         
-        var tempYear = dateArray[0]
-        var tempMonth = dateArray[1]
-        var tempDay = dateArray[2]
-        var tempLeapMonth = dateArray[3]
+        //イマを刻むコンポーネント（2016/02/07）
+        let nowCalendar: NSCalendar = NSCalendar.currentCalendar()
         
-        tblExpand(tempYear)
+        var compsByGregorian = nowCalendar.components([.Year, .Month, .Day], fromDate: NSDate())    //とりあえずイマを返す
+        
+        var yearByGregorian = dateArray[0]
+        var monthByGregorian = dateArray[1]
+        var dayByGregorian = dateArray[2]
+        var tempeapMonth = dateArray[3]
+        
+        tblExpand(yearByGregorian)
         
         var dayOfYear:Int!
         
+        dayOfYear = -1
+        
         for i in 0 ... 13{
-            if(ancientTbl[i][i] == tempMonth){
-                dayOfYear = ancientTbl[i][0] + tempDay - 1
+            if(ancientTbl[i][i] == monthByGregorian){
+                dayOfYear = ancientTbl[i][0] + dayByGregorian - 1
                 break
             }
         }
+        
         if(dayOfYear < 0){
             //該当日なし
-            return NSCalendar.dateFromComponents(<#T##NSCalendar#>)
+            return compsByGregorian
         }
+        
+        var tmp:Int = 365 + isLeapYear(yearByGregorian)
+        
+        if(dayOfYear > tmp){
+            dayOfYear = dayOfYear - tmp;
+            yearByGregorian++
+        }
+        
+        dayByGregorian = -1
+        
+        for(var i=12; i>=1; i--){
+            tmp = nowCalendar.ordinalityOfUnit(.Day, inUnit:.Year, forDate: now)
+            if(dayOfYear >= tmp){
+                dayByGregorian = dayOfYear - tmp + 1
+                break
+            }
+        }
+        
+        if(dayByGregorian < 0){
+            return compsByGregorian   //とりあえずイマを返す
+
+        }
+        
+        compsByGregorian.year = yearByGregorian
+        compsByGregorian.month = monthByGregorian
+        compsByGregorian.day = dayByGregorian
+        
+        return compsByGregorian
         
     }
     
     //閏年判定（trueなら1、falseなら0を返す）→逆になっているのは、閏年の場合convertForAncientCalendar内で365に1追加したいため
-    func isleapYear(year: Int) -> Int{
+    //func isLeapYear(year: Int) -> Int{
+    func isLeapYear(inYear: Int) -> Int{
         var isLeap = 0
-        if(year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)){
+        if(inYear % 400 == 0 || (inYear % 4 == 0 && inYear % 100 != 0)){
             isLeap = 1
         }
         return isLeap
@@ -581,10 +620,7 @@ class ViewController: UIViewController {
                 CGFloat(buttonSizeY)
             );
             
-            //ボタンのデザインを決定する
-            button.backgroundColor = calendarBackGroundColor
-            button.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-            button.titleLabel!.font = UIFont(name: "System", size: CGFloat(calendarFontSize))
+
             
             //ボタンの初期設定をする
             if(i < dayOfWeek - 1){
@@ -599,22 +635,51 @@ class ViewController: UIViewController {
 //                button.setTitle(String(tagNumber), forState: .Normal)
                 
                 var strBtn :String = String(tagNumber) + " "
-                var atrBtn :NSAttributedString = NSAttributedString.init(string: strBtn)
-//                atrBtn.attribute(<#T##attrName: String##String#>, atIndex: 0, effectiveRange: NSMakeRange(0, text.length))
+//                var atrBtn :NSAttributedString = NSAttributedString.init(string: strBtn)
+//                var atrBtn :NSAttributedString = NSAttributedString.attribute()
+//                atrBtn.attribute(NSFontAttributeName, atIndex: 0, effectiveRange: NSMakeRange(3, 5))
+//                var atr = [NSFontAttributeName:UIFont.systemFontOfSize(10.0)]
                 
                 var tmpComps :NSDateComponents = nowCalendar.components([.Year, .Month, .Day], fromDate: NSDate())
                 tmpComps.year = year
                 tmpComps.month = month
-                tmpComps.day = i
+                //tmpComps.day = i
+                tmpComps.day = tagNumber
+                
+                print(tmpComps)
                 
                 var array:[Int] = convertForAncientCalendar(tmpComps)
+                print("array=\(array)")
                 
                 if(array[3] == 1){
                     strBtn += "閏"
                 }
-                strBtn += "\(array[1])/\(array[2])"
                 
-                button.setTitle(strBtn, forState: .Normal)
+                var addDate:String = "\(array[1])/\(array[2])"
+                strBtn += addDate
+                
+                var myMutableString:NSMutableAttributedString = NSMutableAttributedString(
+                    string: strBtn,
+                    attributes: [NSFontAttributeName:UIFont.systemFontOfSize(12.3)])
+                
+                myMutableString.addAttribute(NSForegroundColorAttributeName, value: UIColor.whiteColor(), range: NSRange(location: 0, length: (strBtn.characters.count - addDate.characters.count)))
+                    
+                myMutableString.addAttribute(NSForegroundColorAttributeName, value: UIColor(
+                    red: CGFloat(0.989), green: CGFloat(0.919), blue: CGFloat(0.756), alpha: CGFloat(0.9)),
+                    range: NSRange(location: (strBtn.characters.count - addDate.characters.count), length: addDate.characters.count))   //0.971,0.749, 0.456
+                    
+                myMutableString.addAttribute(NSFontAttributeName, value: UIFont.systemFontOfSize(7.6),
+                    range: NSRange(location: (strBtn.characters.count - addDate.characters.count), length: addDate.characters.count))
+                
+//                button.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+                
+//                button.setTitle(strBtn, forState: .Normal)
+//                button.setTitle(myMutableString, forState: .Normal)
+                
+//                button.setAttributedTitle(atr, forState: .Normal)
+                
+//                button.setAttributedTitle(atrBtn, forState: .Normal)
+                button.setAttributedTitle(myMutableString, forState: .Normal)
                 
                 if(nowComps.year == year && nowComps.month == month && nowComps.day == i){   //当日については、赤くする
                     button.setTitleColor(UIColor.redColor(), forState: .Normal)
@@ -632,6 +697,9 @@ class ViewController: UIViewController {
                 
             }
             
+          
+            print("i=\(i)")
+            
             //ボタンの配色の設定
             //@remark:このサンプルでは正円のボタンを作っていますが、背景画像の設定等も可能です。
             if(i % 7 == 0){
@@ -645,6 +713,12 @@ class ViewController: UIViewController {
             }else{
                 calendarBackGroundColor = UIColor.lightGrayColor()
             }
+            
+            //ボタンのデザインを決定する
+            button.backgroundColor = calendarBackGroundColor    //ここに置かないと色が変わっちゃうよ。
+            
+            button.titleLabel!.font = UIFont(name: "System", size: CGFloat(calendarFontSize))
+            
             
             
             //旧暦モードの場合は、日付を丸くする。
