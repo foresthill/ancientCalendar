@@ -673,10 +673,8 @@ class ViewController: UIViewController {
                     month = month - 1;
                 }
                 
-                
-                
                 //閏年になった場合は、
-                if((month == leapMonth)){
+                if((month == leapMonth) && (month >= 1)){   //0を弾かないと、毎年12月が閏となり、結果おかしな演算となってしまう。
                     nowLeapMonth = true
                 }
 
@@ -768,7 +766,9 @@ class ViewController: UIViewController {
         
         self.navigationItem.title = "旧暦カレンダー"
         
-        if(calendarMode == -1){  //旧暦モード
+        
+        
+        if(calendarMode == -1){  //旧暦モードへ
             
             //これ入れないとおかしくなる。なんで？converForAncientCalendarの洗礼を通れなくなるから、みたい。
             currentComps.year  = year
@@ -786,11 +786,23 @@ class ViewController: UIViewController {
             currentComps.month = ancientDate[1]
             currentComps.day = ancientDate[2]
             isLeapMonth = ancientDate[3]
+            
+            if(isLeapMonth < 0){
+                nowLeapMonth = true
+            }
         
-        } else {    //新暦モード
+        } else {    //新暦モードへ戻す
             print("convertForAncientCalendar返還前:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
-            currentComps = convertForGregorianCalendar([year, month, 29, 0])
+            if(!nowLeapMonth){
+                currentComps = convertForGregorianCalendar([year, month, 29, 0])
+            }else {
+                currentComps = convertForGregorianCalendar([year, -month, 29, 0])
+                nowLeapMonth = false    //閏月の初期化
+                
+            }
             print("convertFor取得後：\(currentComps)")
+            
+
             
         }
         
