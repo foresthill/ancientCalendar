@@ -415,7 +415,14 @@ class ViewController: UIViewController {
                     //TODO:閏月はどうする？
             }
             
-            maxDay = ancientTbl[month][0] - ancientTbl[month-1][0]
+            //閏月より後の月の日数がおかしいバグ修正（2016/03/20）
+            var tempMonth:Int = month
+            
+            if(leapMonth > 0 && tempMonth > leapMonth){
+                tempMonth++
+            }
+            
+            maxDay = ancientTbl[tempMonth][0] - ancientTbl[tempMonth-1][0]
     
         //新暦モード
         } else {
@@ -974,18 +981,22 @@ class ViewController: UIViewController {
     
     //前月を表示するメソッド
     func prevCalendarSettings() {
-        removeCalendarButtonObject()
-        setupPrevCalendarData()
-        generateCalendar()
-        setupCalendarTitleLabel()
+        if(year > minYear){
+            removeCalendarButtonObject()
+            setupPrevCalendarData()
+            generateCalendar()
+            setupCalendarTitleLabel()
+        }
     }
     
     //次月を表示するメソッド
     func nextCalendarSettings() {
-        removeCalendarButtonObject()
-        setupNextCalendarData()
-        generateCalendar()
-        setupCalendarTitleLabel()
+        if(year < maxYear){
+            removeCalendarButtonObject()
+            setupNextCalendarData()
+            generateCalendar()
+            setupCalendarTitleLabel()
+        }
     }
     
     // TODO:旧暦を作成するメソッド（月のデザイン）
