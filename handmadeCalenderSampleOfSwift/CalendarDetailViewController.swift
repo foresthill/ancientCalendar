@@ -3,7 +3,7 @@
 //  handmadeCalenderSampleOfSwift
 //
 //  Created by Morioka Naoya on H27/12/10.
-//  Copyright © 平成27年 just1factory. All rights reserved.
+//  Copyright © 2016 foresthill. All rights reserved.
 //
 
 import Foundation
@@ -14,6 +14,12 @@ class CalendarDetailViewController: UIViewController {
     
     //渡されたイベントを格納
     var myEvent: EKEvent!
+    
+    //カレンダー情報（2016/02/23）
+    var mayaArray:[String]!
+    
+    //その日
+    var comps:NSDateComponents!
 
     @IBOutlet weak var scheduleTitle: UILabel!
     @IBOutlet weak var startTime: UILabel!
@@ -21,6 +27,8 @@ class CalendarDetailViewController: UIViewController {
     @IBOutlet weak var place: UILabel!
     @IBOutlet weak var detailText: UITextView!
     @IBOutlet weak var changeButton: UIButton!
+    
+
     
     override func viewDidLoad() {
         let dateFormatter: NSDateFormatter = NSDateFormatter()

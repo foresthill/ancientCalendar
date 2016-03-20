@@ -1142,6 +1142,7 @@ class ViewController: UIViewController {
         
         dayByGregorian = -1
         
+        compsByGregorian.year = yearByGregorian  //2016.3.20 毎年2/29が存在する件 修正
         compsByGregorian.day = 1
         
         for(var i=12; i>=1; i--){
