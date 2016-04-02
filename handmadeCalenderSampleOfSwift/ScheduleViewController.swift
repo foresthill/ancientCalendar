@@ -281,16 +281,23 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
      //モーダルでEditEventViewControllerを呼び出す
 //    func editEvent(eventNum:Int){
     func editEvent(event:EKEvent?){
-        var eventEditController = EKEventEditViewController()
+        var eventEditController = EKEventEditViewController.init()
+        
+        if(self.eventStore == nil){
+            self.eventStore = EKEventStore.init()
+        }
         
         eventEditController.eventStore = eventStore
         //        eventEditController.editViewDelegate = eventEditViewDelegate
         eventEditController.editViewDelegate = self
         
+        
+        
         if(event != nil){
 //            eventEditController.event = myEvents[eventNum]
 //            print("myEvent[\(eventNum)]=\(myEvents[eventNum])")
             eventEditController.event = event
+//            eventEditController.eventStore = eventStore
         }
         
         print("eventEditController.event=\(eventEditController.event)")
@@ -301,6 +308,43 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     //EditEventViewControllerを消すためのメソッド
     func eventEditViewController(controller: EKEventEditViewController, didCompleteWithAction action: EKEventEditViewAction){
         self.dismissViewControllerAnimated(true, completion: nil)
+        scheduleReload()
+        self.myTableView.reloadData()
+        
+    }
+    
+    func scheduleReload(){
+        // NSCalendarを生成
+        let myCalendar: NSCalendar = NSCalendar.currentCalendar()
+        
+        // ユーザのカレンダーを取得
+        var myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)
+        
+        // 終了日（一日後）コンポーネントの作成
+        let comps: NSDateComponents = NSDateComponents()
+        comps.year = year
+        comps.month = month
+        comps.day = day
+        
+        let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        
+        comps.day += 1
+        
+        
+        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        
+        print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
+        
+        
+        // イベントストアのインスタントメソッドで述語を生成
+        var predicate = NSPredicate()
+        
+        predicate = eventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
+        
+        print("predicate=\(predicate)")
+        
+        // 選択された一日分をフェッチ
+        myEvents = eventStore.eventsMatchingPredicate(predicate)
     }
     
     override func didReceiveMemoryWarning() {
