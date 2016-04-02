@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="NFw-Rd-0Bv">
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
@@ -8,7 +9,7 @@
         <!--View Controller-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
-                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="handmadeCalenderSampleOfSwift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="AncientCalendar" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="xYd-ye-fTj"/>
                         <viewControllerLayoutGuide type="bottom" id="HmB-TR-7e9"/>
@@ -114,7 +115,7 @@
         <!--Schedule View Controller-->
         <scene sceneID="hxi-rq-p9n">
             <objects>
-                <viewController id="0mC-JM-akN" customClass="ScheduleViewController" customModule="handmadeCalenderSampleOfSwift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="0mC-JM-akN" customClass="ScheduleViewController" customModule="AncientCalendar" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="olz-rL-Bmx"/>
                         <viewControllerLayoutGuide type="bottom" id="Lt4-fr-Aa7"/>
@@ -170,7 +171,7 @@
         <!--Calendar Detail View Controller-->
         <scene sceneID="L3h-cD-k5O">
             <objects>
-                <viewController id="Iay-gB-zFX" customClass="CalendarDetailViewController" customModule="handmadeCalenderSampleOfSwift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Iay-gB-zFX" customClass="CalendarDetailViewController" customModule="AncientCalendar" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="gfQ-jQ-arw"/>
                         <viewControllerLayoutGuide type="bottom" id="bUf-dU-0Tu"/>
@@ -286,7 +287,7 @@
         <!--Calendar Change View Controller-->
         <scene sceneID="DxF-Aj-GE6">
             <objects>
-                <viewController id="bFS-GY-hjU" customClass="CalendarChangeViewController" customModule="handmadeCalenderSampleOfSwift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="bFS-GY-hjU" customClass="CalendarChangeViewController" customModule="AncientCalendar" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="hvc-e5-TM4"/>
                         <viewControllerLayoutGuide type="bottom" id="i6b-NP-4JL"/>

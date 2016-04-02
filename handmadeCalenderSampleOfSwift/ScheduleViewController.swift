@@ -11,7 +11,7 @@ import UIKit
 import EventKit
 import EventKitUI   //EKEventEditViewController
 
-class ScheduleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITableViewDelegate, UITableViewDataSource {
 
     // Tableで使用する配列を設定する
     var myItems: NSArray = []
@@ -33,7 +33,7 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     
     //外出し（2016/04/02）
     var eventStore: EKEventStore!
-    var eventEditViewDelegate: EKEventEditViewDelegate!
+//    var eventEditViewDelegate: EKEventEditViewDelegate!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -123,14 +123,9 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
 //        performSegueWithIdentifier("toCalendarDetailView", sender: self)
         
         //EKEventEditViewController（2016/04/02）
-        var eventEditController = EKEventEditViewController()
-       
-        eventEditController.eventStore = eventStore
-//        eventEditController.editViewDelegate = eventEditViewDelegate
-        eventEditController.editViewDelegate = eventEditViewDelegate
         
-        self.presentViewController(eventEditController, animated: true, completion: nil)
-        
+        //editEvent(indexPath.row)
+        editEvent(myEvents[indexPath.row])
         
     }
     
@@ -196,7 +191,11 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     func addCell(sender: AnyObject) {
         print("追加")
         
-        performSegueWithIdentifier("toAddNewEvent", sender: self)
+        //EditEventViewController（2016/04/02）
+        //performSegueWithIdentifier("toAddNewEvent", sender: self)
+        //let event:EKEvent = EKEvent()
+        editEvent(nil)
+        
     }
     
     //削除可能なセルのindexPath
@@ -278,8 +277,28 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         return
     }
     **/
+     
+     //モーダルでEditEventViewControllerを呼び出す
+//    func editEvent(eventNum:Int){
+    func editEvent(event:EKEvent?){
+        var eventEditController = EKEventEditViewController()
+        
+        eventEditController.eventStore = eventStore
+        //        eventEditController.editViewDelegate = eventEditViewDelegate
+        eventEditController.editViewDelegate = self
+        
+        if(event != nil){
+//            eventEditController.event = myEvents[eventNum]
+//            print("myEvent[\(eventNum)]=\(myEvents[eventNum])")
+            eventEditController.event = event
+        }
+        
+        print("eventEditController.event=\(eventEditController.event)")
+        
+        self.presentViewController(eventEditController, animated: true, completion: nil)
+    }
     
-    //モーダルで立ち上がるEditEventViewControllerを消すためのメソッド
+    //EditEventViewControllerを消すためのメソッド
     func eventEditViewController(controller: EKEventEditViewController, didCompleteWithAction action: EKEventEditViewAction){
         self.dismissViewControllerAnimated(true, completion: nil)
     }
