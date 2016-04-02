@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import EventKit
+import EventKitUI   //EKEventEditViewController
 
 class ScheduleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -29,6 +30,10 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     
     //遷移先の画面（メニューフラグ）
     var menuFlg: Int!
+    
+    //外出し（2016/04/02）
+    var eventStore: EKEventStore!
+    var eventEditViewDelegate: EKEventEditViewDelegate!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,6 +76,9 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         
         //ツールバー非表示（2016/01/30）
         self.navigationController!.toolbarHidden = true
+        
+        //EKEventStoreを最初で宣言（2016/04/02）
+        eventStore = EKEventStore.init()
    
     }
 
@@ -81,7 +89,7 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         if(segue.identifier == "toAddNewEvent"){
             let ccvc = segue.destinationViewController as! CalendarChangeViewController
             
-            let eventStore:EKEventStore = EKEventStore()
+            //let eventStore:EKEventStore = EKEventStore() //外だし
             
             var newEvent = EKEvent(eventStore: eventStore)
             
@@ -101,7 +109,6 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
     
-    
     /** 以下、tableview系メソッド **/
     
     /**
@@ -112,7 +119,18 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         print("Value: \(myEvents[indexPath.row])")
         calNum = indexPath.row
         
-        performSegueWithIdentifier("toCalendarDetailView", sender: self)
+        //一旦コメントアウト（2016/04/02）
+//        performSegueWithIdentifier("toCalendarDetailView", sender: self)
+        
+        //EKEventEditViewController（2016/04/02）
+        var eventEditController = EKEventEditViewController()
+       
+        eventEditController.eventStore = eventStore
+//        eventEditController.editViewDelegate = eventEditViewDelegate
+        eventEditController.editViewDelegate = eventEditViewDelegate
+        
+        self.presentViewController(eventEditController, animated: true, completion: nil)
+        
         
     }
     
@@ -202,7 +220,8 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
     //イベントをカレンダーから削除するメソッド
     func removeEvent(index:Int){
         
-        let eventStore:EKEventStore = EKEventStore.init()
+//        let eventStore:EKEventStore = EKEventStore.init() //2016/04/02外だし
+        
         
         print(myEvents[index].eventIdentifier)
         
@@ -226,7 +245,7 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
                 granted, error in
                 if granted {
                     do{
-                        try eventStore.removeEvent(self.myEvents[index], span: EKSpan.ThisEvent)
+                        try self.eventStore.removeEvent(self.myEvents[index], span: EKSpan.ThisEvent)
                     } catch _{
                         print("イベント削除されていない。（２）")
                     }
@@ -259,6 +278,11 @@ class ScheduleViewController: UIViewController, UITableViewDelegate, UITableView
         return
     }
     **/
+    
+    //モーダルで立ち上がるEditEventViewControllerを消すためのメソッド
+    func eventEditViewController(controller: EKEventEditViewController, didCompleteWithAction action: EKEventEditViewAction){
+        self.dismissViewControllerAnimated(true, completion: nil)
+    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

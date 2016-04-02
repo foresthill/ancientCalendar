@@ -926,8 +926,9 @@ class ViewController: UIViewController {
         // 選択された一日分をフェッチ
         events = myEventStore.eventsMatchingPredicate(predicate)
         
-
+        //2016/04/02一旦コメントアウト
         performSegueWithIdentifier("toScheduleView", sender: self)
+        
     }
     
     
