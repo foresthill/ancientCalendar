@@ -898,7 +898,7 @@ class ViewController: UIViewController {
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
         
         // ユーザのカレンダーを取得
-        var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)
+        //var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)    //不要？（2016/04/02）
 
         // 終了日（一日後）コンポーネントの作成
         let comps: NSDateComponents = NSDateComponents()

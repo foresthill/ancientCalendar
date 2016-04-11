@@ -78,7 +78,9 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.navigationController!.toolbarHidden = true
         
         //EKEventStoreを最初で宣言（2016/04/02）
-        eventStore = EKEventStore.init()
+        //eventStore = EKEventStore.init()
+        //eventStore = EKEventStore()   //前画面から渡されるように修正
+        
    
     }
 
@@ -283,15 +285,15 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     func editEvent(event:EKEvent?){
         var eventEditController = EKEventEditViewController.init()
         
-        if(self.eventStore == nil){
-            self.eventStore = EKEventStore.init()
-        }
+        print(event)
+        
+//        if(self.eventStore == nil){
+//            self.eventStore = EKEventStore.init()
+//        }
         
         eventEditController.eventStore = eventStore
         //        eventEditController.editViewDelegate = eventEditViewDelegate
         eventEditController.editViewDelegate = self
-        
-        
         
         if(event != nil){
 //            eventEditController.event = myEvents[eventNum]
@@ -299,6 +301,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
             eventEditController.event = event
 //            eventEditController.eventStore = eventStore
         }
+        
+//        eventEditController.eventStore = eventStore   //2016/4/5 位置は関係ない
         
         print("eventEditController.event=\(eventEditController.event)")
         
@@ -318,7 +322,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
         
         // ユーザのカレンダーを取得
-        var myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)
+        //var myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)  //不要？（2016/04/02）
         
         // 終了日（一日後）コンポーネントの作成
         let comps: NSDateComponents = NSDateComponents()
