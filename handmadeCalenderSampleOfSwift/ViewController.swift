@@ -894,56 +894,8 @@ class ViewController: UIViewController {
 
         day = button.tag
         
-        // NSCalendarを生成
-        let myCalendar: NSCalendar = NSCalendar.currentCalendar()
-        
-        // ユーザのカレンダーを取得
-        //var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)    //不要？（2016/04/02）
-
-        // 終了日（一日後）コンポーネントの作成
-        let comps: NSDateComponents = NSDateComponents()
-        comps.year = year
-        comps.month = month
-        comps.day = day
-        
-        let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        
-        comps.day += 1
-        
-        
-        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        
-        print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
-
-        
-        // イベントストアのインスタントメソッドで述語を生成
-        var predicate = NSPredicate()
-        
-        predicate = myEventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
-        
-        print("predicate=\(predicate)")
-        
-        // 選択された一日分をフェッチ
-        events = myEventStore.eventsMatchingPredicate(predicate)
-        
         //2016/04/02一旦コメントアウト
         performSegueWithIdentifier("toScheduleView", sender: self)
-        
-    }
-    
-    
-    //画面遷移時に呼ばれるメソッド
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
-        let svc = segue.destinationViewController as! ScheduleViewController
-        //変数を渡す
-        //svc.myItems = eventItems;
-        svc.myEvents = events
-        
-        //タップされた日を渡す
-        svc.year = year
-        svc.month = month
-        svc.day = day
         
     }
     
@@ -1272,7 +1224,93 @@ class ViewController: UIViewController {
         }
     }
     
-
+    //イベントをフェッチするメソッド
+    
+    //画面遷移時に呼ばれるメソッド
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
+        let svc = segue.destinationViewController as! ScheduleViewController
+        
+        //変数を渡す
+        //svc.myItems = eventItems;
+         svc.calendarMode = calendarMode
+        
+        //本当は次の画面のクラス内でやりたい
+        if(calendarMode == 1){  //新暦モード
+            //タップされた日を渡す
+            svc.year = year
+            svc.month = month
+            svc.day = day
+            
+            //旧暦時間を渡す（2016/04/15）
+            let comps: NSDateComponents = NSDateComponents()
+            comps.year = year
+            comps.month = month
+            comps.day = day
+            
+            var ancientDate:[Int] = convertForAncientCalendar(comps)
+            svc.ancientYear = ancientDate[0]
+            svc.ancientMonth = ancientDate[1]
+            svc.ancientDay = ancientDate[2]
+            svc.isLeapMonth = ancientDate[3]
+            
+        } else {    //旧暦モード
+            
+            svc.ancientYear = year
+            svc.ancientMonth = month
+            svc.ancientDay = day
+            svc.isLeapMonth = isLeapMonth
+            
+            //新暦時間を渡す
+            var comps:NSDateComponents = convertForGregorianCalendar([year, month, day, isLeapMonth])
+            svc.year = comps.year
+            svc.month = comps.month
+            svc.day = comps.day
+            
+        }
+        
+        //eventStoreも渡す（2016/04/13：これをシングルトンと呼ぶのか？なんか違う気がする。）
+        svc.eventStore = myEventStore
+        
+        
+        //イベントをフェッチする（メソッドとして外出し？）
+        // NSCalendarを生成
+        let myCalendar: NSCalendar = NSCalendar.currentCalendar()
+        
+        // ユーザのカレンダーを取得
+        //var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)    //不要？（2016/04/02）
+        
+        // 終了日（一日後）コンポーネントの作成（2016/04/15：year→svc.yearに修正）
+        let comps: NSDateComponents = NSDateComponents()
+        comps.year = svc.year
+        comps.month = svc.month
+        comps.day = svc.day
+        
+        let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        
+        comps.day += 1
+        
+        
+        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        
+        print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
+        
+        
+        // イベントストアのインスタントメソッドで述語を生成
+        var predicate = NSPredicate()
+        
+        predicate = myEventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
+        
+        print("predicate=\(predicate)")
+        
+        // 選択された一日分をフェッチ
+        events = myEventStore.eventsMatchingPredicate(predicate)
+        
+        
+        svc.myEvents = events
+        
+        
+    }
     
     // どのクラスにもあるメソッド Memory監視？
     override func didReceiveMemoryWarning() {

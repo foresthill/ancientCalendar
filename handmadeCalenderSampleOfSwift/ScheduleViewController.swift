@@ -31,15 +31,29 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     //遷移先の画面（メニューフラグ）
     var menuFlg: Int!
     
-    //外出し（2016/04/02）
+    //EKEventStore外出し（2016/04/02）
     var eventStore: EKEventStore!
 //    var eventEditViewDelegate: EKEventEditViewDelegate!
+    
+    //旧暦時間を受け取るコンポーネント
+    var ancientYear: Int!
+    var ancientMonth: Int!
+    var ancientDay: Int!
+    
+    //カレンダーモード（通常：1 旧暦：-1）
+    var calendarMode: Int!
+    
+    //閏月かどうか
+    var isLeapMonth:Int! //閏月の場合は-1（2016/02/06）
+    
+    //EKEventEditViewController外出し（2016/04/16）
+    //var eventEditController: EKEventEditViewController! //する必要なしと判断
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Viewのタイトルを設定
-        self.title = "Calendar Events"
+//        self.title = "Calendar Events"
         
         // Status Barの高さを取得する
         let barHeight: CGFloat = UIApplication.sharedApplication().statusBarFrame.size.height
@@ -68,7 +82,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.view.addSubview(myTableView)
         
         //タイトル
-        self.navigationItem.title = "\(year)年\(month)月\(day)日の予定"
+        setTitle(year, inMonth: month, inDay: day)
         
         //編集ボタンの配置
         //navigationItem.leftBarButtonItem = editButtonItem()
@@ -82,6 +96,22 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         //eventStore = EKEventStore()   //前画面から渡されるように修正
         
    
+    }
+    
+    //タイトルを設定して表示するメソッド
+    func setTitle(inYear:Int, inMonth:Int, inDay:Int){
+        
+        var ancientMonthStr:String = String(ancientMonth)
+        
+        if(isLeapMonth < 0){
+            ancientMonthStr = "閏\(ancientMonth)"
+        }
+        
+        if(calendarMode == 1){
+            self.navigationItem.title = "\(inYear)年\(inMonth)月\(inDay)日（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientMonth)日"
+        } else {
+            self.navigationItem.title = "\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日（新暦：\(inYear)年\(month)月\(day)日"
+        }
     }
 
     
@@ -221,7 +251,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     //イベントをカレンダーから削除するメソッド
     func removeEvent(index:Int){
         
-//        let eventStore:EKEventStore = EKEventStore.init() //2016/04/02外だし
+//        let eventStore:EKEventStore = EKEventStore.init() //2016/04/02外だし　//init()するとダメ（2016/04/16）
         
         
         print(myEvents[index].eventIdentifier)
@@ -284,6 +314,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 //    func editEvent(eventNum:Int){
     func editEvent(event:EKEvent?){
         var eventEditController = EKEventEditViewController.init()
+        //eventEditController = EKEventEditViewController.init()
         
         print(event)
         
@@ -312,23 +343,30 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     //EditEventViewControllerを消すためのメソッド
     func eventEditViewController(controller: EKEventEditViewController, didCompleteWithAction action: EKEventEditViewAction){
         self.dismissViewControllerAnimated(true, completion: nil)
-        scheduleReload()
-        self.myTableView.reloadData()
         
+        //作成したイベントの日時に戻るように改修（2016/04/16）　※そもそもSaved以外はリロードする必要ないんじゃん。。。※Deletedがきになる
+        if(action == EKEventEditViewAction.Saved){
+            scheduleReload(controller.event!.startDate, action: action)
+            self.myTableView.reloadData()
+        }
     }
     
-    func scheduleReload(){
+    //func scheduleReload(){
+    func scheduleReload(startDate:NSDate, action: EKEventEditViewAction){
         // NSCalendarを生成
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
         
         // ユーザのカレンダーを取得
         //var myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)  //不要？（2016/04/02）
         
-        // 終了日（一日後）コンポーネントの作成
-        let comps: NSDateComponents = NSDateComponents()
-        comps.year = year
-        comps.month = month
-        comps.day = day
+        var comps: NSDateComponents = NSDateComponents()
+
+        // 作成したイベントの日時に戻るように改修（2016/04/16）
+        comps = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: startDate)
+        setTitle(comps.year, inMonth: comps.month, inDay: comps.day)
+//        comps.year = year
+//        comps.month = month
+//        comps.day = day
         
         let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
         
