@@ -100,22 +100,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     
     //タイトルを設定して表示するメソッド
     func setTitle(inYear:Int, inMonth:Int, inDay:Int){
-        
-//        var label = UILabel()
-        var titleView = UIView()
-//        label.font = UIFont.boldSystemFontOfSize(14.0)
-//        titleView.numberOfLines = 2 //2行表示
-        titleView.opaque = false
-        
-        //1行目のデザイン
-        var line1 = UILabel()
-        line1.font = UIFont.boldSystemFontOfSize(14.0)
-        
-        //2行めのデザイン
-        var line2 = UILabel()
-        line2.font = UIFont.boldSystemFontOfSize(11.0)
-        line2.textColor = UIColor.brownColor()
-        
+
         var ancientMonthStr:String = String(ancientMonth)
         
         if(isLeapMonth < 0){
@@ -123,29 +108,12 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         }
         
         if(calendarMode == 1){
-//            self.navigationItem.title = "\(inYear)年\(inMonth)月\(inDay)日\n（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日"
-//            titleView.text = "\(inYear)年\(inMonth)月\(inDay)日\n（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientMonth)日"
-//            line1.text = "\(inYear)年\(inMonth)月\(inDay)日"
-//            line2.text = "（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientMonth)日）"
             self.navigationItem.title = "\(inYear)年\(inMonth)月\(inDay)日"
             self.navigationItem.prompt = "（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日）"
         } else {
-            self.navigationItem.title = "\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日\n（新暦：\(inYear)年\(month)月\(day)日"
-//            titleView.text = "\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日\n（新暦：\(inYear)年\(month)月\(day)日"
             self.navigationItem.title = "\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日"
             self.navigationItem.prompt = "（新暦：\(inYear)年\(month)月\(day)日）"
         }
-        
-        titleView.addSubview(line1)
-        titleView.addSubview(line2)
-        
-       
-        
-        //self.navigationItem.title = label
-//        self.navigationItem.title = "あ"
-    
-//        self.navigationItem.titleView = titleView
-
         
     }
 
