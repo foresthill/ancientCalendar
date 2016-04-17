@@ -6,6 +6,12 @@
 //  Copyright (c) 2016 foresthill. All rights reserved.
 //
 
+/**
+ * 本コードは下記のURLのものを基に作成しています。
+ * http://blog.just1factory.net/programming/179
+ *
+ */
+
 import UIKit
 import EventKit
 import Foundation   //floor関数使用のため
@@ -245,8 +251,6 @@ class ViewController: UIViewController {
         dayOfWeek = orgDayOfWeek
         maxDay    = max
         
-        print("\(year),\(month),\(day),\(dayOfWeek),\(maxDay)")
-        
         //空の配列を作成する（カレンダーデータの格納用）
         mArray = NSMutableArray()
         
@@ -276,7 +280,6 @@ class ViewController: UIViewController {
         }
         
         let calendarLabelCount = monthName.count
-        print("calendarLabelCount=\(calendarLabelCount)")
         
         let reviseX:Double =  7.0 / Double(calendarLabelCount)
         var tempCalendarLabelX = Int(ceil(Double(calendarLabelX) * reviseX))
@@ -489,7 +492,6 @@ class ViewController: UIViewController {
                     button.layer.borderColor = UIColor(
                         red: CGFloat(0.993), green: CGFloat(0.989), blue: CGFloat(0.856), alpha: CGFloat(0.9)).CGColor
                     button.layer.borderWidth = 1
-                    print("ここが赤くなっているか→\(year).\(month).\(day)")
                 }*/
                 
                 button.tag = tagNumber

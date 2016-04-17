@@ -174,7 +174,6 @@ final class AncientCalendarConverter2
         days = floor((Double(days) / 13.0) + 0.001) //旧暦年初の新暦年初からの日数
         
         ancientTbl[0] = [Int(days), 1]  //旧暦正月の通日と、月数
-        //        ancientTbl.append([Int(days), 1])
         
         if(leapMonth == 0){
             bits *= 2   //閏無しなら、１２ヶ月
@@ -198,7 +197,6 @@ final class AncientCalendarConverter2
                 ancientTbl[i][1] = i    //月を再計算
             }
             ancientTbl[leapMonth][1] = -leapMonth;   //識別のため閏月はマイナスで記録
-            print("閏ある！\(leapMonth)月。")
         } else {
             ancientTbl[13] = [0, 0] //使ってないけどエラー防止で。
         }

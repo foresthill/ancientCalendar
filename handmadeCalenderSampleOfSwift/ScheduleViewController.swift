@@ -67,7 +67,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         setTitle(year, inMonth: month, inDay: day)
         
         //編集ボタンの配置
-        //navigationItem.leftBarButtonItem = editButtonItem()
         navigationItem.rightBarButtonItem = editButtonItem()
         
         //ツールバー非表示（2016/01/30）
@@ -93,49 +92,19 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         }
         
     }
-
     
     //画面遷移時に呼ばれるメソッド
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
-        if(segue.identifier == "toAddNewEvent"){
-            let ccvc = segue.destinationViewController as! CalendarChangeViewController
-            
-            //let eventStore:EKEventStore = EKEventStore() //外だし
-            
-            var newEvent = EKEvent(eventStore: eventStore)
-            
-            let df:NSDateFormatter = NSDateFormatter()
-            //df.dateFormat = "yyyy/MM/dd"
-            df.dateFormat = "yyyy年MM月dd日hh:mm"
-            
-            newEvent.startDate = df.dateFromString("\(year)年\(month)月\(day)日 01:00")!
-            newEvent.endDate = df.dateFromString("\(year)年\(month)月\(day)日 02:00")!
-            
-            ccvc.myEvent = newEvent
-            
-        } else {
-            let cdvc = segue.destinationViewController as! CalendarDetailViewController
-        //変数を渡す
-        cdvc.myEvent = events[calNum]
-        }
+        //EKEventEditViewController導入に伴うクラス削除により、メソッド処理なし
     }
     
-    /** 以下、tableview系メソッド **/
+    /** 以下、更新・削除処理を実施するメソッド **/
     
     /**
     Cellがタップ（選択）された際に呼び出される
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
-        
-        //一旦コメントアウト（2016/04/02）
-//        performSegueWithIdentifier("toCalendarDetailView", sender: self)
-        
-        //EKEventEditViewController（2016/04/02）
-        
-        //editEvent(indexPath.row)
         editEvent(events[indexPath.row])
-        
     }
     
     /**
@@ -178,11 +147,11 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         //編集中の時のみaddButtonをナビゲーションバーの左に表示する
         if editing {
-            print("編集中")
+            //編集中
             let addButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "addCell:")
             self.navigationItem.setLeftBarButtonItem(addButton, animated: true)
         } else {
-            print("通常モード")
+            //通常モード
             self.navigationItem.setLeftBarButtonItem(nil, animated: true)
         }
     }
@@ -194,62 +163,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         editEvent(nil)
         
     }
-    
-    //削除可能なセルのindexPath
-    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return true
-    }
-    
-    //実際に削除された時の処理を実装する
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
 
-        //実データ削除メソッド
-        removeEvent(indexPath.row)
-        
-        //先にデータを更新する
-        events.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
-
-        //それからテーブルの更新
-        tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
-    }
-    
-    //イベントをカレンダーから削除するメソッド
-    func removeEvent(index:Int){
-        
-        switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
-        
-        case .Authorized:
-            do{
-                eventStore.eventWithIdentifier(events[index].eventIdentifier)
-                try eventStore.removeEvent(events[index], span: EKSpan.ThisEvent)
-                print("削除完了！")
-            } catch _{
-                print("イベント削除されていない。（１）")
-            }
-        case .Denied:
-            print("Access denied")
-        case .NotDetermined:
-            eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
-                //[weak self](granted:Bool, error:NSError!) -> Void in
-                granted, error in
-                if granted {
-                    do{
-                        try self.eventStore.removeEvent(self.events[index], span: EKSpan.ThisEvent)
-                    } catch _{
-                        print("イベント削除されていない。（２）")
-                    }
-
-                } else {
-                    print("Access denied")
-                }
-            })
-        default:
-            print("Case Default")
-        }
-
-    }
-    
-    
     //モーダルでEditEventViewControllerを呼び出す
     func editEvent(event:EKEvent?){
         var eventEditController = EKEventEditViewController.init()
@@ -302,6 +216,60 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // 選択された一日分をフェッチ
         events = eventStore.eventsMatchingPredicate(predicate)
+    }
+    
+    //削除可能なセルのindexPath
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    //実際に削除された時の処理を実装する
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+        //実データ削除メソッド
+        removeEvent(indexPath.row)
+        
+        //先にデータを更新する
+        events.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
+        
+        //それからテーブルの更新
+        tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
+    }
+    
+    //イベントをカレンダーから削除するメソッド
+    func removeEvent(index:Int){
+        
+        switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
+            
+        case .Authorized:
+            do{
+                eventStore.eventWithIdentifier(events[index].eventIdentifier)
+                try eventStore.removeEvent(events[index], span: EKSpan.ThisEvent)
+                print("Deleted.")
+            } catch _{
+                print("not Deleted(1).")
+            }
+        case .Denied:
+            print("Access denied")
+        case .NotDetermined:
+            eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+                //[weak self](granted:Bool, error:NSError!) -> Void in
+                granted, error in
+                if granted {
+                    do{
+                        try self.eventStore.removeEvent(self.events[index], span: EKSpan.ThisEvent)
+                    } catch _{
+                        print("not Deleted(2).")
+                    }
+                    
+                } else {
+                    print("Access denied")
+                }
+            })
+        default:
+            print("Case Default")
+        }
+        
     }
     
     override func didReceiveMemoryWarning() {
