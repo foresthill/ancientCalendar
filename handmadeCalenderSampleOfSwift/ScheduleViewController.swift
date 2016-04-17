@@ -1,6 +1,6 @@
 //
 //  ScheduleView.swift
-//  handmadeCalenderSampleOfSwift
+//  スケジュール一覧画面
 //
 //  Created by Morioka Naoya on H27/07/29.
 //  Copyright (c) 2016 foresthill. All rights reserved.
@@ -14,7 +14,6 @@ import EventKitUI   //EKEventEditViewController
 class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITableViewDelegate, UITableViewDataSource {
 
     // Tableで使用する配列を設定する
-//    var myItems: NSArray = []
     var events: [EKEvent]!
     
     // segueで渡す時の変数
@@ -33,7 +32,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     
     //EKEventStore外出し（2016/04/02）
     var eventStore: EKEventStore!
-//    var eventEditViewDelegate: EKEventEditViewDelegate!
     
     //旧暦時間を受け取るコンポーネント
     var ancientYear: Int!
@@ -45,26 +43,10 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     
     //閏月かどうか
     var isLeapMonth:Int! //閏月の場合は-1（2016/02/06）
-    
-    //EKEventEditViewController外出し（2016/04/16）
-    //var eventEditController: EKEventEditViewController! //する必要なしと判断
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Viewのタイトルを設定
-//        self.title = "Calendar Events"
-        
-        // Status Barの高さを取得する
-        let barHeight: CGFloat = UIApplication.sharedApplication().statusBarFrame.size.height
-        
-        // Viewの高さと幅を取得する
-        let displayWidth: CGFloat = self.view.frame.width
-        let displayHeight: CGFloat = self.view.frame.height
-        
-        // TableViewの生成する（status barの高さ分ずらして表示）
-        //let myTableView: UITableView = UITableView(frame: CGRect(x: 0, y: barHeight, width: displayWidth, height: displayHeight - barHeight)) //2015/12/23
-        
+
         // Cell名の登録を行う
         myTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "MyCell")
         
@@ -90,11 +72,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         //ツールバー非表示（2016/01/30）
         self.navigationController!.toolbarHidden = true
-        
-        //EKEventStoreを最初で宣言（2016/04/02）
-        //eventStore = EKEventStore.init()
-        //eventStore = EKEventStore()   //前画面から渡されるように修正
-        
    
     }
     
@@ -150,9 +127,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     Cellがタップ（選択）された際に呼び出される
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
-        print("Num: \(indexPath.row)")
-        print("Value: \(events[indexPath.row])")
-        calNum = indexPath.row
         
         //一旦コメントアウト（2016/04/02）
 //        performSegueWithIdentifier("toCalendarDetailView", sender: self)
@@ -168,7 +142,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     Cellの総数を返す
     **/
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //return myItems.count
         return events.count
     }
     
@@ -178,7 +151,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         // Cellの.を取得する
-        //let cell = tableView.dequeueReusableCellWithIdentifier("MyCell", forIndexPath: indexPath) //これだとdetailが取れない？
         let cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "MyCell")
         
         // Cellに値を設定する
@@ -186,17 +158,12 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
         let df:NSDateFormatter = NSDateFormatter()
         let df2:NSDateFormatter = NSDateFormatter()
-        //df.dateFormat = "yyyy/MM/dd"
         df.dateFormat = "yyyy年MM月dd日 hh:mm"
         df2.dateFormat = "hh:mm"
 
         let detailText = "\(df2.stringFromDate(events[indexPath.row].startDate))" + "\n - " + "\(df.stringFromDate(events[indexPath.row].endDate))"
-//        print("tmpは\(tmp)")
         
         cell.detailTextLabel?.text = detailText
-        
-//        print(events[indexPath.row].startDate)
-//        print(cell.detailTextLabel?.text)
 
         cell.textLabel?.numberOfLines = 2
         cell.detailTextLabel?.numberOfLines = 2
@@ -224,11 +191,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     addButtonが押された時に呼び出される
     */
     func addCell(sender: AnyObject) {
-        print("追加")
-        
-        //EditEventViewController（2016/04/02）
-        //performSegueWithIdentifier("toAddNewEvent", sender: self)
-        //let event:EKEvent = EKEvent()
         editEvent(nil)
         
     }
@@ -254,16 +216,9 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     //イベントをカレンダーから削除するメソッド
     func removeEvent(index:Int){
         
-//        let eventStore:EKEventStore = EKEventStore.init() //2016/04/02外だし　//init()するとダメ（2016/04/16）
-        
-        
-        print(events[index].eventIdentifier)
-        
         switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
         
         case .Authorized:
-//            print(events)
-            print(events[index])
             do{
                 eventStore.eventWithIdentifier(events[index].eventIdentifier)
                 try eventStore.removeEvent(events[index], span: EKSpan.ThisEvent)
@@ -294,69 +249,32 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
     }
     
-        
-    /**
-    reloadする
-
-    func reloadTableView(){
-        
-    }
-*/
     
-    /**
-    Cellの高さを指定する
-
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        let cell = tableView.dequeueReusableCellWithIdentifier("MyCell", forIndexPath: indexPath)
-        
-        return
-    }
-    **/
-     
-     //モーダルでEditEventViewControllerを呼び出す
-//    func editEvent(eventNum:Int){
+    //モーダルでEditEventViewControllerを呼び出す
     func editEvent(event:EKEvent?){
         var eventEditController = EKEventEditViewController.init()
-        //eventEditController = EKEventEditViewController.init()
-        
-        print(event)
-        
-//        if(self.eventStore == nil){
-//            self.eventStore = EKEventStore.init()
-//        }
         
         eventEditController.eventStore = eventStore
-        //        eventEditController.editViewDelegate = eventEditViewDelegate
         eventEditController.editViewDelegate = self
         
         if(event != nil){
-//            eventEditController.event = events[eventNum]
-//            print("myEvent[\(eventNum)]=\(events[eventNum])")
             eventEditController.event = event
-//            eventEditController.eventStore = eventStore
         }
-        
-//        eventEditController.eventStore = eventStore   //2016/4/5 位置は関係ない
-        
-        print("eventEditController.event=\(eventEditController.event)")
-        
+
         self.presentViewController(eventEditController, animated: true, completion: nil)
     }
     
-    //EditEventViewControllerを消すためのメソッド
+    //EditEventViewControllerを閉じた時に呼ばれるメソッド（必須）
     func eventEditViewController(controller: EKEventEditViewController, didCompleteWithAction action: EKEventEditViewAction){
         self.dismissViewControllerAnimated(true, completion: nil)
         
         //作成したイベントの日時に戻るように改修（2016/04/16）　※そもそもSaved以外はリロードする必要ないんじゃん。。。※Deletedがきになる
         if(action == EKEventEditViewAction.Saved){
-//            scheduleReload(controller.event!.startDate, action: action)
             scheduleReload(controller.event!.startDate)
             self.myTableView.reloadData()
         }
     }
     
-    //func scheduleReload(){
-//    func scheduleReload(startDate:NSDate, action: EKEventEditViewAction){
     func scheduleReload(startDate:NSDate){
         // NSCalendarを生成
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
@@ -369,9 +287,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         // 作成したイベントの日時に戻るように改修（2016/04/16）
         comps = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: startDate)
         setTitle(comps.year, inMonth: comps.month, inDay: comps.day)
-//        comps.year = year
-//        comps.month = month
-//        comps.day = day
         
         let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
         
@@ -380,15 +295,10 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
         
-        print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
-        
-        
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
         predicate = eventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
-        
-        print("predicate=\(predicate)")
         
         // 選択された一日分をフェッチ
         events = eventStore.eventsMatchingPredicate(predicate)

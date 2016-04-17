@@ -64,14 +64,8 @@ class ViewController: UIViewController {
     
     // カレンダーを呼び出すための認証情報（2015/07/29）
     var eventStore: EKEventStore!
-//    var myEvents: NSArray!
-//    var myTargetCalendar: EKCalendar!
-    
-    // 旧暦
-//    var jpnMonth: NSArray!
     
     // 発見したイベントを格納する配列を生成（Segueで呼び出すために外だし）2015/12/23
-//    var eventItems = [String]()   //配列を渡す
     var events: [EKEvent]!
     
     //カレンダーの閾値（1999年〜2030年まで閲覧可能）
@@ -79,7 +73,7 @@ class ViewController: UIViewController {
     let maxYear = 2030
 
     //モード（通常モード、旧暦モード）
-    var calendarMode: Int!      //一旦いいや→ゆくゆくは３モード切替にしたいため、boolではなくintで。（量子コンピュータ）1:通常（新暦）-1:旧暦
+    var calendarMode: Int!      //ゆくゆくは３モード切替にしたいため、boolではなくintで。（量子コンピュータ）1:通常（新暦）-1:旧暦
     
     //曜日ラベル削除用（2016/02/11外だし）
     var mArrayForLabel: NSMutableArray!
@@ -120,25 +114,13 @@ class ViewController: UIViewController {
         // ユーザーにカレンダーの使用許可を求める（2015/08/06）
         allowAuthorization()
         
-        //NavigationViewControllerのタイトル
-//        self.navigationItem.title = "旧暦カレンダー"
-        self.navigationItem.title = "\(year)年"
-        
-        //ツールバー表示（2016/01/30）
-//        self.navigationController!.toolbarHidden = false
-//        let delButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "onClickDelButton")
-//        let addButton :UIBarButtonItem! = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: "onClickAddButton")
-//        
-//        self.navigationController!.toolbarItems = [delButton, addButton]
-//        toolbarItems?.append(delButton)
-        
+        //NavigationViewControllerのタイトル（初期表示）
+        self.navigationItem.title = "旧暦カレンダー"
+        //self.navigationItem.prompt = "\(year)年"   //見栄えが崩れるためコメントアウト
+
         //Editボタンを作成
-//        var btn: UIBarButtonItem = UIBarButtonItem.init(title: "" , style: UIBarButtonItemStyle.Plain, target: self, action: "calendarChange")
         let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Undo , target: self, action: "calendarChange")
         navigationItem.rightBarButtonItem = btn
-        
-        
-
         
      }
     
@@ -245,18 +227,10 @@ class ViewController: UIViewController {
         
         //inUnit:で指定した単位（月）の中で、rangeOfUnit:で指定した単位（日）が取り得る範囲
         let calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-//        let calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierJapanese)!
         let range: NSRange = calendar.rangeOfUnit(NSCalendarUnit.Day, inUnit:NSCalendarUnit.Month, forDate:now)
         
         //最初にメンバ変数に格納するための現在日付の情報を取得する
         comps = calendar.components([NSCalendarUnit.Year, NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Weekday],fromDate:now)
-        
-        /*
-        if(calendarMode == -1){
-            //ConvertAncientCalendar
-            convertForAncientCalendar(comps)
-        }
-*/
         
         //年月日と最後の日付と曜日を取得(NSIntegerをintへのキャスト不要)
         let orgYear: NSInteger      = comps.year
@@ -279,7 +253,6 @@ class ViewController: UIViewController {
         //曜日ラベルの配列を格納する（削除用）2016/02/11
         mArrayForLabel = NSMutableArray()
         
-
         //曜日ラベルを動的に配置
         setupCalendarLabel()
         
@@ -410,7 +383,6 @@ class ViewController: UIViewController {
                 tempMonth++
             }
             
-//            maxDay = ancientTbl[tempMonth][0] - ancientTbl[tempMonth-1][0]    //2016/04/17
             maxDay = converter.ancientTbl[tempMonth][0] - converter.ancientTbl[tempMonth-1][0]
     
         //新暦モード
@@ -441,11 +413,7 @@ class ViewController: UIViewController {
             let positionY   = calendarIntervalY + calendarY * (i / numberOfDaysInWeek)
             let buttonSizeX = calendarSize;
             let buttonSizeY = calendarSize;
-            
-//            var reviseX:Double =  7.0 / Double(numberOfDaysInWeek)
-//            //positionX = Int(round(Double(positionX) * reviseX))
-//            positionX = Int(ceil(Double(positionX) * reviseX))
-            
+
             //ボタンをつくる
             let button: UIButton = UIButton()
             button.frame = CGRectMake(
@@ -454,9 +422,7 @@ class ViewController: UIViewController {
                 CGFloat(buttonSizeX),
                 CGFloat(buttonSizeY)
             );
-            
 
-            
             //ボタンの初期設定をする
             if(i < dayOfWeek - 1){
                 
@@ -470,38 +436,27 @@ class ViewController: UIViewController {
 //                button.setTitle(String(tagNumber), forState: .Normal)
                 
                 var strBtn :String = String(tagNumber) + " "
-//                var atrBtn :NSAttributedString = NSAttributedString.init(string: strBtn)
-//                var atrBtn :NSAttributedString = NSAttributedString.attribute()
-//                atrBtn.attribute(NSFontAttributeName, atIndex: 0, effectiveRange: NSMakeRange(3, 5))
-//                var atr = [NSFontAttributeName:UIFont.systemFontOfSize(10.0)]
                 
                 var tmpComps :NSDateComponents = nowCalendar.components([.Year, .Month, .Day], fromDate: NSDate())
                 tmpComps.year = year
                 tmpComps.month = month
-                //tmpComps.day = i
                 tmpComps.day = tagNumber
-                
-//                print(tmpComps)
                 
                 var addDate:String = ""
                 
                 if(calendarMode == -1){ //旧暦モード
                     
                     if(!nowLeapMonth){  //通常月
-//                        tmpComps = convertForGregorianCalendar([year, month, tagNumber, 0])   //2016/04/17
                         tmpComps = converter.convertForGregorianCalendar([year, month, tagNumber, 0])
                         
                     } else {    //閏月
-//                        tmpComps = convertForGregorianCalendar([year, -month, tagNumber, 0])  //2016/04/17
                         tmpComps = converter.convertForGregorianCalendar([year, -month, tagNumber, 0])
                     }
                     
                     addDate += "\(tmpComps.month)/\(tmpComps.day)"
                     
                 } else {
-//                    var array:[Int] = convertForAncientCalendar(tmpComps) //2016/04/17
                     var array:[Int] = converter.convertForAncientCalendar(tmpComps)
-//                    print("array=\(array)")
                     
                     if(array[3] == -1){
                         addDate += "閏"
@@ -515,7 +470,7 @@ class ViewController: UIViewController {
                 
                 var myMutableString:NSMutableAttributedString = NSMutableAttributedString(
                     string: strBtn,
-                    attributes: [NSFontAttributeName:UIFont.systemFontOfSize(11.9)])    //12.3
+                    attributes: [NSFontAttributeName:UIFont.systemFontOfSize(11.9)])
                 
                 myMutableString.addAttribute(NSForegroundColorAttributeName, value: UIColor.whiteColor(), range: NSRange(location: 0, length: (strBtn.characters.count - addDate.characters.count)))
                     
@@ -526,20 +481,16 @@ class ViewController: UIViewController {
                 myMutableString.addAttribute(NSFontAttributeName, value: UIFont.systemFontOfSize(7.3),
                     range: NSRange(location: (strBtn.characters.count - addDate.characters.count), length: addDate.characters.count))   //7.6
                 
-//                button.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-                
-//                button.setTitle(strBtn, forState: .Normal)
-//                button.setTitle(myMutableString, forState: .Normal)
-                
-//                button.setAttributedTitle(atr, forState: .Normal)
-                
-//                button.setAttributedTitle(atrBtn, forState: .Normal)
                 button.setAttributedTitle(myMutableString, forState: .Normal)
                 
-                if(nowComps.year == year && nowComps.month == month && nowComps.day == i){   //当日については、赤くする
-                    button.setTitleColor(UIColor.redColor(), forState: .Normal)
+                /*当日については、枠線で色をつける（旧暦に対応していないため、一旦保留）
+                if(nowComps.year == year && nowComps.month == month && nowComps.day == tagNumber){
+                    //button.setTitleColor(UIColor.redColor(), forState: .Normal)
+                    button.layer.borderColor = UIColor(
+                        red: CGFloat(0.993), green: CGFloat(0.989), blue: CGFloat(0.856), alpha: CGFloat(0.9)).CGColor
+                    button.layer.borderWidth = 1
                     print("ここが赤くなっているか→\(year).\(month).\(day)")
-                }
+                }*/
                 
                 button.tag = tagNumber
                 tagNumber++
@@ -551,9 +502,6 @@ class ViewController: UIViewController {
                 button.enabled = false
                 
             }
-            
-          
-//            print("i=\(i)")
             
             //ボタンの配色の設定
             //@remark:このサンプルでは正円のボタンを作っていますが、背景画像の設定等も可能です。
@@ -585,7 +533,7 @@ class ViewController: UIViewController {
             //ボタンを配置する
             self.view.addSubview(button)
             
-            //アニメーション
+            //ボタンが配置された時のアニメーション
             UIView.animateWithDuration(duration, animations: { () -> Void in
                 button.transform = transform
                 })
@@ -605,24 +553,17 @@ class ViewController: UIViewController {
     
     //タイトル表記を設定する関数
     func setupCalendarTitleLabel() {
-        //calendarBar.text = String("\(year)年\(month)月のカレンダー")
+
         self.navigationItem.title = "\(year)年"
         
         var calendarTitle: String;
         var jpnMonth = ["睦月", "如月", "弥生", "卯月", "皐月", "水無月", "文月", "葉月", "長月", "神無月", "霜月", "師走"]
         calendarTitle = "\(month)月"
-//        if(isLeapMonth < 0){
+
         if((month == converter.leapMonth) && nowLeapMonth){   //leapMonth→converter.leapMonth（2016/04/17）
             calendarTitle = "閏\(month)月"
         }
-        
-        //print("setupCalendarTitleLabelの中で、leapMonth=\(leapMonth)、month=\(month)、isLeapMonth=\(isLeapMonth)")
-        /*
-        if(leapMonth == month){
-            isLeapMonth = -1
-        }
-        */
-        
+
         switch calendarMode {
             case -1:
                 calendarBar.text = String("" + jpnMonth[month-1] + "（旧暦 \(calendarTitle)）")
@@ -760,29 +701,17 @@ class ViewController: UIViewController {
          *************/
         let currentCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
         var currentComps: NSDateComponents = NSDateComponents()//ここでインスタンス化してるから、変換するときダメなんや！いや違った。
-        
-        //        let currentComps = currentCalendar.components([NSCalendarUnit.Year, NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Weekday],fromDate:NSDate();
-
-        
-        self.navigationItem.title = "旧暦カレンダー"
-        
-        
-        
+    
         if(calendarMode == -1){  //旧暦モードへ
             
             //これ入れないとおかしくなる。なんで？converForAncientCalendarの洗礼を通れなくなるから、みたい。
             currentComps.year  = year
             currentComps.month = month
-//            currentComps.day   = 1        //NavigationViewControllerのタイトル
             currentComps.day   = day    //必要？
             
-            print("convertForAncientCalendar返還前:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
-//            let ancientDate:[Int] = convertForAncientCalendar(currentComps)   //2016/04/17
+            //新暦→旧暦へ変換
             let ancientDate:[Int] = converter.convertForAncientCalendar(currentComps)   //2016/04/17
-            print("convertFor取得後：\(ancientDate)")
-            //            year = ancientDate[0]
-            //            month = ancientDate[1]
-            //            day = ancientDate[2]
+            
             currentComps.year = ancientDate[0]
             currentComps.month = ancientDate[1]
             currentComps.day = ancientDate[2]
@@ -793,25 +722,21 @@ class ViewController: UIViewController {
             }
         
         } else {    //新暦モードへ戻す
-            print("convertForAncientCalendar返還前:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
-            if(!nowLeapMonth){
-//                currentComps = convertForGregorianCalendar([year, month, 29, 0])  //2016/04/17
+            
+            //旧暦→新暦へ変換
+            if(!nowLeapMonth){  //閏月でない場合
                 currentComps = converter.convertForGregorianCalendar([year, month, 29, 0])
 
             }else {
-//                currentComps = convertForGregorianCalendar([year, -month, 29, 0]) //2016/04/17
                 currentComps = converter.convertForGregorianCalendar([year, -month, 29, 0])
 
                 nowLeapMonth = false    //閏月の初期化
                 
             }
-            print("convertFor取得後：\(currentComps)")
-            
-
             
         }
         
-        print("setupCurrentCalendar（変換後）:year=\(year),month=\(month),day=\(day),isLeapMonth=\(isLeapMonth)")
+        self.navigationItem.title = "\(year)"
         
         let currentDate: NSDate = currentCalendar.dateFromComponents(currentComps)!
         recreateCalendarParameter(currentCalendar, currentDate: currentDate)
@@ -838,9 +763,7 @@ class ViewController: UIViewController {
         day       = currentDay
         dayOfWeek = currentDayOfWeek
         maxDay    = currentMax
-        
-//        print("recreateCalendarParameterの中で、leapMonth=\(leapMonth)、month=\(month)、isLeapMonth=\(isLeapMonth)")
-        
+
         if(converter.leapMonth == month){ //leapMonth→converter.leapMonth（2016/04/17）
             isLeapMonth = -1
         } else {
@@ -884,9 +807,7 @@ class ViewController: UIViewController {
     
     //カレンダーボタンをタップした時のアクション
     func buttonTapped(button: UIButton){
-        
-        // @todo:画面遷移等の処理を書くことができます。
-        
+
         // コンソール表示
         print("\(year)年\(month)月\(button.tag)日が選択されました！")
 
@@ -1029,8 +950,7 @@ class ViewController: UIViewController {
         let svc = segue.destinationViewController as! ScheduleViewController
         
         //変数を渡す
-        //svc.myItems = eventItems;
-         svc.calendarMode = calendarMode
+        svc.calendarMode = calendarMode
         
         //本当は次の画面のクラス内でやりたい
         if(calendarMode == 1){  //新暦モード
@@ -1045,7 +965,6 @@ class ViewController: UIViewController {
             comps.month = month
             comps.day = day
             
-//            var ancientDate:[Int] = convertForAncientCalendar(comps)  //2016/04/17
             var ancientDate:[Int] = converter.convertForAncientCalendar(comps)
             svc.ancientYear = ancientDate[0]
             svc.ancientMonth = ancientDate[1]
@@ -1060,7 +979,6 @@ class ViewController: UIViewController {
             svc.isLeapMonth = isLeapMonth
             
             //新暦時間を渡す
-//            var comps:NSDateComponents = convertForGregorianCalendar([year, month, day, isLeapMonth]) //2016/04/17
             var comps:NSDateComponents = converter.convertForGregorianCalendar([year, month, day, isLeapMonth])
             svc.year = comps.year
             svc.month = comps.month
@@ -1076,9 +994,6 @@ class ViewController: UIViewController {
         // NSCalendarを生成
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
         
-        // ユーザのカレンダーを取得
-        //var myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)    //不要？（2016/04/02）
-        
         // 終了日（一日後）コンポーネントの作成（2016/04/15：year→svc.yearに修正）
         let comps: NSDateComponents = NSDateComponents()
         comps.year = svc.year
@@ -1088,26 +1003,17 @@ class ViewController: UIViewController {
         let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
         
         comps.day += 1
-        
-        
+
         let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        
-        print("oneDayFromSelcetedDay=\(oneDayFromSelectedDay)")
-        
-        
+
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
         predicate = eventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
-        
-        print("predicate=\(predicate)")
-        
+
         // 選択された一日分をフェッチ
         events = eventStore.eventsMatchingPredicate(predicate)
-        
-        
         svc.events = events
-        
         
     }
     
