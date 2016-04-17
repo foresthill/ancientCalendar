@@ -84,7 +84,6 @@ final class AncientCalendarConverter2
             isLeapMonth = 0
         }
 
-        print(yearByAncient,monthByAncient,dayByAncient,isLeapMonth)
         return [yearByAncient,monthByAncient,dayByAncient,isLeapMonth]
         
     }

@@ -50,13 +50,11 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //今日1日分のイベントをフェッチ
-        fetchEvent()
-        
+        var comps: NSDateComponents = NSDateComponents()
+
         if(calendarMode == 1){  //新暦モード
          
             //旧暦時間を渡す（2016/04/15）
-            let comps: NSDateComponents = NSDateComponents()
             comps.year = year
             comps.month = month
             comps.day = day
@@ -74,13 +72,18 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
             ancientDay = day
         
             //新暦時間を渡す
-            var comps:NSDateComponents = converter.convertForGregorianCalendar([year, month, day, isLeapMonth])
+            comps = converter.convertForGregorianCalendar([ancientYear, ancientMonth, ancientDay, isLeapMonth])
             year = comps.year
             month = comps.month
             day = comps.day
 
         }
-
+        
+        //今日1日分のイベントをフェッチ
+        fetchEvent(comps)
+        
+        //タイトル
+        setScheduleTitle(comps)
 
         // Cell名の登録を行う
         myTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "MyCell")
@@ -99,7 +102,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.view.addSubview(myTableView)
         
         //タイトル
-        setTitle(year, inMonth: month, inDay: day)
+        //setTitle(year, inMonth: month, inDay: day)
         
         //編集ボタンの配置
         navigationItem.rightBarButtonItem = editButtonItem()
@@ -110,22 +113,22 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     }
     
     //本日1日分のイベントをフェッチするメソッド
-    func fetchEvent(){
+    func fetchEvent(inComps: NSDateComponents){
         //イベントをフェッチする（メソッドとして外出し？）
         // NSCalendarを生成
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
         
         // 終了日（一日後）コンポーネントの作成（2016/04/15：year→svc.yearに修正）
-        let comps: NSDateComponents = NSDateComponents()
-        comps.year = year
-        comps.month = month
-        comps.day = day
+//        let inComps: NSDateComponents = NSDateComponents()
+//        inComps.year = year
+//        inComps.month = month
+//        inComps.day = day
         
-        let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        let SelectedDay: NSDate = myCalendar.dateFromComponents(inComps)!
         
-        comps.day += 1
+        inComps.day += 1
         
-        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
+        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(inComps)!
         
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
@@ -134,25 +137,34 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // 選択された一日分をフェッチ
         events = eventStore.eventsMatchingPredicate(predicate)
+        
+        inComps.day -= 1    //かっこ悪りぃ。。inCompsはメソッド内だけでないの？ポインタ渡してるのか。。
     }
     
     //タイトルを設定して表示するメソッド
-    func setTitle(inYear:Int, inMonth:Int, inDay:Int){
-
-        var ancientMonthStr:String = String(ancientMonth)
+//    func setTitle(inYear:Int, inMonth:Int, inDay:Int){
+    func setScheduleTitle(inComps: NSDateComponents){
         
+        var ancientDate:[Int] = converter.convertForAncientCalendar(inComps)
+        ancientYear = ancientDate[0]
+        ancientMonth = ancientDate[1]
+        ancientDay = ancientDate[2]
+        isLeapMonth = ancientDate[3]
+    
+        var ancientMonthStr:String = String(ancientMonth)
+
         if(isLeapMonth < 0){
             ancientMonthStr = "閏\(ancientMonth)"
         }
         
         if(calendarMode == 1){
             //新暦モード
-            self.navigationItem.title = "\(inYear)年\(inMonth)月\(inDay)日"
+            self.navigationItem.title = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
             self.navigationItem.prompt = "（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日）"
         } else {
             //旧暦モード
             self.navigationItem.title = "\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日"
-            self.navigationItem.prompt = "（新暦：\(inYear)年\(month)月\(day)日）"
+            self.navigationItem.prompt = "（新暦：\(inComps.year)年\(inComps.month)月\(inComps.day)日）"
         }
         
     }
@@ -264,10 +276,11 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
         // 作成したイベントの日時に戻るように改修（2016/04/16）
         comps = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: startDate)
-        setTitle(comps.year, inMonth: comps.month, inDay: comps.day)
+        //setTitle(comps.year, inMonth: comps.month, inDay: comps.day)
+        setScheduleTitle(comps)
         
         // イベントをフェッチ
-        fetchEvent()
+        fetchEvent(comps)
         
         /*
         
