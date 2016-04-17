@@ -416,9 +416,9 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         
         var svc:ScheduleViewController = array.objectAtIndex(1) as! ScheduleViewController
         
-        svc.myEvents = getCalendar()
+        svc.events = getCalendar()
         
-        print(svc.myEvents)
+        print(svc.events)
         
         
         //svc.viewDidLoad()

@@ -63,46 +63,26 @@ class ViewController: UIViewController {
     private var popUpWindowButton: UIButton!
     
     // カレンダーを呼び出すための認証情報（2015/07/29）
-    var myEventStore: EKEventStore!
-    var myEvents: NSArray!
-    var myTargetCalendar: EKCalendar!
+    var eventStore: EKEventStore!
+//    var myEvents: NSArray!
+//    var myTargetCalendar: EKCalendar!
     
     // 旧暦
 //    var jpnMonth: NSArray!
     
     // 発見したイベントを格納する配列を生成（Segueで呼び出すために外だし）2015/12/23
-    var eventItems = [String]()   //配列を渡す
+//    var eventItems = [String]()   //配列を渡す
     var events: [EKEvent]!
-    
-    //旧暦・新暦変換テーブル（秘伝のタレ）
-    let o2ntbl = [[611,2350],[468,3222]	,[316,7317]	,[559,3402]	,[416,3493]
-        ,[288,2901]	,[520,1388]	,[384,5467]	,[637,605]	,[494,2349]	,[343,6443]
-        ,[585,2709]	,[442,2890]	,[302,5962]	,[533,2901]	,[412,2741]	,[650,1210]
-        ,[507,2651]	,[369,2647]	,[611,1323]	,[468,2709]	,[329,5781]	,[559,1706]
-        ,[416,2773]	,[288,2741]	,[533,1206]	,[383,5294]	,[624,2647]	,[494,1319]
-        ,[356,3366]	,[572,3475]	,[442,1450]];
     
     //カレンダーの閾値（1999年〜2030年まで閲覧可能）
     let minYear = 1999
     let maxYear = 2030
-    
-    //旧暦テーブル（ディクショナリではなく二次元配列）
-//    var otbl: [Int:Int]
-//    var ancientTbl: [[Int]]!
-    var ancientTbl: [[Int]] = Array(count: 14, repeatedValue:[0, 0])
-//    var ancientTbl: [[Int]] = Array<Int>[14]
-    
+
     //モード（通常モード、旧暦モード）
     var calendarMode: Int!      //一旦いいや→ゆくゆくは３モード切替にしたいため、boolではなくintで。（量子コンピュータ）1:通常（新暦）-1:旧暦
     
     //曜日ラベル削除用（2016/02/11外だし）
     var mArrayForLabel: NSMutableArray!
-    
-    //閏月（外だし）
-    var leapMonth: Int! = 0
-    
-    //月数（その年に閏月があるかないかを判定する）
-    var ommax: Int! = 12
     
     //今が閏月かどうか（他にいい方法あったら教えて。）
     var nowLeapMonth: Bool = false
@@ -135,7 +115,7 @@ class ViewController: UIViewController {
 //        popUpWindowButton = UIButton()  // 同上
         
         // EventStoreを作成する（2015/08/05）
-        myEventStore = EKEventStore()
+        eventStore = EKEventStore()
         
         // ユーザーにカレンダーの使用許可を求める（2015/08/06）
         allowAuthorization()
@@ -372,7 +352,7 @@ class ViewController: UIViewController {
             }
             
             //曜日ラベルの配置
-            calendarBaseLabel.text = String(monthName[i] as! NSString)
+            calendarBaseLabel.text = String(monthName[i] as NSString)
             calendarBaseLabel.textAlignment = NSTextAlignment.Center
             calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(calendarLableFontSize))
             self.view.addSubview(calendarBaseLabel)
@@ -636,7 +616,7 @@ class ViewController: UIViewController {
             calendarTitle = "閏\(month)月"
         }
         
-        print("setupCalendarTitleLabelの中で、leapMonth=\(leapMonth)、month=\(month)、isLeapMonth=\(isLeapMonth)")
+        //print("setupCalendarTitleLabelの中で、leapMonth=\(leapMonth)、month=\(month)、isLeapMonth=\(isLeapMonth)")
         /*
         if(leapMonth == month){
             isLeapMonth = -1
@@ -1018,7 +998,7 @@ class ViewController: UIViewController {
         } else {
             
             // ユーザーに許可を求める
-            myEventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+            eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
                 (granted, error) -> Void in
                 
                 // 許可を得られなかった場合アラート発動
@@ -1089,7 +1069,7 @@ class ViewController: UIViewController {
         }
         
         //eventStoreも渡す（2016/04/13：これをシングルトンと呼ぶのか？なんか違う気がする。）
-        svc.eventStore = myEventStore
+        svc.eventStore = eventStore
         
         
         //イベントをフェッチする（メソッドとして外出し？）
@@ -1097,7 +1077,7 @@ class ViewController: UIViewController {
         let myCalendar: NSCalendar = NSCalendar.currentCalendar()
         
         // ユーザのカレンダーを取得
-        //var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityType.Event)    //不要？（2016/04/02）
+        //var myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)    //不要？（2016/04/02）
         
         // 終了日（一日後）コンポーネントの作成（2016/04/15：year→svc.yearに修正）
         let comps: NSDateComponents = NSDateComponents()
@@ -1118,15 +1098,15 @@ class ViewController: UIViewController {
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
-        predicate = myEventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
+        predicate = eventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
         
         print("predicate=\(predicate)")
         
         // 選択された一日分をフェッチ
-        events = myEventStore.eventsMatchingPredicate(predicate)
+        events = eventStore.eventsMatchingPredicate(predicate)
         
         
-        svc.myEvents = events
+        svc.events = events
         
         
     }

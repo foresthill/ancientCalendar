@@ -14,8 +14,8 @@ import EventKitUI   //EKEventEditViewController
 class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITableViewDelegate, UITableViewDataSource {
 
     // Tableで使用する配列を設定する
-    var myItems: NSArray = []
-    var myEvents: [EKEvent]!
+//    var myItems: NSArray = []
+    var events: [EKEvent]!
     
     // segueで渡す時の変数
     var calNum: Int!
@@ -140,7 +140,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         } else {
             let cdvc = segue.destinationViewController as! CalendarDetailViewController
         //変数を渡す
-        cdvc.myEvent = myEvents[calNum]
+        cdvc.myEvent = events[calNum]
         }
     }
     
@@ -151,7 +151,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         print("Num: \(indexPath.row)")
-        print("Value: \(myEvents[indexPath.row])")
+        print("Value: \(events[indexPath.row])")
         calNum = indexPath.row
         
         //一旦コメントアウト（2016/04/02）
@@ -160,7 +160,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         //EKEventEditViewController（2016/04/02）
         
         //editEvent(indexPath.row)
-        editEvent(myEvents[indexPath.row])
+        editEvent(events[indexPath.row])
         
     }
     
@@ -169,7 +169,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     **/
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //return myItems.count
-        return myEvents.count
+        return events.count
     }
     
     /**
@@ -182,7 +182,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         let cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "MyCell")
         
         // Cellに値を設定する
-        cell.textLabel?.text = myEvents[indexPath.row].title
+        cell.textLabel?.text = events[indexPath.row].title
 
         let df:NSDateFormatter = NSDateFormatter()
         let df2:NSDateFormatter = NSDateFormatter()
@@ -190,12 +190,12 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         df.dateFormat = "yyyy年MM月dd日 hh:mm"
         df2.dateFormat = "hh:mm"
 
-        let detailText = "\(df2.stringFromDate(myEvents[indexPath.row].startDate))" + "\n - " + "\(df.stringFromDate(myEvents[indexPath.row].endDate))"
+        let detailText = "\(df2.stringFromDate(events[indexPath.row].startDate))" + "\n - " + "\(df.stringFromDate(events[indexPath.row].endDate))"
 //        print("tmpは\(tmp)")
         
         cell.detailTextLabel?.text = detailText
         
-//        print(myEvents[indexPath.row].startDate)
+//        print(events[indexPath.row].startDate)
 //        print(cell.detailTextLabel?.text)
 
         cell.textLabel?.numberOfLines = 2
@@ -245,7 +245,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         removeEvent(indexPath.row)
         
         //先にデータを更新する
-        myEvents.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
+        events.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
 
         //それからテーブルの更新
         tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
@@ -257,16 +257,16 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 //        let eventStore:EKEventStore = EKEventStore.init() //2016/04/02外だし　//init()するとダメ（2016/04/16）
         
         
-        print(myEvents[index].eventIdentifier)
+        print(events[index].eventIdentifier)
         
         switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
         
         case .Authorized:
-//            print(myEvents)
-            print(myEvents[index])
+//            print(events)
+            print(events[index])
             do{
-                eventStore.eventWithIdentifier(myEvents[index].eventIdentifier)
-                try eventStore.removeEvent(myEvents[index], span: EKSpan.ThisEvent)
+                eventStore.eventWithIdentifier(events[index].eventIdentifier)
+                try eventStore.removeEvent(events[index], span: EKSpan.ThisEvent)
                 print("削除完了！")
             } catch _{
                 print("イベント削除されていない。（１）")
@@ -279,7 +279,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
                 granted, error in
                 if granted {
                     do{
-                        try self.eventStore.removeEvent(self.myEvents[index], span: EKSpan.ThisEvent)
+                        try self.eventStore.removeEvent(self.events[index], span: EKSpan.ThisEvent)
                     } catch _{
                         print("イベント削除されていない。（２）")
                     }
@@ -330,8 +330,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         eventEditController.editViewDelegate = self
         
         if(event != nil){
-//            eventEditController.event = myEvents[eventNum]
-//            print("myEvent[\(eventNum)]=\(myEvents[eventNum])")
+//            eventEditController.event = events[eventNum]
+//            print("myEvent[\(eventNum)]=\(events[eventNum])")
             eventEditController.event = event
 //            eventEditController.eventStore = eventStore
         }
@@ -391,7 +391,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         print("predicate=\(predicate)")
         
         // 選択された一日分をフェッチ
-        myEvents = eventStore.eventsMatchingPredicate(predicate)
+        events = eventStore.eventsMatchingPredicate(predicate)
     }
     
     override func didReceiveMemoryWarning() {
