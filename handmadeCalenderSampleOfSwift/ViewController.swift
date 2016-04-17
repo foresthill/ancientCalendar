@@ -556,7 +556,7 @@ class ViewController: UIViewController {
     //タイトル表記を設定する関数
     func setupCalendarTitleLabel() {
 
-        self.navigationItem.title = "\(year)年"
+        //self.navigationItem.title = "\(year)年"
         
         var calendarTitle: String;
         var jpnMonth = ["睦月", "如月", "弥生", "卯月", "皐月", "水無月", "文月", "葉月", "長月", "神無月", "霜月", "師走"]
@@ -568,11 +568,13 @@ class ViewController: UIViewController {
 
         switch calendarMode {
             case -1:
-                calendarBar.text = String("" + jpnMonth[month-1] + "（旧暦 \(calendarTitle)）")
+                //calendarBar.text = String("" + jpnMonth[month-1] + "（旧暦 \(calendarTitle)）")
+                calendarBar.text = String("旧暦 " + "\(year)年" + jpnMonth[month-1] + "（\(calendarTitle)）")
                 presentMode.text = "旧暦モード"
                 break
             default:
-                calendarBar.text = String("新暦 \(month)月")
+                //calendarBar.text = String("新暦 \(month)月")
+                calendarBar.text = String("新暦 " + "\(year)年" + "\(month)月")
                 presentMode.text = "通常モード（新暦）"
         }
         
@@ -738,7 +740,7 @@ class ViewController: UIViewController {
             
         }
         
-        self.navigationItem.title = "\(year)"
+        //self.navigationItem.title = "\(year)"
         
         let currentDate: NSDate = currentCalendar.dateFromComponents(currentComps)!
         recreateCalendarParameter(currentCalendar, currentDate: currentDate)
@@ -815,7 +817,6 @@ class ViewController: UIViewController {
 
         day = button.tag
         
-        //2016/04/02一旦コメントアウト
         performSegueWithIdentifier("toScheduleView", sender: self)
         
     }
@@ -953,69 +954,16 @@ class ViewController: UIViewController {
         
         //変数を渡す
         svc.calendarMode = calendarMode
-        
-        //本当は次の画面のクラス内でやりたい
-        if(calendarMode == 1){  //新暦モード
-            //タップされた日を渡す
-            svc.year = year
-            svc.month = month
-            svc.day = day
-            
-            //旧暦時間を渡す（2016/04/15）
-            let comps: NSDateComponents = NSDateComponents()
-            comps.year = year
-            comps.month = month
-            comps.day = day
-            
-            var ancientDate:[Int] = converter.convertForAncientCalendar(comps)
-            svc.ancientYear = ancientDate[0]
-            svc.ancientMonth = ancientDate[1]
-            svc.ancientDay = ancientDate[2]
-            svc.isLeapMonth = ancientDate[3]
-            
-        } else {    //旧暦モード
-            
-            svc.ancientYear = year
-            svc.ancientMonth = month
-            svc.ancientDay = day
-            svc.isLeapMonth = isLeapMonth
-            
-            //新暦時間を渡す
-            var comps:NSDateComponents = converter.convertForGregorianCalendar([year, month, day, isLeapMonth])
-            svc.year = comps.year
-            svc.month = comps.month
-            svc.day = comps.day
-            
-        }
+        svc.year = year
+        svc.month = month
+        svc.day = day
+        svc.isLeapMonth = isLeapMonth
         
         //eventStoreも渡す（2016/04/13：これをシングルトンと呼ぶのか？なんか違う気がする。）
         svc.eventStore = eventStore
-        
-        
-        //イベントをフェッチする（メソッドとして外出し？）
-        // NSCalendarを生成
-        let myCalendar: NSCalendar = NSCalendar.currentCalendar()
-        
-        // 終了日（一日後）コンポーネントの作成（2016/04/15：year→svc.yearに修正）
-        let comps: NSDateComponents = NSDateComponents()
-        comps.year = svc.year
-        comps.month = svc.month
-        comps.day = svc.day
-        
-        let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        
-        comps.day += 1
 
-        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-
-        // イベントストアのインスタントメソッドで述語を生成
-        var predicate = NSPredicate()
-        
-        predicate = eventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
-
-        // 選択された一日分をフェッチ
-        events = eventStore.eventsMatchingPredicate(predicate)
-        svc.events = events
+        //converterも渡す（2016/04/17）
+        svc.converter = converter
         
     }
     
