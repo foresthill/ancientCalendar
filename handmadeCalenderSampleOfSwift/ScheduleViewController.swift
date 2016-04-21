@@ -46,6 +46,9 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     
     //旧暦カレンダー変換エンジン外出し（2016/04/17）
     var converter: AncientCalendarConverter2!
+    
+    //カレンダー外出し
+    var calendar: NSCalendar!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -97,7 +100,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         // Cellの高さを可変にする
         myTableView.estimatedRowHeight = 80
         myTableView.rowHeight = UITableViewAutomaticDimension
-
+        
         // Viewに追加する
         self.view.addSubview(myTableView)
         
@@ -109,6 +112,9 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         //ツールバー非表示（2016/01/30）
         self.navigationController!.toolbarHidden = true
+        
+        //カレンダー初期化
+        calendar = NSCalendar.currentCalendar()
    
     }
     
@@ -116,7 +122,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     func fetchEvent(inComps: NSDateComponents){
         //イベントをフェッチする（メソッドとして外出し？）
         // NSCalendarを生成
-        let myCalendar: NSCalendar = NSCalendar.currentCalendar()
+        let calendar: NSCalendar = NSCalendar.currentCalendar() //新たにインスタンス化しないとダメ
         
         // 終了日（一日後）コンポーネントの作成（2016/04/15：year→svc.yearに修正）
 //        let inComps: NSDateComponents = NSDateComponents()
@@ -124,11 +130,11 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 //        inComps.month = month
 //        inComps.day = day
         
-        let SelectedDay: NSDate = myCalendar.dateFromComponents(inComps)!
+        let SelectedDay: NSDate = calendar.dateFromComponents(inComps)!
         
         inComps.day += 1
         
-        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(inComps)!
+        let oneDayFromSelectedDay: NSDate = calendar.dateFromComponents(inComps)!
         
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
@@ -203,15 +209,30 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
         let df:NSDateFormatter = NSDateFormatter()
         let df2:NSDateFormatter = NSDateFormatter()
-        df.dateFormat = "yyyy年MM月dd日 hh:mm"
+        df.dateFormat = "yyyy/MM/dd hh:mm"
         df2.dateFormat = "hh:mm"
 
-        let detailText = "\(df2.stringFromDate(events[indexPath.row].startDate))" + "\n - " + "\(df.stringFromDate(events[indexPath.row].endDate))"
+//        let startDateComps:NSDateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: events[indexPath.row].startDate)
+//        let endDateComps:NSDateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: events[indexPath.row].endDate)
+        
+//        let calendar = NSCalendar.init(identifier: "a")
+        let startDate = events[indexPath.row].startDate
+        let endDate = events[indexPath.row].endDate
+        
+        var detailText:String
+        
+        if(calendar!.isDate(startDate, inSameDayAsDate: endDate)){
+            //同日の場合は時間のみ表示
+            detailText = "\(df2.stringFromDate(events[indexPath.row].startDate)) - \(df2.stringFromDate(events[indexPath.row].endDate))"
+        } else {
+            //別日の場合は日付も表示
+            detailText = "\(df2.stringFromDate(events[indexPath.row].startDate)) - \(df.stringFromDate(events[indexPath.row].endDate))"
+        }
         
         cell.detailTextLabel?.text = detailText
 
         cell.textLabel?.numberOfLines = 2
-        cell.detailTextLabel?.numberOfLines = 2
+        cell.detailTextLabel?.numberOfLines = 0 //2016/04/21 0にすることで制限なし表示（「…」とならない）#29
         
         return cell
     }
@@ -267,7 +288,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     
     func scheduleReload(startDate:NSDate){
         // NSCalendarを生成
-        let myCalendar: NSCalendar = NSCalendar.currentCalendar()
+        //let calendar: NSCalendar = NSCalendar.currentCalendar()
         
         // ユーザのカレンダーを取得
         //var myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)  //不要？（2016/04/02）
