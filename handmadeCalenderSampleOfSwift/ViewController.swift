@@ -125,7 +125,7 @@ class ViewController: UIViewController {
         //self.navigationItem.prompt = "\(year)年"   //見栄えが崩れるためコメントアウト
 
         //Editボタンを作成
-        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Undo , target: self, action: "calendarChange")
+        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Edit, target: self, action: "calendarChange")
         navigationItem.rightBarButtonItem = btn
         
      }
@@ -387,6 +387,9 @@ class ViewController: UIViewController {
             }
             
             maxDay = converter.ancientTbl[tempMonth][0] - converter.ancientTbl[tempMonth-1][0]
+            print("converter.ancientTbl[\(tempMonth)][0]=\(converter.ancientTbl[tempMonth][0]),converter.ancientTbl[\(tempMonth-1)][0]=\(converter.ancientTbl[tempMonth-1][0])")
+
+            print("year=\(year),month=\(month),maxDay=\(maxDay)")
     
         //新暦モード
         } else {
@@ -569,12 +572,12 @@ class ViewController: UIViewController {
         switch calendarMode {
             case -1:
                 //calendarBar.text = String("" + jpnMonth[month-1] + "（旧暦 \(calendarTitle)）")
-                calendarBar.text = String("旧暦 " + "\(year)年" + jpnMonth[month-1] + "（\(calendarTitle)）")
+                calendarBar.text = String("【旧暦】" + "\(year)年" + jpnMonth[month-1] + "（\(calendarTitle)）")
                 presentMode.text = "旧暦モード"
                 break
             default:
                 //calendarBar.text = String("新暦 \(month)月")
-                calendarBar.text = String("新暦 " + "\(year)年" + "\(month)月")
+                calendarBar.text = String("【新暦】" + "\(year)年" + "\(month)月")
                 presentMode.text = "通常モード（新暦）"
         }
         
@@ -613,7 +616,7 @@ class ViewController: UIViewController {
                     year = year - 1;
                     month = 12;
                     //tblExpand(year)     //閏月が12月の可能性があるため、tblExpandで閏つき情報を更新する（nextの場合は、いきなり閏月に成る事はないので不要） //2016/04/17
-                    converter.tblExpand(year)
+                    converter.tblExpand(year) //2016/04/25チェック
                 }else{
                     month = month - 1;
                 }
@@ -645,7 +648,7 @@ class ViewController: UIViewController {
         prevComps.year  = year
         prevComps.month = month
         prevComps.day   = 1
-        
+                
         let prevDate: NSDate = prevCalendar.dateFromComponents(prevComps)!
         recreateCalendarParameter(prevCalendar, currentDate: prevDate)
     }
@@ -844,6 +847,7 @@ class ViewController: UIViewController {
     // モードを切り替えるメソッド
     @IBAction func changeCalendarMode(sendar: UIBarButtonItem){
         calendarMode = calendarMode * -1
+        //mode=["a","b","c"];++index; index=index%mode.size; if index>mode.size*100 index-mode.size*100; switch mode[i]
         print("changeCalendarMode :\(calendarMode)")
 
         removeCalendarButtonObject()
@@ -944,8 +948,6 @@ class ViewController: UIViewController {
             })
         }
     }
-    
-    //イベントをフェッチするメソッド
     
     //画面遷移時に呼ばれるメソッド
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {

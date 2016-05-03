@@ -209,7 +209,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
         let df:NSDateFormatter = NSDateFormatter()
         let df2:NSDateFormatter = NSDateFormatter()
-        df.dateFormat = "yyyy/MM/dd hh:mm"
+        //df.dateFormat = "yyyy/MM/dd hh:mm"
+        df.dateFormat = "hh:mm(yyyy/MM/dd)"
         df2.dateFormat = "hh:mm"
 
 //        let startDateComps:NSDateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: events[indexPath.row].startDate)

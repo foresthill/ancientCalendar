@@ -63,7 +63,7 @@ final class AncientCalendarConverter2
             tblExpand(yearByAncient)
         }
         
-        
+        print(yearByAncient)
         
         //どの月の、何日目かをancientTblから引き出す
         for(var i=12; i>=0; i--){
