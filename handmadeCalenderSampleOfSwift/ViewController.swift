@@ -612,11 +612,10 @@ class ViewController: UIViewController {
             //まず、現在の月に対して-1をする
             if(!nowLeapMonth){
                 
-                if(month == 0){
+                if(month <= 1){     //2016.05.03修正
                     year = year - 1;
                     month = 12;
-                    //tblExpand(year)     //閏月が12月の可能性があるため、tblExpandで閏つき情報を更新する（nextの場合は、いきなり閏月に成る事はないので不要） //2016/04/17
-                    converter.tblExpand(year) //2016/04/25チェック
+                    converter.tblExpand(year) //2016.05.03　閏月が12月の可能性があるため→ancientTblを更新する必要があるため
                 }else{
                     month = month - 1;
                 }
@@ -631,12 +630,13 @@ class ViewController: UIViewController {
             }
             
             
-        } else {    //閏月の考慮が必要なし
+        } else {    //閏月の考慮が必要
             //現在の月に対して-1をする
-            if(month == 0){
+            if(month <= 1){
                 year = year - 1;
                 month = 12;
-            }else{
+                converter.tblExpand(year) //2016.05.03　閏月が12月の可能性があるため→ancientTblを更新する必要があるため
+           }else{
                 month = month - 1;
             }
         }
@@ -700,17 +700,10 @@ class ViewController: UIViewController {
     //カレンダーモードを変更した際に呼び出す関数
     func setupAnotherCalendarData(){
         
-           /*************
-         * (重要ポイント)
-         * 現在月の1日のdayOfWeek(曜日の値)を使ってカレンダーの始まる位置を決めるので、
-         * yyyy年mm月1日のデータを作成する。
-         * 後述の関数 setupPrevCalendarData, setupNextCalendarData も同様です。
-         *************/
         let currentCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        var currentComps: NSDateComponents = NSDateComponents()//ここでインスタンス化してるから、変換するときダメなんや！いや違った。
-    
+        var currentComps: NSDateComponents = NSDateComponents()
+        
         if(calendarMode == -1){  //旧暦モードへ
-            
             //これ入れないとおかしくなる。なんで？converForAncientCalendarの洗礼を通れなくなるから、みたい。
             currentComps.year  = year
             currentComps.month = month
