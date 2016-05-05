@@ -18,7 +18,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wII-sV-LBg">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wII-sV-LBg">
                                 <rect key="frame" x="-4" y="477" width="143" height="47"/>
                                 <color key="backgroundColor" red="0.51372551918029785" green="0.90980398654937744" blue="0.86274516582489014" alpha="1" colorSpace="deviceRGB"/>
                                 <constraints>
@@ -96,6 +96,7 @@
                             <constraint firstItem="HmB-TR-7e9" firstAttribute="top" secondItem="PCS-Xs-Qwj" secondAttribute="bottom" constant="12.5" id="QGH-s8-Bsj"/>
                             <constraint firstItem="B5a-7P-bLg" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="-20" id="RLh-2L-nLx"/>
                             <constraint firstItem="AT1-Bb-NnH" firstAttribute="height" secondItem="wII-sV-LBg" secondAttribute="height" id="RZq-wX-cg0"/>
+                            <constraint firstItem="AT1-Bb-NnH" firstAttribute="top" secondItem="wII-sV-LBg" secondAttribute="top" id="SGd-P8-e2R"/>
                             <constraint firstItem="rrH-aD-HI0" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="W3X-2u-la1"/>
                             <constraint firstItem="AT1-Bb-NnH" firstAttribute="width" secondItem="wII-sV-LBg" secondAttribute="width" id="bzE-LJ-4LQ"/>
                             <constraint firstAttribute="trailingMargin" secondItem="AT1-Bb-NnH" secondAttribute="trailing" constant="-20" id="geS-8N-4Rj"/>

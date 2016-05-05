@@ -6,6 +6,12 @@
 //  Copyright © 平成28年 foresthill. All rights reserved.
 //
 
+/**
+ * 本プログラムは下記URLの「新暦・旧暦変換スクリプト」を基に作成しています。
+ * http://koyomi8.com/
+ *
+ */
+
 import Foundation
 import EventKit
 import EventKitUI
@@ -33,7 +39,6 @@ final class AncientCalendarConverter2
             ,[416,2773]	,[288,2741]	,[533,1206]	,[383,5294]	,[624,2647]	,[494,1319]
             ,[356,3366]	,[572,3475]	,[442,1450]];
         
-        
         ancientTbl = Array(count: 14, repeatedValue:[0, 0])
         
         leapMonth = 0
@@ -52,7 +57,6 @@ final class AncientCalendarConverter2
         let calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
         var dayOfYear = calendar.ordinalityOfUnit(.Day, inUnit:.Year, forDate: calendar.dateFromComponents(comps)!)
         
-        
         //旧暦テーブルを作成する
         tblExpand(yearByAncient)
         
@@ -62,9 +66,7 @@ final class AncientCalendarConverter2
             dayOfYear += (365 + isLeapYear(yearByAncient))
             tblExpand(yearByAncient)
         }
-        
-        print(yearByAncient)
-        
+                
         //どの月の、何日目かをancientTblから引き出す
         for(var i=12; i>=0; i--){
             if(ancientTbl[i][1] != 0){
@@ -201,8 +203,5 @@ final class AncientCalendarConverter2
         }
         
     }
-
-    
-    
     
 };

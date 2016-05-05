@@ -7,7 +7,7 @@
 //
 
 /**
- * 本コードは下記のURLのものを基に作成しています。
+ * 本プログラムは下記のURLで紹介されているコードを基に作成しています。
  * http://blog.just1factory.net/programming/179
  *
  */
@@ -90,6 +90,12 @@ class ViewController: UIViewController {
     //旧暦カレンダー変換エンジン外出し（2016/04/17）
     var converter: AncientCalendarConverter2!
     
+    //色の標準化・共通化（2016/05/05）
+    var baseNormal: UIColor!    //標準のラベルカラー
+    var baseRed: UIColor!       //日曜、大安で使用
+    var baseBlue: UIColor!      //土曜、仏滅で使用
+    
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -104,15 +110,16 @@ class ViewController: UIViewController {
         converter = AncientCalendarConverter2.sharedSingleton
         converter.minYear = minYear
         
+        //色の標準化・共通化（2016/05/05） ※RGBカラーの設定は小数値をCGFloat型にしてあげる
+        baseNormal = UIColor.lightGrayColor()
+        baseRed = UIColor(red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0))
+        baseBlue = UIColor(red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0))
+        
         //画面初期化・最適化
         screenInit()
         
         //GregorianCalendarセットアップ
         setupGregorianCalendar()
-        
-        //ウィンドウ（2015/07/21）
-//        popUpWindow = UIWindow()        // インスタンス化しとかないとダメ
-//        popUpWindowButton = UIButton()  // 同上
         
         // EventStoreを作成する（2015/08/05）
         eventStore = EKEventStore()
@@ -124,9 +131,13 @@ class ViewController: UIViewController {
         self.navigationItem.title = "旧暦カレンダー"
         //self.navigationItem.prompt = "\(year)年"   //見栄えが崩れるためコメントアウト
 
-        //Editボタンを作成
-        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Edit, target: self, action: "calendarChange")
-        navigationItem.rightBarButtonItem = btn
+        //TODO: Editボタンを作成（v1.1で実装予定）
+        //let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Edit, target: self, action: "calendarChange")
+        //navigationItem.rightBarButtonItem = btn
+        
+        //ウィンドウ（2015/07/21）
+        //        popUpWindow = UIWindow()        // インスタンス化しとかないとダメ
+        //        popUpWindowButton = UIButton()  // 同上
         
      }
     
@@ -303,27 +314,17 @@ class ViewController: UIViewController {
                 CGFloat(calendarLabelHeight)
             )
             
-            //大安の場合は赤色を指定
             if(i == 0){
+                //日曜、大安の場合は赤色を指定
+                calendarBaseLabel.textColor = baseRed
                 
-                //RGBカラーの設定は小数値をCGFloat型にしてあげる
-                calendarBaseLabel.textColor = UIColor(
-                    red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0)
-                )
-                
-                //仏滅の場合は青色を指定
             }else if(i == calendarLabelCount-1){
+                //土曜、仏滅の場合は青色を指定
+                calendarBaseLabel.textColor = baseBlue
                 
-                //RGBカラーの設定は小数値をCGFloat型にしてあげる
-                calendarBaseLabel.textColor = UIColor(
-                    red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0)
-                )
-                
-                //その他の場合は灰色を指定
             }else{
-                
-                //既に用意されている配色パターンの場合
-                calendarBaseLabel.textColor = UIColor.lightGrayColor()
+                //その他の場合は灰色を指定
+                calendarBaseLabel.textColor = baseNormal
                 
             }
             
@@ -332,6 +333,7 @@ class ViewController: UIViewController {
             calendarBaseLabel.textAlignment = NSTextAlignment.Center
             calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(calendarLableFontSize))
             self.view.addSubview(calendarBaseLabel)
+            
             mArrayForLabel.addObject(calendarBaseLabel) //削除用（2016/02/11）
         }
         
@@ -387,9 +389,6 @@ class ViewController: UIViewController {
             }
             
             maxDay = converter.ancientTbl[tempMonth][0] - converter.ancientTbl[tempMonth-1][0]
-            print("converter.ancientTbl[\(tempMonth)][0]=\(converter.ancientTbl[tempMonth][0]),converter.ancientTbl[\(tempMonth-1)][0]=\(converter.ancientTbl[tempMonth-1][0])")
-
-            print("year=\(year),month=\(month),maxDay=\(maxDay)")
     
         //新暦モード
         } else {
@@ -474,6 +473,7 @@ class ViewController: UIViewController {
                 
                 strBtn += addDate
                 
+                //文字のフォント・文字色などをNSMutableAttributedStringで設定
                 var myMutableString:NSMutableAttributedString = NSMutableAttributedString(
                     string: strBtn,
                     attributes: [NSFontAttributeName:UIFont.systemFontOfSize(11.9)])
@@ -498,6 +498,12 @@ class ViewController: UIViewController {
                 }*/
                 
                 button.tag = tagNumber
+                
+                //旧暦の場合背景画像（月）を設定
+                if(calendarMode == -1){
+                    button.setBackgroundImage(UIImage(named:"moon\(tagNumber).png"), forState: UIControlState.Normal)
+                }
+                
                 tagNumber++
                 
             }else if(i == dayOfWeek + maxDay - 1 || i < total){
@@ -510,21 +516,32 @@ class ViewController: UIViewController {
             
             //ボタンの配色の設定
             //@remark:このサンプルでは正円のボタンを作っていますが、背景画像の設定等も可能です。
-            if(i % numberOfDaysInWeek == 0){
-                calendarBackGroundColor = UIColor(
-                    red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0)
-                )
-            }else if(i % numberOfDaysInWeek == numberOfDaysInWeek-1){
-                calendarBackGroundColor = UIColor(
-                    red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0)
-                )
-            }else{
-                calendarBackGroundColor = UIColor.lightGrayColor()
+            if(calendarMode == 1){
+                //通常モード（新暦）
+                if(i % numberOfDaysInWeek == 0){
+                    //日曜、大安
+                    calendarBackGroundColor = baseRed
+                    
+                } else if (i % numberOfDaysInWeek == numberOfDaysInWeek-1){
+                    //土曜、仏滅
+                    calendarBackGroundColor = baseBlue
+                    
+                } else {
+                    //それ以外（通常）
+                    calendarBackGroundColor = baseNormal
+                    
+                }
+            
+            } else {
+                //旧暦モード
+                calendarBackGroundColor = baseNormal
+
             }
             
-            //ボタンのデザインを決定する
+            //ボタンの背景デザインを決定する
             button.backgroundColor = calendarBackGroundColor    //ここに置かないと色がずれちゃうよ。
-            
+                
+            //フォント
             button.titleLabel!.font = UIFont(name: "System", size: CGFloat(calendarFontSize))
             
             //旧暦モードの場合は、日付を丸くする。
@@ -722,25 +739,61 @@ class ViewController: UIViewController {
             }
         
         } else {    //新暦モードへ戻す
-            
             //旧暦→新暦へ変換
             if(!nowLeapMonth){  //閏月でない場合
                 currentComps = converter.convertForGregorianCalendar([year, month, 29, 0])
 
             }else {
                 currentComps = converter.convertForGregorianCalendar([year, -month, 29, 0])
-
                 nowLeapMonth = false    //閏月の初期化
-                
             }
             
         }
+        
+        //カレンダーのデザインを変更
+        setupCalendarDesign()
         
         //self.navigationItem.title = "\(year)"
         
         let currentDate: NSDate = currentCalendar.dateFromComponents(currentComps)!
         recreateCalendarParameter(currentCalendar, currentDate: currentDate)
 
+    }
+    
+    //デザインを設定・変更する関数（2016/05/05） #5
+    func setupCalendarDesign(){
+        
+        if(calendarMode == -1){
+            //旧暦モード
+            
+            //背景
+            self.view.backgroundColor = UIColor(red: 15/255, green: 21/255, blue: 36/255, alpha: 1.0)
+            //カレンダバー
+            self.calendarBar.backgroundColor = UIColor(red: 8/255, green: 8/255, blue: 21/255, alpha: 1.0)
+            //ナビゲーションバー
+            self.navigationItem.titleView?.tintColor = UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)
+            self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)]
+            self.navigationController?.navigationBar.barTintColor = UIColor(red: 15/255, green: 16/255, blue: 19/255, alpha: 1.0)
+            //「前月」「次月」ボタン
+            self.prevMonthButton.backgroundColor = UIColor(red: 30/255, green: 125/255, blue: 108/255, alpha: 1.0)
+            self.nextMonthButton.backgroundColor = UIColor(red: 47/255, green: 103/255, blue: 127/255, alpha: 1.0)
+            
+        } else {
+            //新暦モード
+            
+            //背景
+            self.view.backgroundColor = UIColor.whiteColor()
+            //カレンダバー
+            self.calendarBar.backgroundColor = UIColor(red: 235/255, green: 208/255, blue: 185/255, alpha: 1.0)
+            //ナビゲーションバー
+            self.navigationItem.titleView?.tintColor = UIColor.blackColor()
+            self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.blackColor()]
+            self.navigationController?.navigationBar.barTintColor = UIColor(red: 248/255, green: 248/255, blue: 248/255, alpha: 1.0)
+            //「前月」「次月」ボタン
+            self.prevMonthButton.backgroundColor = UIColor(red: 112/255, green: 229/255, blue: 208/255, alpha: 1.0)
+            self.nextMonthButton.backgroundColor = UIColor(red: 161/255, green: 209/255, blue: 230/255, alpha: 1.0)
+            
+        }
     }
     
     //カレンダーのパラメータを再作成する関数（前月・次月への遷移、カレンダー切り替え時）
@@ -807,12 +860,9 @@ class ViewController: UIViewController {
     
     //カレンダーボタンをタップした時のアクション
     func buttonTapped(button: UIButton){
-
         // コンソール表示
-        print("\(year)年\(month)月\(button.tag)日が選択されました！")
-
+        //print("\(year)年\(month)月\(button.tag)日が選択されました！")
         day = button.tag
-        
         performSegueWithIdentifier("toScheduleView", sender: self)
         
     }
@@ -840,8 +890,6 @@ class ViewController: UIViewController {
     // モードを切り替えるメソッド
     @IBAction func changeCalendarMode(sendar: UIBarButtonItem){
         calendarMode = calendarMode * -1
-        //mode=["a","b","c"];++index; index=index%mode.size; if index>mode.size*100 index-mode.size*100; switch mode[i]
-        print("changeCalendarMode :\(calendarMode)")
 
         removeCalendarButtonObject()
         setupAnotherCalendarData()
@@ -960,6 +1008,11 @@ class ViewController: UIViewController {
         //converterも渡す（2016/04/17）
         svc.converter = converter
         
+    }
+    
+    // ステータスバーを黒くする
+    override func preferredStatusBarStyle() -> UIStatusBarStyle {
+        return UIStatusBarStyle.LightContent
     }
     
     // どのクラスにもあるメソッド Memory監視？
