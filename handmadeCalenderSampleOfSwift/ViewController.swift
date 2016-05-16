@@ -94,7 +94,7 @@ class ViewController: UIViewController {
     var baseNormal: UIColor!    //標準のラベルカラー
     var baseRed: UIColor!       //日曜、大安で使用
     var baseBlue: UIColor!      //土曜、仏滅で使用
-    
+    var baseBlack: UIColor!     //旧暦表示の背景に表示（2016.05.17追加）
     
     override func viewDidLoad() {
         
@@ -114,6 +114,7 @@ class ViewController: UIViewController {
         baseNormal = UIColor.lightGrayColor()
         baseRed = UIColor(red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0))
         baseBlue = UIColor(red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0))
+        baseBlack = UIColor.blackColor()
         
         //画面初期化・最適化
         screenInit()
@@ -534,7 +535,7 @@ class ViewController: UIViewController {
             
             } else {
                 //旧暦モード
-                calendarBackGroundColor = baseNormal
+                calendarBackGroundColor = baseBlack
 
             }
             
