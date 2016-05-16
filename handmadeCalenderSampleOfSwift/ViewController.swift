@@ -748,6 +748,9 @@ class ViewController: UIViewController {
                 nowLeapMonth = false    //閏月の初期化
             }
             
+            // 新暦変換時に曜日を設定し直す #46
+            currentComps.day = 1
+            
         }
         
         //カレンダーのデザインを変更

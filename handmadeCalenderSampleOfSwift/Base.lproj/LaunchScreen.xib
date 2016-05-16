@@ -30,7 +30,7 @@
                     <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="AncientCalnedar_icon1024_p.png" translatesAutoresizingMaskIntoConstraints="NO" id="trc-fL-85J">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="AncientCalnedar_icon1024_3_p.png" translatesAutoresizingMaskIntoConstraints="NO" id="trc-fL-85J">
                     <rect key="frame" x="179" y="242" width="122" height="115.5"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="115.5" id="V2Z-A5-N33"/>
@@ -57,6 +57,6 @@
         </view>
     </objects>
     <resources>
-        <image name="AncientCalnedar_icon1024_p.png" width="1024" height="1024"/>
+        <image name="AncientCalnedar_icon1024_3_p.png" width="1024" height="1024"/>
     </resources>
 </document>
