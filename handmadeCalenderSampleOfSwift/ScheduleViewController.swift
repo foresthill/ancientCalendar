@@ -209,14 +209,11 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
         let df:NSDateFormatter = NSDateFormatter()
         let df2:NSDateFormatter = NSDateFormatter()
-        //df.dateFormat = "yyyy/MM/dd hh:mm"
+        
+        // カレンダーの時間表示を「２４時間制」にする #56
         df.dateFormat = "HH:mm(yyyy/MM/dd)"
         df2.dateFormat = "HH:mm"
 
-//        let startDateComps:NSDateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: events[indexPath.row].startDate)
-//        let endDateComps:NSDateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: events[indexPath.row].endDate)
-        
-//        let calendar = NSCalendar.init(identifier: "a")
         let startDate = events[indexPath.row].startDate
         let endDate = events[indexPath.row].endDate
         
