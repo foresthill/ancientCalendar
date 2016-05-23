@@ -278,10 +278,10 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
             addNewEventFlag = false
         
         } else {
-            var event = EKEvent.init(eventStore: eventStore)
-            event.startDate = calendar.dateFromComponents(comps)!
-            event.endDate = calendar.dateFromComponents(comps)!
-            eventEditController.event = event
+            var newEvent = EKEvent.init(eventStore: eventStore)
+            newEvent.startDate = calendar.dateFromComponents(comps)!
+            newEvent.endDate = calendar.dateFromComponents(comps)!
+            eventEditController.event = newEvent
             addNewEventFlag = true
         }
 
