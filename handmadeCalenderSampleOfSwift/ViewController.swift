@@ -132,9 +132,9 @@ class ViewController: UIViewController {
         self.navigationItem.title = "旧暦カレンダー"
         //self.navigationItem.prompt = "\(year)年"   //見栄えが崩れるためコメントアウト
 
-        //TODO: Editボタンを作成（v1.1で実装予定）
-        //let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Edit, target: self, action: "calendarChange")
-        //navigationItem.rightBarButtonItem = btn
+        //設定画面（UserConfigViewController）へ飛ぶ
+        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Bookmarks, target: self, action: "toUserConfig")
+        navigationItem.rightBarButtonItem = btn
         
         //ウィンドウ（2015/07/21）
         //        popUpWindow = UIWindow()        // インスタンス化しとかないとダメ
@@ -881,12 +881,12 @@ class ViewController: UIViewController {
         nextCalendarSettings()
     }
     
-    //左スワイプで前月を表示
+    //左スワイプ（ナチュラル時は右スワイプ）で前月を表示
     @IBAction func swipePrevCalendar(sender: UISwipeGestureRecognizer) {
         prevCalendarSettings()
     }
     
-    //右スワイプで次月を表示
+    //右スワイプ（ナチュラル時は左スワイプ）で次月を表示
     @IBAction func swipeNextCalendar(sender: UISwipeGestureRecognizer) {
         nextCalendarSettings()
     }
@@ -922,8 +922,6 @@ class ViewController: UIViewController {
             setupCalendarTitleLabel()
         }
     }
-    
-    // TODO:旧暦を作成するメソッド（月のデザイン）
     
     /**
      認証ステータスを取得
@@ -996,22 +994,37 @@ class ViewController: UIViewController {
     
     //画面遷移時に呼ばれるメソッド
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
-        let svc = segue.destinationViewController as! ScheduleViewController
-        
-        //変数を渡す
-        svc.calendarMode = calendarMode
-        svc.year = year
-        svc.month = month
-        svc.day = day
-        svc.isLeapMonth = isLeapMonth
-        
-        //eventStoreも渡す（2016/04/13：これをシングルトンと呼ぶのか？なんか違う気がする。）
-        svc.eventStore = eventStore
 
-        //converterも渡す（2016/04/17）
-        svc.converter = converter
+        switch (segue.identifier)! {
+            case "toScheduleView":
+                //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
+                let svc = segue.destinationViewController as! ScheduleViewController
+                
+                //変数を渡す
+                svc.calendarMode = calendarMode
+                svc.year = year
+                svc.month = month
+                svc.day = day
+                svc.isLeapMonth = isLeapMonth
+                
+                //eventStoreも渡す（2016/04/13：これをシングルトンと呼ぶのか？なんか違う気がする。）
+                svc.eventStore = eventStore
+
+                //converterも渡す（2016/04/17）
+                svc.converter = converter
+            
+            case "toUserConfigView":
+                break
+            
+            default:
+                break
+        }
         
+    }
+    
+    // 設定ボタンをタップした時の処理
+    func toUserConfig(){
+        performSegueWithIdentifier("toUserConfigView", sender: self)
     }
     
     // ステータスバーを黒くする

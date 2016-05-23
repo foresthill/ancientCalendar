@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="NFw-Rd-0Bv">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="NFw-Rd-0Bv">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -41,7 +41,7 @@
                             </navigationBar>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="B5a-7P-bLg">
                                 <rect key="frame" x="-4" y="64" width="328" height="32"/>
-                                <color key="backgroundColor" red="0.94509810209274292" green="0.85882359743118286" blue="0.79215693473815918" alpha="1" colorSpace="deviceRGB"/>
+                                <color key="backgroundColor" red="0.95889782905578613" green="0.72761282898511925" blue="0.7401737287891702" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="32" id="Faj-ZK-Feg"/>
                                 </constraints>
@@ -119,6 +119,7 @@
                         <outlet property="prevMonthButton" destination="wII-sV-LBg" id="Lvy-eU-TCG"/>
                         <outlet property="toolBar" destination="rrH-aD-HI0" id="0O4-W6-8sH"/>
                         <segue destination="0mC-JM-akN" kind="show" identifier="toScheduleView" id="4ZX-hL-3LX"/>
+                        <segue destination="ob6-qi-qjg" kind="show" identifier="toUserConfigView" id="ECo-4k-FPO"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -134,6 +135,58 @@
                 </swipeGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="1476" y="134"/>
+        </scene>
+        <!--User Config View Controller-->
+        <scene sceneID="rJJ-XR-moO">
+            <objects>
+                <viewController id="ob6-qi-qjg" customClass="UserConfigViewController" customModule="AncientCalendar" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Qkv-mD-iae"/>
+                        <viewControllerLayoutGuide type="bottom" id="Mny-zy-uNh"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="f9h-7F-pj2">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Fh-Xl-dG9">
+                                <rect key="frame" x="245" y="84" width="51" height="31"/>
+                            </switch>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CER-A8-nRt">
+                                <rect key="frame" x="26" y="121" width="280" height="75"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="280" id="QTi-qc-gGx"/>
+                                </constraints>
+                                <string key="text">カレンダー上で指をスライドさせた時、
+スライドした方向に画面がスクロールします</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="スクロールの方向：ナチュラル" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5FF-qq-LTT">
+                                <rect key="frame" x="26" y="94" width="238" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="238" id="7gj-uC-a37"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="5FF-qq-LTT" firstAttribute="top" secondItem="Qkv-mD-iae" secondAttribute="bottom" constant="30" id="4Vf-A5-5A9"/>
+                            <constraint firstItem="5Fh-Xl-dG9" firstAttribute="top" secondItem="Qkv-mD-iae" secondAttribute="bottom" constant="20" id="NRB-TF-4gV"/>
+                            <constraint firstItem="CER-A8-nRt" firstAttribute="leading" secondItem="f9h-7F-pj2" secondAttribute="leadingMargin" constant="10" id="UKh-zy-YhL"/>
+                            <constraint firstItem="5FF-qq-LTT" firstAttribute="leading" secondItem="f9h-7F-pj2" secondAttribute="leadingMargin" constant="10" id="ZHj-s5-Izq"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="5Fh-Xl-dG9" secondAttribute="trailing" constant="10" id="sV0-zH-wOB"/>
+                            <constraint firstItem="CER-A8-nRt" firstAttribute="top" secondItem="5FF-qq-LTT" secondAttribute="bottom" constant="10" id="sVS-NJ-1UD"/>
+                        </constraints>
+                    </view>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TmU-FI-gyg" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2086" y="-544"/>
         </scene>
         <!--Schedule View Controller-->
         <scene sceneID="hxi-rq-p9n">

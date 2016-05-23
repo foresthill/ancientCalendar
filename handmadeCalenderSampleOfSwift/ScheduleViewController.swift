@@ -49,11 +49,17 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     
     //カレンダー外出し
     var calendar: NSCalendar!
+    
+    //イベント新規作成フラグ（2016/05/24）
+    var addNewEventFlag = false
+    
+    //NSDateComponents外出し（2016/05/24）
+    var comps: NSDateComponents!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var comps: NSDateComponents = NSDateComponents()
+        comps = NSDateComponents()
 
         if(calendarMode == 1){  //新暦モード
          
@@ -165,7 +171,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         if(calendarMode == 1){
             //新暦モード
-            self.navigationItem.title = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
+            //self.navigationItem.title = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
+            self.navigationItem.title = "\(inComps.day)日"
             self.navigationItem.prompt = "（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日）"
         } else {
             //旧暦モード
@@ -268,6 +275,14 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         if(event != nil){
             eventEditController.event = event
+            addNewEventFlag = false
+        
+        } else {
+            var event = EKEvent.init(eventStore: eventStore)
+            event.startDate = calendar.dateFromComponents(comps)!
+            event.endDate = calendar.dateFromComponents(comps)!
+            eventEditController.event = event
+            addNewEventFlag = true
         }
 
         self.presentViewController(eventEditController, animated: true, completion: nil)
@@ -278,46 +293,38 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.dismissViewControllerAnimated(true, completion: nil)
         
         //作成したイベントの日時に戻るように改修（2016/04/16）　※そもそもSaved以外はリロードする必要ないんじゃん。。。※Deletedがきになる
-        if(action == EKEventEditViewAction.Saved){
+        switch action{
+        case EKEventEditViewAction.Saved:
+            //イベントが保存された時
             scheduleReload(controller.event!.startDate)
             self.myTableView.reloadData()
+            break
+        case EKEventEditViewAction.Canceled:
+            if(addNewEventFlag){
+                do{
+//                    eventStore.eventWithIdentifier(events[index].eventIdentifier)
+                    try eventStore.removeEvent(controller.event!, span: EKSpan.ThisEvent)
+                } catch _{
+                    //もし削除できなかったらゴミが溜まる。。考慮中。
+                }
+            }
+        default:
+            break
         }
+
+        
     }
     
     func scheduleReload(startDate:NSDate){
-        // NSCalendarを生成
-        //let calendar: NSCalendar = NSCalendar.currentCalendar()
         
-        // ユーザのカレンダーを取得
-        //var myEventCalendars = eventStore.calendarsForEntityType(EKEntityType.Event)  //不要？（2016/04/02）
-        
-        var comps: NSDateComponents = NSDateComponents()
-
         // 作成したイベントの日時に戻るように改修（2016/04/16）
         comps = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: startDate)
-        //setTitle(comps.year, inMonth: comps.month, inDay: comps.day)
+        
+        //タイトルを付け直す
         setScheduleTitle(comps)
         
         // イベントをフェッチ
         fetchEvent(comps)
-        
-        /*
-        
-        let SelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        
-        comps.day += 1
-        
-        
-        let oneDayFromSelectedDay: NSDate = myCalendar.dateFromComponents(comps)!
-        
-        // イベントストアのインスタントメソッドで述語を生成
-        var predicate = NSPredicate()
-        
-        predicate = eventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
-        
-        // 選択された一日分をフェッチ
-        events = eventStore.eventsMatchingPredicate(predicate)
- */
         
     }
     
