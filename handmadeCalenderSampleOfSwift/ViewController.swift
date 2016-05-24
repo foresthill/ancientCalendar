@@ -95,6 +95,10 @@ class ViewController: UIViewController {
     var baseRed: UIColor!       //日曜、大安で使用
     var baseBlue: UIColor!      //土曜、仏滅で使用
     var baseBlack: UIColor!     //旧暦表示の背景に表示（2016.05.17追加）
+    var baseDarkGray: UIColor!  //旧暦表示の背景に表示（2016.05.24追加）
+    
+    //ユーザ設定（スクロール方向をナチュラルにするか否か）
+    var scrollNatural = false
     
     override func viewDidLoad() {
         
@@ -115,6 +119,7 @@ class ViewController: UIViewController {
         baseRed = UIColor(red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0))
         baseBlue = UIColor(red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0))
         baseBlack = UIColor.blackColor()
+        baseDarkGray = UIColor.darkGrayColor()
         
         //画面初期化・最適化
         screenInit()
@@ -122,23 +127,30 @@ class ViewController: UIViewController {
         //GregorianCalendarセットアップ
         setupGregorianCalendar()
         
-        // EventStoreを作成する（2015/08/05）
+        //EventStoreを作成する（2015/08/05）
         eventStore = EKEventStore()
         
-        // ユーザーにカレンダーの使用許可を求める（2015/08/06）
+        //ユーザーにカレンダーの使用許可を求める（2015/08/06）
         allowAuthorization()
         
         //NavigationViewControllerのタイトル（初期表示）
         self.navigationItem.title = "旧暦カレンダー"
         //self.navigationItem.prompt = "\(year)年"   //見栄えが崩れるためコメントアウト
 
-        //設定画面（UserConfigViewController）へ飛ぶ
-        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Bookmarks, target: self, action: "toUserConfig")
+        //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
+        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: "toUserConfig")
         navigationItem.rightBarButtonItem = btn
         
         //ウィンドウ（2015/07/21）
         //        popUpWindow = UIWindow()        // インスタンス化しとかないとダメ
         //        popUpWindowButton = UIButton()  // 同上
+        
+        //設定値を取得する
+        let config = NSUserDefaults.standardUserDefaults()
+        let result = config.objectForKey("scrollNatural")
+        if(result != nil){
+            scrollNatural = result as! Bool
+        }
         
      }
     
@@ -535,7 +547,12 @@ class ViewController: UIViewController {
             
             } else {
                 //旧暦モード
-                calendarBackGroundColor = baseBlack
+                if(button.enabled){
+                    calendarBackGroundColor = baseBlack
+                    
+                } else {
+                    calendarBackGroundColor = baseDarkGray
+                }
 
             }
             
@@ -883,12 +900,20 @@ class ViewController: UIViewController {
     
     //左スワイプ（ナチュラル時は右スワイプ）で前月を表示
     @IBAction func swipePrevCalendar(sender: UISwipeGestureRecognizer) {
-        prevCalendarSettings()
+        if(scrollNatural){
+            nextCalendarSettings()
+        } else {
+            prevCalendarSettings()
+        }
     }
     
     //右スワイプ（ナチュラル時は左スワイプ）で次月を表示
     @IBAction func swipeNextCalendar(sender: UISwipeGestureRecognizer) {
-        nextCalendarSettings()
+        if(scrollNatural){
+            prevCalendarSettings()
+        } else {
+            nextCalendarSettings()
+        }
     }
     
     // モードを切り替えるメソッド

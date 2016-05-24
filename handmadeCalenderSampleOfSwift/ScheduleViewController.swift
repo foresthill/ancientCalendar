@@ -110,31 +110,24 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         // Viewに追加する
         self.view.addSubview(myTableView)
         
-        //タイトル
+        // タイトル
         //setTitle(year, inMonth: month, inDay: day)
         
-        //編集ボタンの配置
+        // 編集ボタンの配置
         navigationItem.rightBarButtonItem = editButtonItem()
         
-        //ツールバー非表示（2016/01/30）
+        // ツールバー非表示（2016/01/30）
         self.navigationController!.toolbarHidden = true
         
-        //カレンダー初期化
+        // カレンダー初期化
         calendar = NSCalendar.currentCalendar()
    
     }
     
     //本日1日分のイベントをフェッチするメソッド
     func fetchEvent(inComps: NSDateComponents){
-        //イベントをフェッチする（メソッドとして外出し？）
         // NSCalendarを生成
         let calendar: NSCalendar = NSCalendar.currentCalendar() //新たにインスタンス化しないとダメ
-        
-        // 終了日（一日後）コンポーネントの作成（2016/04/15：year→svc.yearに修正）
-//        let inComps: NSDateComponents = NSDateComponents()
-//        inComps.year = year
-//        inComps.month = month
-//        inComps.day = day
         
         let SelectedDay: NSDate = calendar.dateFromComponents(inComps)!
         
@@ -171,8 +164,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         if(calendarMode == 1){
             //新暦モード
-            //self.navigationItem.title = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
-            self.navigationItem.title = "\(inComps.day)日"
+            self.navigationItem.title = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
+//            self.navigationItem.title = "\(inComps.day)日"     //TODO:#60
             self.navigationItem.prompt = "（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日）"
         } else {
             //旧暦モード

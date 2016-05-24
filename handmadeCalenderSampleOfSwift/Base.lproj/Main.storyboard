@@ -183,6 +183,9 @@
                         </constraints>
                     </view>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="scrollNatural" destination="5Fh-Xl-dG9" id="Eig-4x-mxh"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TmU-FI-gyg" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
