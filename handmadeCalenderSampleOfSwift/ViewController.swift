@@ -448,7 +448,7 @@ class ViewController: UIViewController {
                 button.setTitle("", forState: .Normal)
                 button.enabled = false
                 
-            }else if(i == dayOfWeek - 1 || i < dayOfWeek + maxDay - 1){
+            } else if (i == dayOfWeek - 1 || i < dayOfWeek + maxDay - 1){
                 
                 //日付の入る部分はボタンのタグを設定する（日にち）
 //                button.setTitle(String(tagNumber), forState: .Normal)
@@ -519,7 +519,7 @@ class ViewController: UIViewController {
                 
                 tagNumber++
                 
-            }else if(i == dayOfWeek + maxDay - 1 || i < total){
+            } else if (i == dayOfWeek + maxDay - 1 || i < total){
                 
                 //日付の入らない部分はボタンを押せなくする
                 button.setTitle("", forState: .Normal)
@@ -676,6 +676,18 @@ class ViewController: UIViewController {
             }
         }
         
+        //下限を下回る場合はこれ以上戻れないようにボタンを非活性にする
+        if(year <= minYear){
+            prevMonthButton.enabled = false
+            prevMonthButton.alpha = 0.5
+        }
+        
+        //必要に応じてnextMonthButtonを復活させる
+        if(!nextMonthButton.enabled){
+            nextMonthButton.enabled = true
+            nextMonthButton.alpha = 1.0
+        }
+        
         //setupCurrentCalendarData()と同様の処理を行う
         let prevCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
         let prevComps: NSDateComponents = NSDateComponents()
@@ -718,6 +730,18 @@ class ViewController: UIViewController {
                 month = month + 1;
             }
             
+        }
+        
+        //上限を上回る場合はこれ以上進めないようにボタンを非活性にする
+        if(year >= maxYear){
+            nextMonthButton.enabled = false
+            nextMonthButton.alpha = 0.5
+        }
+        
+        //必要に応じてnextMonthButtonを復活させる
+        if(!prevMonthButton.enabled){
+            prevMonthButton.enabled = true
+            prevMonthButton.alpha = 1.0
         }
         
         //setupCurrentCalendarData()と同様の処理を行う
