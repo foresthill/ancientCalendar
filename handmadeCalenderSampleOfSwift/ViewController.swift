@@ -589,6 +589,12 @@ class ViewController: UIViewController {
     
         }
         
+        //タイトル表記を設定する
+        setupCalendarTitleLabel()
+        
+        //ボタンを活性・非活性にする
+        buttonNotActive()
+        
     }
     
     //タイトル表記を設定する関数
@@ -676,18 +682,6 @@ class ViewController: UIViewController {
             }
         }
         
-        //下限を下回る場合はこれ以上戻れないようにボタンを非活性にする
-        if(year <= minYear){
-            prevMonthButton.enabled = false
-            prevMonthButton.alpha = 0.5
-        }
-        
-        //必要に応じてnextMonthButtonを復活させる
-        if(!nextMonthButton.enabled){
-            nextMonthButton.enabled = true
-            nextMonthButton.alpha = 1.0
-        }
-        
         //setupCurrentCalendarData()と同様の処理を行う
         let prevCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
         let prevComps: NSDateComponents = NSDateComponents()
@@ -730,18 +724,6 @@ class ViewController: UIViewController {
                 month = month + 1;
             }
             
-        }
-        
-        //上限を上回る場合はこれ以上進めないようにボタンを非活性にする
-        if(year >= maxYear){
-            nextMonthButton.enabled = false
-            nextMonthButton.alpha = 0.5
-        }
-        
-        //必要に応じてnextMonthButtonを復活させる
-        if(!prevMonthButton.enabled){
-            prevMonthButton.enabled = true
-            prevMonthButton.alpha = 1.0
         }
         
         //setupCurrentCalendarData()と同様の処理を行う
@@ -949,7 +931,6 @@ class ViewController: UIViewController {
         removecalendarBaseLabel()   //曜日のラベルを全削除
         setupCalendarLabel()        //曜日のラベルを作成
         generateCalendar()
-        setupCalendarTitleLabel()
     }
     
     //前月を表示するメソッド
@@ -958,7 +939,6 @@ class ViewController: UIViewController {
             removeCalendarButtonObject()
             setupPrevCalendarData()
             generateCalendar()
-            setupCalendarTitleLabel()
         }
     }
     
@@ -968,8 +948,33 @@ class ViewController: UIViewController {
             removeCalendarButtonObject()
             setupNextCalendarData()
             generateCalendar()
-            setupCalendarTitleLabel()
         }
+    }
+    
+    //ボタンを活性・非活性にする（#51）
+    func buttonNotActive(){
+ 
+        if(year >= maxYear){
+            //上限を上回る場合はこれ以上進めないようにボタンを非活性にする
+            nextMonthButton.enabled = false
+            nextMonthButton.alpha = 0.5
+        } else if(year <= minYear){
+            //下限を下回る場合はこれ以上戻れないようにボタンを非活性にする
+            prevMonthButton.enabled = false
+            prevMonthButton.alpha = 0.5
+        } else {
+            //必要に応じてprevMonthButtonを復活させる
+            if(!prevMonthButton.enabled){
+                prevMonthButton.enabled = true
+                prevMonthButton.alpha = 1.0
+            }
+            //必要に応じてnextMonthButtonを復活させる
+            if(!nextMonthButton.enabled){
+                nextMonthButton.enabled = true
+                nextMonthButton.alpha = 1.0
+            }
+        }
+
     }
     
     /**

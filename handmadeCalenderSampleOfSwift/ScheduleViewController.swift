@@ -295,7 +295,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         case EKEventEditViewAction.Canceled:
             if(addNewEventFlag){
                 do{
-//                    eventStore.eventWithIdentifier(events[index].eventIdentifier)
                     try eventStore.removeEvent(controller.event!, span: EKSpan.ThisEvent)
                 } catch _{
                     //もし削除できなかったらゴミが溜まる。。考慮中。
