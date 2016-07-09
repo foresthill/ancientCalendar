@@ -47,23 +47,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var presentMode: UILabel!
     @IBOutlet weak var toolBar: UIToolbar!
     
-    //カレンダーの位置決め用メンバ変数
-    var calendarLabelIntervalX: Int!
-    var calendarLabelX: Int!
-    var calendarLabelY: Int!
-    var calendarLabelWidth: Int!
-    var calendarLabelHeight: Int!
-    var calendarLableFontSize: Int!
-    
-    var buttonRadius: Float!
-    
-    var calendarIntervalX: Int!
-    var calendarX: Int!
-    var calendarIntervalY: Int!
-    var calendarY: Int!
-    var calendarSize: Int!
-    var calendarFontSize: Int!
-    
     //その他追加機能（2015/07/21）
     var popUpWindow: UIWindow!
     private var popUpWindowButton: UIButton!
@@ -90,15 +73,11 @@ class ViewController: UIViewController {
     //旧暦カレンダー変換エンジン外出し（2016/04/17）
     var converter: AncientCalendarConverter2!
     
-    //色の標準化・共通化（2016/05/05）
-    var baseNormal: UIColor!    //標準のラベルカラー
-    var baseRed: UIColor!       //日曜、大安で使用
-    var baseBlue: UIColor!      //土曜、仏滅で使用
-    var baseBlack: UIColor!     //旧暦表示の背景に表示（2016.05.17追加）
-    var baseDarkGray: UIColor!  //旧暦表示の背景に表示（2016.05.24追加）
-    
     //ユーザ設定（スクロール方向をナチュラルにするか否か）
     var scrollNatural = false
+    
+    //デザイナークラス（シングルトン）
+    let designer: Designer = Designer.sharedInstance
     
     override func viewDidLoad() {
         
@@ -114,15 +93,9 @@ class ViewController: UIViewController {
         converter = AncientCalendarConverter2.sharedSingleton
         converter.minYear = minYear
         
-        //色の標準化・共通化（2016/05/05） ※RGBカラーの設定は小数値をCGFloat型にしてあげる
-        baseNormal = UIColor.lightGrayColor()
-        baseRed = UIColor(red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0))
-        baseBlue = UIColor(red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0))
-        baseBlack = UIColor.blackColor()
-        baseDarkGray = UIColor.darkGrayColor()
-        
         //画面初期化・最適化
-        screenInit()
+        //screenInit()
+        designer.screenInit()
         
         //GregorianCalendarセットアップ
         setupGregorianCalendar()
@@ -152,103 +125,12 @@ class ViewController: UIViewController {
             scrollNatural = result as! Bool
         }
         
-     }
-    
-    //画面初期化・最適化
-    func screenInit(){
-        //現在起動中のデバイスを取得（スクリーンの幅・高さ）
-        let screenWidth  = DeviseSize.screenWidth()
-        let screenHeight = DeviseSize.screenHeight()
-        
-        //iPhone4s
-        if(screenWidth == 320 && screenHeight == 480){
-            
-            calendarLabelIntervalX = 5;
-            calendarLabelX         = 45;
-            calendarLabelY         = 93;
-            calendarLabelWidth     = 40;
-            calendarLabelHeight    = 25;
-            calendarLableFontSize  = 14;
-            
-            buttonRadius           = 20.0;
-            
-            calendarIntervalX      = 5;
-            calendarX              = 45;
-            calendarIntervalY      = 120;
-            calendarY              = 45;
-            calendarSize           = 40;
-            calendarFontSize       = 17;
-            
-            //iPhone5またはiPhone5s
-        }else if (screenWidth == 320 && screenHeight == 568){
-            
-            calendarLabelIntervalX = 5;
-            calendarLabelX         = 45;
-            calendarLabelY         = 93;
-            calendarLabelWidth     = 40;
-            calendarLabelHeight    = 25;
-            calendarLableFontSize  = 14;
-            
-            buttonRadius           = 20.0;
-            
-            calendarIntervalX      = 5;
-            calendarX              = 45;
-            calendarIntervalY      = 120;
-            calendarY              = 45;
-            calendarSize           = 40;
-            calendarFontSize       = 17;
-            
-            //iPhone6
-        }else if (screenWidth == 375 && screenHeight == 667){
-            
-            calendarLabelIntervalX = 15;
-            calendarLabelX         = 50;
-            calendarLabelY         = 95;
-            calendarLabelWidth     = 45;
-            calendarLabelHeight    = 25;
-            calendarLableFontSize  = 16;
-            
-            buttonRadius           = 22.5;
-            
-            calendarIntervalX      = 15;
-            calendarX              = 50;
-            calendarIntervalY      = 125;
-            calendarY              = 50;
-            calendarSize           = 45;
-            calendarFontSize       = 19;
-            
-            self.prevMonthButton.frame = CGRectMake(15, 438, CGFloat(calendarSize), CGFloat(calendarSize));
-            self.nextMonthButton.frame = CGRectMake(314, 438, CGFloat(calendarSize), CGFloat(calendarSize));
-            
-            //iPhone6 plus
-        }else if (screenWidth == 414 && screenHeight == 736){
-            
-            calendarLabelIntervalX = 15;
-            calendarLabelX         = 55;
-            calendarLabelY         = 95;
-            calendarLabelWidth     = 55;
-            calendarLabelHeight    = 25;
-            calendarLableFontSize  = 18;
-            
-            buttonRadius           = 25;
-            
-            calendarIntervalX      = 18;
-            calendarX              = 55;
-            calendarIntervalY      = 125;
-            calendarY              = 55;
-            calendarSize           = 50;
-            calendarFontSize       = 21;
-            
-            self.prevMonthButton.frame = CGRectMake(18, 468, CGFloat(calendarSize), CGFloat(calendarSize));
-            self.nextMonthButton.frame = CGRectMake(348, 468, CGFloat(calendarSize), CGFloat(calendarSize));
+        if designer.prevMonthButtonFrame != nil && designer.nextMonthButtonFrame != nil {
+            prevMonthButton.frame = designer.prevMonthButtonFrame
+            nextMonthButton.frame = designer.nextMonthButtonFrame
         }
         
-        //ボタンを角丸にする
-        //prevMonthButton.layer.cornerRadius = CGFloat(buttonRadius)
-        //nextMonthButton.layer.cornerRadius = CGFloat(buttonRadius)
-        
-
-    }
+     }
     
     //GregorianCalendarセットアップ
     func setupGregorianCalendar(){
@@ -306,7 +188,7 @@ class ViewController: UIViewController {
         let calendarLabelCount = monthName.count
         
         let reviseX:Double =  7.0 / Double(calendarLabelCount)
-        var tempCalendarLabelX = Int(ceil(Double(calendarLabelX) * reviseX))
+        var tempCalendarLabelX = Int(ceil(Double(designer.calendarLabelX) * reviseX))
         
         if(calendarMode == -1){
             tempCalendarLabelX += 1      //微調整
@@ -321,30 +203,30 @@ class ViewController: UIViewController {
             
             //X座標の値をCGFloat型へ変換して設定
             calendarBaseLabel.frame = CGRectMake(
-                CGFloat(calendarLabelIntervalX + tempCalendarLabelX * (i % calendarLabelCount)),
-                CGFloat(calendarLabelY),
-                CGFloat(calendarLabelWidth),
-                CGFloat(calendarLabelHeight)
+                CGFloat(designer.calendarLabelIntervalX + tempCalendarLabelX * (i % calendarLabelCount)),
+                CGFloat(designer.calendarLabelY),
+                CGFloat(designer.calendarLabelWidth),
+                CGFloat(designer.calendarLabelHeight)
             )
             
             if(i == 0){
                 //日曜、大安の場合は赤色を指定
-                calendarBaseLabel.textColor = baseRed
+                calendarBaseLabel.textColor = designer.baseRed
                 
             }else if(i == calendarLabelCount-1){
                 //土曜、仏滅の場合は青色を指定
-                calendarBaseLabel.textColor = baseBlue
+                calendarBaseLabel.textColor = designer.baseBlue
                 
             }else{
                 //その他の場合は灰色を指定
-                calendarBaseLabel.textColor = baseNormal
+                calendarBaseLabel.textColor = designer.baseNormal
                 
             }
             
             //曜日ラベルの配置
             calendarBaseLabel.text = String(monthName[i] as NSString)
             calendarBaseLabel.textAlignment = NSTextAlignment.Center
-            calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(calendarLableFontSize))
+            calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(designer.calendarLabelFontSize))
             self.view.addSubview(calendarBaseLabel)
             
             mArrayForLabel.addObject(calendarBaseLabel) //削除用（2016/02/11）
@@ -412,7 +294,7 @@ class ViewController: UIViewController {
         }
         
         let reviseX:Double =  7.0 / Double(numberOfDaysInWeek)
-        var tempCalendarX = Int(ceil(Double(calendarX) * reviseX))
+        var tempCalendarX = Int(ceil(Double(designer.calendarX) * reviseX))
         
         if(calendarMode == -1){
             tempCalendarX += 1      //微調整
@@ -427,10 +309,10 @@ class ViewController: UIViewController {
         for i in 0...total-1{
             
             //配置場所の定義
-            let positionX   = calendarIntervalX + tempCalendarX * (i % numberOfDaysInWeek)   //Intervalは間隔ではなくて初期値でしたorz
-            let positionY   = calendarIntervalY + calendarY * (i / numberOfDaysInWeek)
-            let buttonSizeX = calendarSize;
-            let buttonSizeY = calendarSize;
+            let positionX   = designer.calendarIntervalX + tempCalendarX * (i % numberOfDaysInWeek)   //Intervalは間隔ではなくて初期値でしたorz
+            let positionY   = designer.calendarIntervalY + designer.calendarY * (i / numberOfDaysInWeek)
+            let buttonSizeX = designer.calendarSize;
+            let buttonSizeY = designer.calendarSize;
 
             //ボタンをつくる
             let button: UIButton = UIButton()
@@ -486,21 +368,7 @@ class ViewController: UIViewController {
                 
                 strBtn += addDate
                 
-                //文字のフォント・文字色などをNSMutableAttributedStringで設定
-                var myMutableString:NSMutableAttributedString = NSMutableAttributedString(
-                    string: strBtn,
-                    attributes: [NSFontAttributeName:UIFont.systemFontOfSize(11.9)])
-                
-                myMutableString.addAttribute(NSForegroundColorAttributeName, value: UIColor.whiteColor(), range: NSRange(location: 0, length: (strBtn.characters.count - addDate.characters.count)))
-                    
-                myMutableString.addAttribute(NSForegroundColorAttributeName, value: UIColor(
-                    red: CGFloat(0.989), green: CGFloat(0.919), blue: CGFloat(0.756), alpha: CGFloat(0.9)),
-                    range: NSRange(location: (strBtn.characters.count - addDate.characters.count), length: addDate.characters.count))   //0.971,0.749, 0.456
-                    
-                myMutableString.addAttribute(NSFontAttributeName, value: UIFont.systemFontOfSize(7.3),
-                    range: NSRange(location: (strBtn.characters.count - addDate.characters.count), length: addDate.characters.count))   //7.6
-                
-                button.setAttributedTitle(myMutableString, forState: .Normal)
+                button.setAttributedTitle(designer.setFont(strBtn, addDate: addDate), forState: .Normal)
                 
                 /*当日については、枠線で色をつける（旧暦に対応していないため、一旦保留）
                 if(nowComps.year == year && nowComps.month == month && nowComps.day == tagNumber){
@@ -533,25 +401,25 @@ class ViewController: UIViewController {
                 //通常モード（新暦）
                 if(i % numberOfDaysInWeek == 0){
                     //日曜、大安
-                    calendarBackGroundColor = baseRed
+                    calendarBackGroundColor = designer.baseRed
                     
                 } else if (i % numberOfDaysInWeek == numberOfDaysInWeek-1){
                     //土曜、仏滅
-                    calendarBackGroundColor = baseBlue
+                    calendarBackGroundColor = designer.baseBlue
                     
                 } else {
                     //それ以外（通常）
-                    calendarBackGroundColor = baseNormal
+                    calendarBackGroundColor = designer.baseNormal
                     
                 }
             
             } else {
                 //旧暦モード
                 if(button.enabled){
-                    calendarBackGroundColor = baseBlack
+                    calendarBackGroundColor = designer.baseBlack
                     
                 } else {
-                    calendarBackGroundColor = baseDarkGray
+                    calendarBackGroundColor = designer.baseDarkGray
                 }
 
             }
@@ -560,11 +428,11 @@ class ViewController: UIViewController {
             button.backgroundColor = calendarBackGroundColor    //ここに置かないと色がずれちゃうよ。
                 
             //フォント
-            button.titleLabel!.font = UIFont(name: "System", size: CGFloat(calendarFontSize))
+            button.titleLabel!.font = UIFont(name: "System", size: CGFloat(designer.calendarFontSize))
             
             //旧暦モードの場合は、日付を丸くする。
             if(calendarMode == -1){
-                button.layer.cornerRadius = CGFloat(buttonRadius)
+                button.layer.cornerRadius = CGFloat(designer.buttonRadius)
             }
             
             //配置したボタンに押した際のアクションを設定する
@@ -790,37 +658,20 @@ class ViewController: UIViewController {
     //デザインを設定・変更する関数（2016/05/05） #5
     func setupCalendarDesign(){
         
-        if(calendarMode == -1){
-            //旧暦モード
-            
-            //背景
-            self.view.backgroundColor = UIColor(red: 15/255, green: 21/255, blue: 36/255, alpha: 1.0)
-            //カレンダバー
-            self.calendarBar.backgroundColor = UIColor(red: 8/255, green: 8/255, blue: 21/255, alpha: 1.0)
-            //ナビゲーションバー
-            self.navigationItem.titleView?.tintColor = UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)
-            self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)]
-            self.navigationController?.navigationBar.barTintColor = UIColor(red: 15/255, green: 16/255, blue: 19/255, alpha: 1.0)
-            //「前月」「次月」ボタン
-            self.prevMonthButton.backgroundColor = UIColor(red: 30/255, green: 125/255, blue: 108/255, alpha: 1.0)
-            self.nextMonthButton.backgroundColor = UIColor(red: 47/255, green: 103/255, blue: 127/255, alpha: 1.0)
-            
-        } else {
-            //新暦モード
-            
-            //背景
-            self.view.backgroundColor = UIColor.whiteColor()
-            //カレンダバー
-            self.calendarBar.backgroundColor = UIColor(red: 235/255, green: 208/255, blue: 185/255, alpha: 1.0)
-            //ナビゲーションバー
-            self.navigationItem.titleView?.tintColor = UIColor.blackColor()
-            self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.blackColor()]
-            self.navigationController?.navigationBar.barTintColor = UIColor(red: 248/255, green: 248/255, blue: 248/255, alpha: 1.0)
-            //「前月」「次月」ボタン
-            self.prevMonthButton.backgroundColor = UIColor(red: 112/255, green: 229/255, blue: 208/255, alpha: 1.0)
-            self.nextMonthButton.backgroundColor = UIColor(red: 161/255, green: 209/255, blue: 230/255, alpha: 1.0)
-            
-        }
+        designer.setColor(calendarMode)
+        
+        //背景
+        self.view.backgroundColor = designer.backgroundColor
+        //カレンダバー
+        self.calendarBar.backgroundColor = designer.calendarBarBgColor
+        //ナビゲーションバー
+        self.navigationItem.titleView?.tintColor = designer.navigationTintColor
+        self.navigationController?.navigationBar.titleTextAttributes = designer.navigationTextAttributes
+        self.navigationController?.navigationBar.barTintColor = designer.navigationBarTintColor
+        //「前月」「次月」ボタン
+        self.prevMonthButton.backgroundColor = designer.prevMonthButtonBgColor
+        self.nextMonthButton.backgroundColor = designer.nextMonthButtonBgColor
+        
     }
     
     //カレンダーのパラメータを再作成する関数（前月・次月への遷移、カレンダー切り替え時）
