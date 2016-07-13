@@ -16,83 +16,30 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     // Tableで使用する配列を設定する
     var events: [EKEvent]!
     
-    // segueで渡す時の変数
-    var calNum: Int!
-    
     // テーブルビュー（2015/12/23）
     @IBOutlet var myTableView :UITableView!
     
-    //引き渡された日時（2016/01/29）
-    var year: Int!
-    var month: Int!
-    var day: Int!
-    
-    //遷移先の画面（メニューフラグ）
-    var menuFlg: Int!
-    
-    //EKEventStore外出し（2016/04/02）
-    var eventStore: EKEventStore!
-    
-    //旧暦時間を受け取るコンポーネント
-    var ancientYear: Int!
-    var ancientMonth: Int!
-    var ancientDay: Int!
-    
-    //カレンダーモード（通常：1 旧暦：-1）
-    var calendarMode: Int!
-    
-    //閏月かどうか
-    var isLeapMonth:Int! //閏月の場合は-1（2016/02/06）
-    
     //旧暦カレンダー変換エンジン外出し（2016/04/17）
     var converter: AncientCalendarConverter2!
-    
-    //カレンダー外出し
-    var calendar: NSCalendar!
-    
+
     //イベント新規作成フラグ（2016/05/24）
     var addNewEventFlag = false
     
-    //NSDateComponents外出し（2016/05/24）
-    var comps: NSDateComponents!
+    /** CalendarManagerクラス（シングルトン）（2016/07/13）*/
+    let calendarManager: CalendarManager = CalendarManager.sharedInstance
 
+    /** 初期化処理 */
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        comps = NSDateComponents()
-
-        if(calendarMode == 1){  //新暦モード
-         
-            //旧暦時間を渡す（2016/04/15）
-            comps.year = year
-            comps.month = month
-            comps.day = day
-
-            var ancientDate:[Int] = converter.convertForAncientCalendar(comps)
-            ancientYear = ancientDate[0]
-            ancientMonth = ancientDate[1]
-            ancientDay = ancientDate[2]
-            isLeapMonth = ancientDate[3]
-         
-        } else {    //旧暦モード
-
-            ancientYear = year
-            ancientMonth = month
-            ancientDay = day
+        //初期化
+        calendarManager.initScheduleViewController()
         
-            //新暦時間を渡す
-            comps = converter.convertForGregorianCalendar([ancientYear, ancientMonth, ancientDay, isLeapMonth])
-            year = comps.year
-            month = comps.month
-            day = comps.day
-
-        }
+        //フェッチ
+        events = calendarManager.fetchEvent(calendarManager.comps)
         
-        //今日1日分のイベントをフェッチ
-        fetchEvent(comps)
-        
-        //タイトル
-        setScheduleTitle(comps)
+        //タイトルの設定
+        setScheduleTitle()
 
         // Cell名の登録を行う
         myTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "MyCell")
@@ -118,61 +65,16 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // ツールバー非表示（2016/01/30）
         self.navigationController!.toolbarHidden = true
-        
-        // カレンダー初期化
-        calendar = NSCalendar.currentCalendar()
-   
     }
     
-    //本日1日分のイベントをフェッチするメソッド
-    func fetchEvent(inComps: NSDateComponents){
-        // NSCalendarを生成
-        let calendar: NSCalendar = NSCalendar.currentCalendar() //新たにインスタンス化しないとダメ
+    /** タイトルをセットする */
+    func setScheduleTitle() {
+        //文言の指定
+        calendarManager.setScheduleTitle()
         
-        let SelectedDay: NSDate = calendar.dateFromComponents(inComps)!
-        
-        inComps.day += 1
-        
-        let oneDayFromSelectedDay: NSDate = calendar.dateFromComponents(inComps)!
-        
-        // イベントストアのインスタントメソッドで述語を生成
-        var predicate = NSPredicate()
-        
-        predicate = eventStore.predicateForEventsWithStartDate(SelectedDay, endDate: oneDayFromSelectedDay, calendars: nil)
-        
-        // 選択された一日分をフェッチ
-        events = eventStore.eventsMatchingPredicate(predicate)
-        
-        inComps.day -= 1    //かっこ悪りぃ。。inCompsはメソッド内だけでないの？ポインタ渡してるのか。。
-    }
-    
-    //タイトルを設定して表示するメソッド
-//    func setTitle(inYear:Int, inMonth:Int, inDay:Int){
-    func setScheduleTitle(inComps: NSDateComponents){
-        
-        var ancientDate:[Int] = converter.convertForAncientCalendar(inComps)
-        ancientYear = ancientDate[0]
-        ancientMonth = ancientDate[1]
-        ancientDay = ancientDate[2]
-        isLeapMonth = ancientDate[3]
-    
-        var ancientMonthStr:String = String(ancientMonth)
-
-        if(isLeapMonth < 0){
-            ancientMonthStr = "閏\(ancientMonth)"
-        }
-        
-        if(calendarMode == 1){
-            //新暦モード
-            self.navigationItem.title = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
-//            self.navigationItem.title = "\(inComps.day)日"     //TODO:#60
-            self.navigationItem.prompt = "（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日）"
-        } else {
-            //旧暦モード
-            self.navigationItem.title = "\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日"
-            self.navigationItem.prompt = "（新暦：\(inComps.year)年\(inComps.month)月\(inComps.day)日）"
-        }
-        
+        //タイトルの設定
+        self.navigationItem.title = calendarManager.scheduleBarTitle
+        self.navigationItem.prompt = calendarManager.scheduleBarPrompt
     }
     
     //画面遷移時に呼ばれるメソッド
@@ -206,28 +108,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // Cellに値を設定する
         cell.textLabel?.text = events[indexPath.row].title
-
-        let df:NSDateFormatter = NSDateFormatter()
-        let df2:NSDateFormatter = NSDateFormatter()
-        
-        // カレンダーの時間表示を「２４時間制」にする #56
-        df.dateFormat = "HH:mm(yyyy/MM/dd)"
-        df2.dateFormat = "HH:mm"
-
-        let startDate = events[indexPath.row].startDate
-        let endDate = events[indexPath.row].endDate
-        
-        var detailText:String
-        
-        if(calendar!.isDate(startDate, inSameDayAsDate: endDate)){
-            //同日の場合は時間のみ表示
-            detailText = "\(df2.stringFromDate(events[indexPath.row].startDate)) - \(df2.stringFromDate(events[indexPath.row].endDate))"
-        } else {
-            //別日の場合は日付も表示
-            detailText = "\(df2.stringFromDate(events[indexPath.row].startDate)) - \(df.stringFromDate(events[indexPath.row].endDate))"
-        }
-        
-        cell.detailTextLabel?.text = detailText
+        cell.detailTextLabel?.text = calendarManager.tableViewDetailText(
+            events[indexPath.row].startDate, endDate: events[indexPath.row].endDate)
 
         cell.textLabel?.numberOfLines = 2
         cell.detailTextLabel?.numberOfLines = 0 //2016/04/21 0にすることで制限なし表示（「…」とならない）#29
@@ -261,9 +143,9 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
     //モーダルでEditEventViewControllerを呼び出す
     func editEvent(event:EKEvent?){
-        var eventEditController = EKEventEditViewController.init()
+        let eventEditController = EKEventEditViewController.init()
         
-        eventEditController.eventStore = eventStore
+        eventEditController.eventStore = calendarManager.eventStore
         eventEditController.editViewDelegate = self
         
         if(event != nil){
@@ -271,9 +153,9 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
             addNewEventFlag = false
         
         } else {
-            var newEvent = EKEvent.init(eventStore: eventStore)
-            newEvent.startDate = calendar.dateFromComponents(comps)!
-            newEvent.endDate = calendar.dateFromComponents(comps)!
+            let newEvent = EKEvent.init(eventStore: calendarManager.eventStore)
+            newEvent.startDate = calendarManager.calendar.dateFromComponents(calendarManager.comps)!
+            newEvent.endDate = calendarManager.calendar.dateFromComponents(calendarManager.comps)!
             eventEditController.event = newEvent
             addNewEventFlag = true
         }
@@ -295,7 +177,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         case EKEventEditViewAction.Canceled:
             if(addNewEventFlag){
                 do{
-                    try eventStore.removeEvent(controller.event!, span: EKSpan.ThisEvent)
+                    try calendarManager.eventStore.removeEvent(controller.event!, span: EKSpan.ThisEvent)
                 } catch _{
                     //もし削除できなかったらゴミが溜まる。。考慮中。
                 }
@@ -307,16 +189,17 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
     }
     
+    /** スケジュールを再読込するメソッド */
     func scheduleReload(startDate:NSDate){
         
         // 作成したイベントの日時に戻るように改修（2016/04/16）
-        comps = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: startDate)
+        calendarManager.comps = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: startDate)
         
         //タイトルを付け直す
-        setScheduleTitle(comps)
+        setScheduleTitle()
         
         // イベントをフェッチ
-        fetchEvent(comps)
+        calendarManager.fetchEvent(calendarManager.comps)
         
     }
     
@@ -345,8 +228,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
             
         case .Authorized:
             do{
-                eventStore.eventWithIdentifier(events[index].eventIdentifier)
-                try eventStore.removeEvent(events[index], span: EKSpan.ThisEvent)
+                calendarManager.eventStore.eventWithIdentifier(events[index].eventIdentifier)
+                try calendarManager.eventStore.removeEvent(events[index], span: EKSpan.ThisEvent)
                 print("Deleted.")
             } catch _{
                 print("not Deleted(1).")
@@ -354,12 +237,12 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         case .Denied:
             print("Access denied")
         case .NotDetermined:
-            eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+            calendarManager.eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
                 //[weak self](granted:Bool, error:NSError!) -> Void in
                 granted, error in
                 if granted {
                     do{
-                        try self.eventStore.removeEvent(self.events[index], span: EKSpan.ThisEvent)
+                        try self.calendarManager.eventStore.removeEvent(self.events[index], span: EKSpan.ThisEvent)
                     } catch _{
                         print("not Deleted(2).")
                     }

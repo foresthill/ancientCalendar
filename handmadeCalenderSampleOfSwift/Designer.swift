@@ -225,5 +225,10 @@ class Designer {
         }
     }
     
+    /** ボタン生成時に呼び出されるメソッド */
+    func generateCalendarButton(i: Int){
+    
+    }
+    
     
 }
