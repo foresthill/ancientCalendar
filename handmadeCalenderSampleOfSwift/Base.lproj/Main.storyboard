@@ -204,7 +204,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="105-rm-qLl">
-                                <rect key="frame" x="0.0" y="150" width="320" height="374"/>
+                                <rect key="frame" x="0.0" y="210" width="320" height="314"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <color key="sectionIndexBackgroundColor" red="0.12586387621449663" green="0.12194207128454378" blue="0.16135110294117649" alpha="0.072817887931034483" colorSpace="calibratedRGB"/>
                                 <prototypes>
@@ -222,12 +222,64 @@
                                     <outlet property="delegate" destination="0mC-JM-akN" id="XO7-zd-tfT"/>
                                 </connections>
                             </tableView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="moon0_90x90.png" translatesAutoresizingMaskIntoConstraints="NO" id="kda-Xv-HCL">
+                                <rect key="frame" x="16" y="79" width="90" height="90"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="90" id="Xrr-xN-0Vm" userLabel="width = 90"/>
+                                    <constraint firstAttribute="height" constant="90" id="vK5-WS-5Ff" userLabel="height = 90"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="月齢：0.0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h4h-f2-KbT">
+                                <rect key="frame" x="30.5" y="177" width="62" height="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="14"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2016年7月21日" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="N2F-Wi-0ra">
+                                <rect key="frame" x="123" y="79" width="115" height="21"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="（旧暦:2016年6月18日）" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zPJ-wt-4AF">
+                                <rect key="frame" x="123" y="102" width="157" height="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="14"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="夏至" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tZh-cc-agY">
+                                <rect key="frame" x="123" y="131" width="34" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wsI-Pf-Ttk">
+                                <rect key="frame" x="123" y="156" width="177" height="38"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <string key="text">イベントの詳細、
+その他もろもろ</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="tZh-cc-agY" firstAttribute="leading" secondItem="N2F-Wi-0ra" secondAttribute="leading" id="1cf-v9-CQ1"/>
+                            <constraint firstItem="tZh-cc-agY" firstAttribute="top" secondItem="zPJ-wt-4AF" secondAttribute="bottom" constant="12" id="2kL-rb-fHL"/>
+                            <constraint firstItem="zPJ-wt-4AF" firstAttribute="top" secondItem="N2F-Wi-0ra" secondAttribute="bottom" constant="2" id="3VK-Zh-vZq"/>
+                            <constraint firstItem="wsI-Pf-Ttk" firstAttribute="leading" secondItem="tZh-cc-agY" secondAttribute="leading" id="6Nn-yk-CJn"/>
+                            <constraint firstItem="N2F-Wi-0ra" firstAttribute="top" secondItem="kda-Xv-HCL" secondAttribute="top" id="9KQ-dW-xXO"/>
+                            <constraint firstItem="kda-Xv-HCL" firstAttribute="leading" secondItem="P2G-wi-HaA" secondAttribute="leadingMargin" id="CeE-LD-klt"/>
+                            <constraint firstItem="wsI-Pf-Ttk" firstAttribute="trailing" secondItem="P2G-wi-HaA" secondAttribute="trailingMargin" id="Kbz-VE-LK3"/>
                             <constraint firstAttribute="trailingMargin" secondItem="105-rm-qLl" secondAttribute="trailing" constant="-16" id="MBz-ue-m4r"/>
+                            <constraint firstItem="zPJ-wt-4AF" firstAttribute="leading" secondItem="N2F-Wi-0ra" secondAttribute="leading" id="RGk-cy-ytL"/>
+                            <constraint firstItem="h4h-f2-KbT" firstAttribute="centerX" secondItem="kda-Xv-HCL" secondAttribute="centerX" id="T0l-ND-fAN"/>
+                            <constraint firstItem="h4h-f2-KbT" firstAttribute="top" secondItem="kda-Xv-HCL" secondAttribute="bottom" constant="8" id="WLl-t6-PJy"/>
                             <constraint firstItem="105-rm-qLl" firstAttribute="leading" secondItem="P2G-wi-HaA" secondAttribute="leadingMargin" constant="-16" id="WW7-7e-p09"/>
-                            <constraint firstItem="105-rm-qLl" firstAttribute="top" secondItem="P2G-wi-HaA" secondAttribute="topMargin" constant="150" id="tBl-iW-j2Q"/>
+                            <constraint firstItem="wsI-Pf-Ttk" firstAttribute="top" secondItem="tZh-cc-agY" secondAttribute="bottom" constant="8" id="Yqu-kU-R80"/>
+                            <constraint firstItem="N2F-Wi-0ra" firstAttribute="leading" secondItem="kda-Xv-HCL" secondAttribute="trailing" constant="17" id="gul-Cu-pzW"/>
+                            <constraint firstItem="105-rm-qLl" firstAttribute="top" secondItem="P2G-wi-HaA" secondAttribute="topMargin" constant="210" id="tBl-iW-j2Q"/>
+                            <constraint firstItem="kda-Xv-HCL" firstAttribute="top" secondItem="olz-rL-Bmx" secondAttribute="bottom" constant="15" id="udv-YI-XON"/>
                             <constraint firstItem="Lt4-fr-Aa7" firstAttribute="top" secondItem="105-rm-qLl" secondAttribute="bottom" id="wkY-Wa-r9N"/>
                         </constraints>
                     </view>
@@ -265,4 +317,7 @@
             <point key="canvasLocation" x="664" y="134"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="moon0_90x90.png" width="90" height="90"/>
+    </resources>
 </document>

@@ -29,10 +29,20 @@ class CalendarManager {
     //1週間に含まれる日数 旧暦なら6日（六曜）、新暦なら7日（七曜日）
     var numberOfDaysInWeek: Int!
     
-    //旧暦時間を受け取るコンポーネント
+    //旧暦時間を受け取るコンポーネント（不要？）
     var ancientYear: Int!
     var ancientMonth: Int!
     var ancientDay: Int!
+    
+    //新暦時間を受け取るコンポーネント（冗長だけど）
+    var gregorianYear: Int!
+    var gregorianMonth: Int!
+    var gregorianDay: Int!
+    
+    //サブ表示用日数（新暦カレンダーの場合は旧暦、旧暦カレンダーの場合は新暦）
+//    var subDispYear: Int!
+//    var subDispMonth: Int!
+//    var subDispDay: Int!
     
     //トータルカウント（ボタンの総数）
     var total: Int!
@@ -381,17 +391,17 @@ class CalendarManager {
         comps = currentCalendar.components([NSCalendarUnit.Year, NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Weekday],fromDate:currentDate)
         
         //年月日と最後の日付と曜日を取得(NSIntegerをintへのキャスト不要)
-        let currentYear: NSInteger      = comps.year
-        let currentMonth: NSInteger     = comps.month
-        let currentDay: NSInteger       = comps.day
-        let currentDayOfWeek: NSInteger = comps.weekday
-        let currentMax: NSInteger       = currentRange.length
+//        let currentYear: NSInteger      = comps.year
+//        let currentMonth: NSInteger     = comps.month
+//        let currentDay: NSInteger       = comps.day
+//        let currentDayOfWeek: NSInteger = comps.weekday
+//        let currentMax: NSInteger       = currentRange.length
         
-        year      = currentYear
-        month     = currentMonth
-        day       = currentDay
-        dayOfWeek = currentDayOfWeek
-        maxDay    = currentMax
+        year      = comps.year
+        month     = comps.month
+        day       = comps.day
+        dayOfWeek = comps.weekday
+        maxDay    = currentRange.length
         
         if(converter.leapMonth == month){ //leapMonth→converter.leapMonth（2016/04/17）
             isLeapMonth = -1
@@ -413,6 +423,13 @@ class CalendarManager {
             comps.month = month
             comps.day = day
             
+            //冗長だな〜（2016/07/15）
+            gregorianYear = year
+            gregorianMonth = month
+            gregorianDay = day
+            
+            //print("\(comps.year). \(comps.month). \(comps.day)")
+            
             var ancientDate:[Int] = converter.convertForAncientCalendar(comps)
             ancientYear = ancientDate[0]
             ancientMonth = ancientDate[1]
@@ -425,11 +442,11 @@ class CalendarManager {
             ancientMonth = month
             ancientDay = day
             
-            //新暦時間を渡す
+            //新暦時間を渡す（これだと
             comps = converter.convertForGregorianCalendar([ancientYear, ancientMonth, ancientDay, isLeapMonth])
-            year = comps.year
-            month = comps.month
-            day = comps.day
+            gregorianYear = comps.year
+            gregorianMonth = comps.month
+            gregorianDay = comps.day
             
         }
         
@@ -445,17 +462,20 @@ class CalendarManager {
     }
     
     /** 本日1日分のイベントをフェッチするメソッド */
-    func fetchEvent(inComps: NSDateComponents) -> [EKEvent] {
-        //    func fetchEvent(){
+    //func fetchEvent(inComps: NSDateComponents) -> [EKEvent] {
+    func fetchEvent() -> [EKEvent] {
         
         // NSCalendarを生成
-        let calendar: NSCalendar = NSCalendar.currentCalendar() //新たにインスタンス化しないとダメ
+        //let calendar: NSCalendar = NSCalendar.currentCalendar() //新たにインスタンス化しないとダメ→コメントアウト（2016/07/15）
+        //calendar = NSCalendar.currentCalendar()
         
-        let SelectedDay: NSDate = calendar.dateFromComponents(inComps)!
+        let SelectedDay: NSDate = calendar.dateFromComponents(comps)!
         
-        inComps.day += 1
+        comps.day += 1
         
-        let oneDayFromSelectedDay: NSDate = calendar.dateFromComponents(inComps)!
+        let oneDayFromSelectedDay: NSDate = calendar.dateFromComponents(comps)!
+        
+        comps.day -= 1    //ここで-1をしないと整合性がとれなくなる
         
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
@@ -464,10 +484,11 @@ class CalendarManager {
         
         // 選択された一日分をフェッチ
         //let events = eventStore.eventsMatchingPredicate(predicate)
-        
+
+
         return eventStore.eventsMatchingPredicate(predicate)
         
-        //inComps.day -= 1    //かっこ悪りぃ。。inCompsはメソッド内だけでないの？ポインタ渡してるのか。。
+        
     }
     
     /** ScheduleViewControllerのタイトルを設定して表示するメソッド */
@@ -498,7 +519,7 @@ class CalendarManager {
             //旧暦モード
             scheduleBarTitle = "\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日"
             //scheduleBarPrompt = "（新暦：\(inComps.year)年\(inComps.month)月\(inComps.day)日）"
-            scheduleBarPrompt = "（新暦：\(comps.year)年\(comps.month)月\(comps.day)日）"
+            scheduleBarPrompt = "（新暦：\(gregorianYear)年\(gregorianMonth)月\(gregorianDay)日）"
         }
     }
     

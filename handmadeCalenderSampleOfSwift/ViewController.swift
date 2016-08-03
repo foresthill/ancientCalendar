@@ -359,7 +359,7 @@ class ViewController: UIViewController {
             }
             
             //配置したボタンに押した際のアクションを設定する
-            button.addTarget(self, action: "buttonTapped:", forControlEvents: .TouchUpInside)
+            button.addTarget(self, action: #selector(ViewController.buttonTapped(_:)), forControlEvents: .TouchUpInside)
             
             //ボタンを配置する
             self.view.addSubview(button)
@@ -497,7 +497,7 @@ class ViewController: UIViewController {
     //カレンダーボタンをタップした時のアクション
     func buttonTapped(button: UIButton){
         // コンソール表示
-        //print("\(year)年\(month)月\(button.tag)日が選択されました！")
+        print("\(calendarManager.year)年\(calendarManager.month)月\(button.tag)日が選択されました！")
         calendarManager.day = button.tag
         performSegueWithIdentifier("toScheduleView", sender: self)
         
@@ -658,11 +658,11 @@ class ViewController: UIViewController {
     }
     
     //画面遷移時に呼ばれるメソッド
+    /* 2016/07/13 CalendarManagerですべて持つためコメントアウト
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
 
         switch (segue.identifier)! {
             case "toScheduleView":
-                /** 2016/07/13 CalendarManagerですべて持つためコメントアウト */
                 /*
                 //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
                 let svc = segue.destinationViewController as! ScheduleViewController
@@ -690,6 +690,7 @@ class ViewController: UIViewController {
         }
         
     }
+     */
     
     // 設定ボタンをタップした時の処理
     func toUserConfig(){

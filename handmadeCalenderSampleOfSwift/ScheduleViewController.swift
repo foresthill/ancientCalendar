@@ -36,7 +36,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         calendarManager.initScheduleViewController()
         
         //フェッチ
-        events = calendarManager.fetchEvent(calendarManager.comps)
+        //events = calendarManager.fetchEvent(calendarManager.comps)
+        events = calendarManager.fetchEvent()
         
         //タイトルの設定
         setScheduleTitle()
@@ -74,7 +75,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         //タイトルの設定
         self.navigationItem.title = calendarManager.scheduleBarTitle
-        self.navigationItem.prompt = calendarManager.scheduleBarPrompt
+        //self.navigationItem.prompt = calendarManager.scheduleBarPrompt
     }
     
     //画面遷移時に呼ばれるメソッド
@@ -85,21 +86,21 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     /** 以下、更新・削除処理を実施するメソッド **/
     
     /**
-    Cellがタップ（選択）された際に呼び出される
+    tableViewメソッド - Cellがタップ（選択）された際に呼び出される
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         editEvent(events[indexPath.row])
     }
     
     /**
-    Cellの総数を返す
+    tableViewメソッド - Cellの総数を返す
     **/
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return events.count
     }
     
     /**
-    Cellの内容を指定する
+    tableViewメソッド - Cellの内容を指定する
     **/
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
@@ -115,6 +116,28 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         cell.detailTextLabel?.numberOfLines = 0 //2016/04/21 0にすることで制限なし表示（「…」とならない）#29
         
         return cell
+    }
+    
+    /**
+     tableViewメソッド - 削除可能なセルのindexPath
+     */
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    /**
+     tableViewメソッド - 実際に削除された時の処理を実装する
+     */
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+        //実データ削除メソッド
+        removeEvent(indexPath.row)
+        
+        //先にデータを更新する
+        events.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
+        
+        //それからテーブルの更新
+        tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
     }
 
     //Editボタンを押した時の処理
@@ -170,8 +193,9 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         //作成したイベントの日時に戻るように改修（2016/04/16）　※そもそもSaved以外はリロードする必要ないんじゃん。。。※Deletedがきになる
         switch action{
         case EKEventEditViewAction.Saved:
-            //イベントが保存された時
+            //イベントが保存された時（カレンダーで指定した開始日に戻るように）
             scheduleReload(controller.event!.startDate)
+            //tableViewを更新
             self.myTableView.reloadData()
             break
         case EKEventEditViewAction.Canceled:
@@ -190,35 +214,17 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     }
     
     /** スケジュールを再読込するメソッド */
-    func scheduleReload(startDate:NSDate){
+    func scheduleReload(startDate: NSDate){
         
         // 作成したイベントの日時に戻るように改修（2016/04/16）
-        calendarManager.comps = NSCalendar.currentCalendar().components([.Year, .Month, .Day], fromDate: startDate)
+        calendarManager.comps = calendarManager.calendar.components([.Year, .Month, .Day], fromDate: startDate)
         
         //タイトルを付け直す
         setScheduleTitle()
         
         // イベントをフェッチ
-        calendarManager.fetchEvent(calendarManager.comps)
-        
-    }
-    
-    //削除可能なセルのindexPath
-    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return true
-    }
-    
-    //実際に削除された時の処理を実装する
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        
-        //実データ削除メソッド
-        removeEvent(indexPath.row)
-        
-        //先にデータを更新する
-        events.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
-        
-        //それからテーブルの更新
-        tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
+        //calendarManager.fetchEvent(calendarManager.comps)
+        calendarManager.fetchEvent()
     }
     
     //イベントをカレンダーから削除するメソッド
@@ -234,8 +240,10 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
             } catch _{
                 print("not Deleted(1).")
             }
+            break
         case .Denied:
             print("Access denied")
+            break
         case .NotDetermined:
             calendarManager.eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
                 //[weak self](granted:Bool, error:NSError!) -> Void in
@@ -251,8 +259,10 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
                     print("Access denied")
                 }
             })
+            break
         default:
             print("Case Default")
+            break
         }
         
     }
