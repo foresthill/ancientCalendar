@@ -56,6 +56,10 @@ class ViewController: UIViewController {
     //let calendarManager: CalendarManager! = CalendarManager.sharedInstance
     var calendarManager: CalendarManager!
     
+    //「次へ」「前へ」ボタンを押した際の判定用変数（アニメーションで使用）
+    //var nextFlg = true
+    
+    /** 初期化時に呼ばれる関数 */
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -105,7 +109,7 @@ class ViewController: UIViewController {
         
      }
     
-    //GregorianCalendarセットアップ
+    /** GregorianCalendarセットアップ */
     func setupGregorianCalendar(){
         /*
         //現在の日付を取得する
@@ -148,7 +152,7 @@ class ViewController: UIViewController {
     }
     
     
-    //曜日ラベルの動的配置関数
+    /** 曜日ラベルの動的配置関数 */
     func setupCalendarLabel() {
         
         //曜日ラベル初期定義（2016/02/11外出し）
@@ -204,8 +208,12 @@ class ViewController: UIViewController {
 
     }
     
-    //カレンダーを生成する関数
-    func generateCalendar(){
+    /**
+     カレンダーを生成する関数
+     - parameters: mode（アニメーションのモード）0:前の月へ 1:次の月へ 2:カレンダーモード切替
+     */
+    func generateCalendar(mode: Int){
+        //func generateCalendar(){
         
         calendarManager.setupGenerateCalendar()
         
@@ -222,11 +230,6 @@ class ViewController: UIViewController {
             tempCalendarX += 1      //微調整
         }
         
-        //ボタンのアニメーション（2016/02/15）
-        var transform:CGAffineTransform = CGAffineTransformIdentity
-        transform = CGAffineTransformMakeScale(-1, 1)
-        let duration:Double = 0.3
-    
         //numberOfDaysInWeek×6個（36個 or 42個）のボタン要素を作る
         for i in 0...calendarManager.total-1{
             
@@ -244,6 +247,39 @@ class ViewController: UIViewController {
                 CGFloat(buttonSizeX),
                 CGFloat(buttonSizeY)
             );
+
+            //ボタン配置アニメーション（2016/08/16）
+            let duration:Double = 0.3
+            switch mode {
+                case 0:
+                    //初期表示＆カレンダーモード切替はクルッと回る（2016/02/15）
+                    UIView.animateWithDuration(duration, animations: { () -> Void in
+                        button.transform = CGAffineTransformMakeScale(-1, 1)
+                        })
+                    {(Bool) -> Void in
+                        UIView.animateWithDuration(duration, animations: { () -> Void in
+                            button.transform = CGAffineTransformIdentity
+                            })
+                        { (Bool) -> Void in
+                        }
+                    }
+                    break
+                default:
+                    //前月＆後月の場合は左右にスライドする
+                    let appearX: CGFloat = mode == 1 ? CGFloat(designer.screenWidth + 60) : -60.0
+                    button.layer.position = CGPointMake(appearX, CGFloat(positionY + buttonSizeY/2))
+                    UIView.animateWithDuration(duration, animations: {() -> Void in
+                        //移動先の座標を指定する
+                        //button.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+                        button.center = CGPoint(x: positionX + buttonSizeX/2, y: positionY + buttonSizeY/2)
+                        }, completion: {(Bool) -> Void in
+                    })
+                    break
+            }
+            
+
+            
+            //TODO:
             
 
             //ボタンの初期設定をする
@@ -365,6 +401,7 @@ class ViewController: UIViewController {
             self.view.addSubview(button)
             
             //ボタンが配置された時のアニメーション
+            /*
             UIView.animateWithDuration(duration, animations: { () -> Void in
                 button.transform = transform
                 })
@@ -374,8 +411,7 @@ class ViewController: UIViewController {
                         })
                         { (Bool) -> Void in
                     }
-            }
-            
+            }*/
             mArray.addObject(button)
     
         }
@@ -386,9 +422,19 @@ class ViewController: UIViewController {
         //ボタンを活性・非活性にする
         buttonNotActive()
         
+        //アニメーション（2016/08/16）
+//        let effect = UIBlurEffect(style: UIBlurEffectStyle.Light)
+//        let effectView = UIVisualEffectView(effect: effect)
+//        self.view.addSubview(effectView)
+//        UIView.animateWithDuration(duration, animations: {() -> Void in
+//            //移動先の座標を指定する
+//            self.view.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+//            }, completion: {(Bool) -> Void in
+//        })
+        
     }
     
-    //タイトル表記を設定する関数
+    /** タイトル表記を設定する関数 */
     func setupCalendarTitleLabel() {
 
         //self.navigationItem.title = "\(year)年"
@@ -422,31 +468,27 @@ class ViewController: UIViewController {
         
     }
     
-    //前の年月に該当するデータを取得する関数
+    /** 前の月を取得する関数 */
     func setupPrevCalendarData() {
-        
         calendarManager.setupPrevCalendarData()
-        
     }
     
+    /** 次の月を取得する関数 */
     func setupNextCalendarData() {
         calendarManager.setupNextCalendarData()
-        
     }
     
+    /** カレンダー切り替え時に呼び出される関数 */
     func setupAnotherCalendarData(){
         calendarManager.setupAnotherCalendarData()
-        
         //カレンダーのデザインを変更
         setupCalendarDesign()
     }
 
-    
-    //デザインを設定・変更する関数（2016/05/05） #5
+    /** デザインを設定・変更する関数（2016/05/05） #5 */
     func setupCalendarDesign(){
-        
+        //カレンダーモードに応じて色をセット
         designer.setColor(calendarManager.calendarMode)
-        
         //背景
         self.view.backgroundColor = designer.backgroundColor
         //カレンダバー
@@ -458,7 +500,6 @@ class ViewController: UIViewController {
         //「前月」「次月」ボタン
         self.prevMonthButton.backgroundColor = designer.prevMonthButtonBgColor
         self.nextMonthButton.backgroundColor = designer.nextMonthButtonBgColor
-        
     }
         
     //表示されているボタンオブジェクトを一旦削除する関数
@@ -490,14 +531,14 @@ class ViewController: UIViewController {
     func setupCurrentCalendar() {
         
         calendarManager.setupCurrentCalendarData()
-        generateCalendar()
+        generateCalendar(0)
         setupCalendarTitleLabel()
     }
     
     //カレンダーボタンをタップした時のアクション
     func buttonTapped(button: UIButton){
         // コンソール表示
-        print("\(calendarManager.year)年\(calendarManager.month)月\(button.tag)日が選択されました！")
+        //print("\(calendarManager.year)年\(calendarManager.month)月\(button.tag)日が選択されました！")
         calendarManager.day = button.tag
         performSegueWithIdentifier("toScheduleView", sender: self)
         
@@ -539,7 +580,7 @@ class ViewController: UIViewController {
         setupAnotherCalendarData()
         removecalendarBaseLabel()   //曜日のラベルを全削除
         setupCalendarLabel()        //曜日のラベルを作成
-        generateCalendar()
+        generateCalendar(0)
     }
     
     //前月を表示するメソッド
@@ -547,7 +588,7 @@ class ViewController: UIViewController {
         if(calendarManager.year > Constants.minYear){
             removeCalendarButtonObject()
             setupPrevCalendarData()
-            generateCalendar()
+            generateCalendar(-1)
         }
     }
     
@@ -556,7 +597,7 @@ class ViewController: UIViewController {
         if(calendarManager.year < Constants.maxYear){
             removeCalendarButtonObject()
             setupNextCalendarData()
-            generateCalendar()
+            generateCalendar(1)
         }
     }
     
@@ -612,9 +653,9 @@ class ViewController: UIViewController {
             print("Restricted")
             return false
             
-        default:
-            print("error")
-            return false
+//        default:
+//            print("error")
+//            return false
             
         }
     }

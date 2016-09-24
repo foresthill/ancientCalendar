@@ -20,13 +20,29 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     @IBOutlet var myTableView :UITableView!
     
     //旧暦カレンダー変換エンジン外出し（2016/04/17）
-    var converter: AncientCalendarConverter2!
+    //var converter: AncientCalendarConverter2!
 
     //イベント新規作成フラグ（2016/05/24）
     var addNewEventFlag = false
     
     /** CalendarManagerクラス（シングルトン）（2016/07/13）*/
     let calendarManager: CalendarManager = CalendarManager.sharedInstance
+    
+    //デザイナークラス（シングルトン）
+    var designer: Designer!
+
+    //表示
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var subDateLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var detailTextView: UITextView!
+    @IBOutlet weak var moonName: UILabel!
+    @IBOutlet weak var moonAge: UILabel!
+    @IBOutlet weak var moonImage: UIImageView!
+    @IBOutlet weak var toolBar: UIToolbar!
+    
+    //編集ボタン
+    @IBOutlet weak var editEventButton: CustomButton!
 
     /** 初期化処理 */
     override func viewDidLoad() {
@@ -38,6 +54,12 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         //フェッチ
         //events = calendarManager.fetchEvent(calendarManager.comps)
         events = calendarManager.fetchEvent()
+        
+        //デザイナークラス（シングルトン）
+        designer = Designer.sharedInstance
+        
+        //デザインを設定
+        setupCalendarDesign()
         
         //タイトルの設定
         setScheduleTitle()
@@ -62,10 +84,10 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         //setTitle(year, inMonth: month, inDay: day)
         
         // 編集ボタンの配置
-        navigationItem.rightBarButtonItem = editButtonItem()
+        //navigationItem.rightBarButtonItem = editButtonItem()
         
         // ツールバー非表示（2016/01/30）
-        self.navigationController!.toolbarHidden = true
+        //self.navigationController!.toolbarHidden = true
     }
     
     /** タイトルをセットする */
@@ -76,6 +98,42 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         //タイトルの設定
         self.navigationItem.title = calendarManager.scheduleBarTitle
         //self.navigationItem.prompt = calendarManager.scheduleBarPrompt
+        
+        //月齢の計算
+        calendarManager.calcMoonAge()
+        
+        //表示する文言をセット
+        self.dateLabel.text = calendarManager.scheduleBarTitle
+        self.subDateLabel.text = calendarManager.scheduleBarPrompt
+        self.moonAge.text = String(calendarManager.moonAge)
+        
+        //月の画像
+        let moonAgeNumber: Int = Int(floor(calendarManager.moonAge))
+        self.moonName.text = calendarManager.moonName[moonAgeNumber]
+        self.moonImage.image = UIImage(named:"moon\(moonAgeNumber)_90x90.png")
+        
+    }
+    
+    /** デザインを設定・変更する関数（2016/05/05） #5 */
+    func setupCalendarDesign(){
+        //カレンダーモードに応じて色をセット
+        designer.setColor(calendarManager.calendarMode)
+        
+        //背景
+        self.view.backgroundColor = designer.backgroundColor
+        
+        //ナビゲーションバー
+        self.navigationItem.titleView?.tintColor = designer.navigationTintColor
+        self.navigationController?.navigationBar.titleTextAttributes = designer.navigationTextAttributes
+        self.navigationController?.navigationBar.barTintColor = designer.navigationBarTintColor
+        
+        //表示系（色）
+        self.dateLabel.textColor = designer.navigationTintColor
+        self.subDateLabel.textColor = designer.navigationTintColor
+        self.titleLabel.textColor = designer.navigationTintColor
+        self.detailTextView.textColor = designer.navigationTintColor
+        self.moonName.textColor = designer.navigationTintColor
+        self.moonAge.textColor = designer.navigationTintColor
     }
     
     //画面遷移時に呼ばれるメソッド
@@ -89,7 +147,12 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     tableViewメソッド - Cellがタップ（選択）された際に呼び出される
     **/
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
+        
+        //イベントを編集する
         editEvent(events[indexPath.row])
+        
+        //選択を解除する
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
     
     /**
@@ -112,8 +175,14 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         cell.detailTextLabel?.text = calendarManager.tableViewDetailText(
             events[indexPath.row].startDate, endDate: events[indexPath.row].endDate)
 
+        // 表示列数
         cell.textLabel?.numberOfLines = 2
         cell.detailTextLabel?.numberOfLines = 0 //2016/04/21 0にすることで制限なし表示（「…」とならない）#29
+        cell.backgroundColor = UIColor.clearColor() //背景色を透明に（ないとだめ！）
+        
+        // 文字色
+        cell.textLabel?.textColor = designer.navigationTintColor
+        cell.detailTextLabel?.textColor = designer.navigationTintColor
         
         return cell
     }
@@ -148,7 +217,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         //編集中の時のみaddButtonをナビゲーションバーの左に表示する
         if editing {
             //編集中
-            let addButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "addCell:")
+            let addButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: #selector(ScheduleViewController.addCell(_:)))
             self.navigationItem.setLeftBarButtonItem(addButton, animated: true)
         } else {
             //通常モード
@@ -195,8 +264,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         case EKEventEditViewAction.Saved:
             //イベントが保存された時（カレンダーで指定した開始日に戻るように）
             scheduleReload(controller.event!.startDate)
-            //tableViewを更新
-            self.myTableView.reloadData()
             break
         case EKEventEditViewAction.Canceled:
             if(addNewEventFlag){
@@ -224,10 +291,14 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // イベントをフェッチ
         //calendarManager.fetchEvent(calendarManager.comps)
-        calendarManager.fetchEvent()
+        events = calendarManager.fetchEvent()
+        
+        //tableViewを更新
+        self.myTableView.reloadData()
+
     }
     
-    //イベントをカレンダーから削除するメソッド
+    /** イベントをカレンダーから削除するメソッド */
     func removeEvent(index:Int){
         
         switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
@@ -266,7 +337,40 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         }
         
     }
+
+    /** 「予定を追加」ボタンを押下されたときに呼ばれるメソッド */
+    @IBAction func addEventButtonAction(sender: AnyObject) {
+        editEvent(nil)
+    }
+
+    /** 「編集」ボタンを押下されたときに呼ばれるメソッド */
+    @IBAction func editEventButtonAction(sender: AnyObject) {
+        if(!self.myTableView.editing){
+            //編集を開始する
+            setEditing(true, animated: true)
+            editEventButton.setTitle("完了", forState: .Normal)
+        } else {
+            setEditing(false, animated: true)
+            editEventButton.setTitle("編集", forState: .Normal)
+        }
+    }
     
+    /** ツールバーアクション（モード切替） */
+    @IBAction func changeCalendarMode(sender: UIBarButtonItem) {
+        print("カレンダーモード切替")
+    }
+    
+    /** ツールバーアクション（前の日へ） */
+    @IBAction func prevDayAction(sender: UIBarButtonItem) {
+        print("前の日へ")
+    }
+
+    /** ツールバーアクション（次の日へ） */
+    @IBAction func nextDayAction(sender: UIBarButtonItem) {
+        print("次の日へ")
+    }
+
+    /** メモリ監視 */
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }

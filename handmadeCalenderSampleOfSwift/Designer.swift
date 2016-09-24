@@ -14,6 +14,10 @@ class Designer {
     //シングルトン
     static let sharedInstance = Designer()
     
+    //スクリーンの幅・高さ
+    var screenWidth: Int!
+    var screenHeight: Int!
+    
     //カレンダーの位置決め用メンバ変数
     var calendarLabelIntervalX: Int!
     var calendarLabelX: Int!
@@ -69,13 +73,14 @@ class Designer {
     
     /** 画面初期化・最適化 */
     func screenInit() {
-        //現在起動中のデバイスを取得（スクリーンの幅・高さ）
-        let screenWidth  = DeviseSize.screenWidth()
-        let screenHeight = DeviseSize.screenHeight()
         
 //        var prevMonthButtonFrame = CGRect()
 //        var nextMonthButtonFrame = CGRect()
         
+        //現在起動中のデバイスを取得（スクリーンの幅・高さ）
+        screenWidth  = DeviseSize.screenWidth()
+        screenHeight = DeviseSize.screenHeight()
+
         //iPhone4s
         if(screenWidth == 320 && screenHeight == 480){
             
@@ -95,8 +100,8 @@ class Designer {
             calendarSize           = 40;
             calendarFontSize       = 17;
             
-            //iPhone5またはiPhone5s
-        }else if (screenWidth == 320 && screenHeight == 568){
+        //iPhone5またはiPhone5s
+        } else if (screenWidth == 320 && screenHeight == 568){
             
             calendarLabelIntervalX = 5;
             calendarLabelX         = 45;
@@ -114,8 +119,8 @@ class Designer {
             calendarSize           = 40;
             calendarFontSize       = 17;
             
-            //iPhone6
-        }else if (screenWidth == 375 && screenHeight == 667){
+        //iPhone6
+        } else if (screenWidth == 375 && screenHeight == 667){
             
             calendarLabelIntervalX = 15;
             calendarLabelX         = 50;
@@ -138,8 +143,8 @@ class Designer {
             prevMonthButtonFrame = CGRectMake(15, 438, CGFloat(calendarSize), CGFloat(calendarSize));
             nextMonthButtonFrame = CGRectMake(314, 438, CGFloat(calendarSize), CGFloat(calendarSize));
             
-            //iPhone6 plus
-        }else if (screenWidth == 414 && screenHeight == 736){
+        //iPhone6 plus
+        } else if (screenWidth == 414 && screenHeight == 736){
             
             calendarLabelIntervalX = 15;
             calendarLabelX         = 55;

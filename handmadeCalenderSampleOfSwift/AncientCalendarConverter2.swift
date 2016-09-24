@@ -39,7 +39,7 @@ final class AncientCalendarConverter2
     //CalendarManagerクラス（シングルトン）
     //var calendarManager: CalendarManager!
     
-    //イニシャライザをprivateに
+    /** イニシャライザ（private） */
     private init(){
         ancientTbl = Array(count: 14, repeatedValue:[0, 0])
         isLeapMonth = 0
@@ -49,7 +49,7 @@ final class AncientCalendarConverter2
         //calendarManager = CalendarManager.sharedInstance
     }
     
-    //旧暦変換（2016/02/06）
+    /** 旧暦変換（2016/02/06）*/
     func convertForAncientCalendar(comps:NSDateComponents) -> [Int]{
 
         var yearByAncient:Int = comps.year
@@ -93,7 +93,7 @@ final class AncientCalendarConverter2
     }
     
     
-    //旧暦→新暦変換
+    /** 旧暦→新暦変換 */
     func convertForGregorianCalendar(dateArray:[Int]) -> NSDateComponents{
         
         //イマを刻むコンポーネント（2016/02/07）
@@ -159,7 +159,8 @@ final class AncientCalendarConverter2
     }
     
     
-    //閏年判定（trueなら1、falseなら0を返す）→逆になっているのは、閏年の場合convertForAncientCalendar内で365に1追加したいため
+    /** 閏年判定（trueなら1、falseなら0を返す）
+     →逆になっているのは、閏年の場合convertForAncientCalendar内で365に1追加したいため*/
     func isLeapYear(inYear: Int) -> Int{
         var isLeap = 0
         if(inYear % 400 == 0 || (inYear % 4 == 0 && inYear % 100 != 0)){
@@ -168,7 +169,7 @@ final class AncientCalendarConverter2
         return isLeap
     }
     
-    //旧暦・新暦テーブル生成（ancientTbl）
+    /** 旧暦・新暦テーブル生成（ancientTbl）*/
     func tblExpand(inYear: Int){
         var days:Double = Double(o2ntbl[inYear - Constants.minYear][0])
         var bits:Int = o2ntbl[inYear - Constants.minYear][1]    //bit？

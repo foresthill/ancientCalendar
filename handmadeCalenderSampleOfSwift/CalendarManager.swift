@@ -84,7 +84,13 @@ class CalendarManager {
     /** 曜日名（和暦）*/
     let dayOfWeekNameJp = ["大安","赤口","先勝","友引","先負","仏滅"]
 
+    /** 月齢 */
+    var moonAge = 0.0
     
+    /** 月の満ち欠け */
+    let moonName = ["新月", "", "繊月", "三日月", "", "", "", "上弦の月", "", "", "十日夜の月",         //0〜10
+                    "", "", "十三夜月", "小望月", "満月", "十六夜", "立待月", "居待月", "寝待月", "更待月", //11〜20
+                    "", "", "下弦の月", "", "", "有明月", "", "", "", "三十日月"]  //21〜30
     
     /** 初期化処理（インスタンス化禁止） */
     private init() {
@@ -509,6 +515,7 @@ class CalendarManager {
             ancientMonthStr = "閏\(ancientMonth)"
         }
         
+        //タイトル
         if(calendarMode == 1){
             //新暦モード
             //scheduleBarTitle = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
@@ -521,6 +528,9 @@ class CalendarManager {
             //scheduleBarPrompt = "（新暦：\(inComps.year)年\(inComps.month)月\(inComps.day)日）"
             scheduleBarPrompt = "（新暦：\(gregorianYear)年\(gregorianMonth)月\(gregorianDay)日）"
         }
+        
+        
+        
     }
     
     /** tableViewのdetailTextに表示する文字列を生成する */
@@ -546,5 +556,25 @@ class CalendarManager {
 
     }
     
-    
+    /** 月齢計算（2016/08/15）
+     http://koyomi8.com/reki_doc/doc_0250.htm
+     
+     - parameter : 新暦（NSDateComponents）
+     - returns: 月齢（Float）
+     */
+    //func calcMoonAge(comps: NSDateComponents) -> Float {
+    //func calcMoonAge() -> Float {
+    func calcMoonAge() {
+        //let temp = (comps.year - 2009 ) % 19
+        //return Float(((temp * 11) + comps.month + comps.day) % 30)
+        //(Y - 2004)×10.88 + (M - 7)×0.97 + (D - 1) + 13.3
+        var temp = Double(comps.year - 2004) * 10.88
+            temp += Double(comps.month - 7) * 0.97
+            temp += Double(comps.day - 1) + 13.3
+        
+        //return floor((moonAge % 30) * 10) / 10
+        moonAge = floor((temp % 30) * 10) / 10
+        
+    }
+
 }

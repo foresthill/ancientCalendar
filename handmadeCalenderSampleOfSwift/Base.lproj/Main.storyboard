@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="NFw-Rd-0Bv">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="NFw-Rd-0Bv">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -39,16 +39,6 @@
                                     <navigationItem title="旧暦カレンダー（仮）" id="NM0-Ki-rsj"/>
                                 </items>
                             </navigationBar>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="B5a-7P-bLg">
-                                <rect key="frame" x="-4" y="64" width="328" height="32"/>
-                                <color key="backgroundColor" red="0.95889782905578613" green="0.72761282898511925" blue="0.7401737287891702" alpha="1" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="32" id="Faj-ZK-Feg"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rrH-aD-HI0">
                                 <rect key="frame" x="0.0" y="524" width="320" height="44"/>
                                 <constraints>
@@ -65,7 +55,7 @@
                             </toolbar>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="通常モード（新暦表示）" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PCS-Xs-Qwj">
                                 <rect key="frame" x="24" y="535" width="187" height="20.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -84,6 +74,16 @@
                                     <action selector="getNextMonthData:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="udE-RN-Lut"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="B5a-7P-bLg">
+                                <rect key="frame" x="-4" y="64" width="328" height="32"/>
+                                <color key="backgroundColor" red="0.95889782905578613" green="0.72761282898511925" blue="0.7401737287891702" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="32" id="Faj-ZK-Feg"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
@@ -151,11 +151,12 @@
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Fh-Xl-dG9">
                                 <rect key="frame" x="245" y="84" width="51" height="31"/>
                             </switch>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CER-A8-nRt">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CER-A8-nRt">
                                 <rect key="frame" x="26" y="121" width="280" height="75"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="280" id="QTi-qc-gGx"/>
+                                    <constraint firstAttribute="height" constant="75" id="mfG-gK-8DT"/>
                                 </constraints>
                                 <string key="text">カレンダー上で指をスライドさせた時、
 スライドした方向に画面がスクロールします</string>
@@ -203,13 +204,116 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="105-rm-qLl">
-                                <rect key="frame" x="0.0" y="210" width="320" height="314"/>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="365-5L-8sz">
+                                <rect key="frame" x="0.0" y="480" width="320" height="44"/>
+                                <items>
+                                    <barButtonItem tag="-1" title="＜" id="h2T-f8-pWg">
+                                        <connections>
+                                            <action selector="prevDayAction:" destination="0mC-JM-akN" id="2bp-3H-xhc"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="2zc-6k-Mh8"/>
+                                    <barButtonItem title="モード切替" id="TN7-Ia-eOE">
+                                        <connections>
+                                            <action selector="changeCalendarMode:" destination="0mC-JM-akN" id="l8v-iN-quc"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="8pL-x0-rgc"/>
+                                    <barButtonItem tag="1" title="＞" id="PfZ-X2-zsF">
+                                        <connections>
+                                            <action selector="nextDayAction:" destination="0mC-JM-akN" id="b6V-5r-AwJ"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="moon0_90x90.png" translatesAutoresizingMaskIntoConstraints="NO" id="kda-Xv-HCL">
+                                <rect key="frame" x="16" y="79" width="90" height="90"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="90" id="Xrr-xN-0Vm" userLabel="width = 90"/>
+                                    <constraint firstAttribute="height" constant="90" id="vK5-WS-5Ff" userLabel="height = 90"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="月齢：0.0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h4h-f2-KbT">
+                                <rect key="frame" x="30" y="171" width="62" height="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="14"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2016年7月21日" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="N2F-Wi-0ra">
+                                <rect key="frame" x="123" y="79" width="115" height="21"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="（旧暦:2016年6月18日）" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zPJ-wt-4AF">
+                                <rect key="frame" x="123" y="102" width="146.5" height="16"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="13"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="夏至" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tZh-cc-agY">
+                                <rect key="frame" x="123" y="134" width="30" height="18"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="イベントの詳細" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wsI-Pf-Ttk">
+                                <rect key="frame" x="158" y="128" width="146" height="29.5"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="11"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kCN-ZR-HNB" customClass="CustomButton" customModule="AncientCalendar" customModuleProvider="target">
+                                <rect key="frame" x="264" y="167" width="40" height="26"/>
+                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="13"/>
+                                <inset key="contentEdgeInsets" minX="7" minY="5" maxX="7" maxY="5"/>
+                                <state key="normal" title="編集">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="editEventButtonAction:" destination="0mC-JM-akN" eventType="touchUpInside" id="eP9-Ja-KHb"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Xl-Cp-jbE" customClass="CustomButton" customModule="AncientCalendar" customModuleProvider="target">
+                                <rect key="frame" x="175" y="167" width="79" height="26"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="13"/>
+                                <inset key="contentEdgeInsets" minX="7" minY="5" maxX="7" maxY="5"/>
+                                <state key="normal" title="予定を追加"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="addEventButtonAction:" destination="0mC-JM-akN" eventType="touchUpInside" id="BP0-XZ-7dv"/>
+                                </connections>
+                            </button>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="105-rm-qLl">
+                                <rect key="frame" x="0.0" y="210" width="320" height="270"/>
+                                <color key="backgroundColor" red="0.11340144230769234" green="0.11340144230769234" blue="0.11340144230769234" alpha="0.21220845732605229" colorSpace="calibratedRGB"/>
                                 <color key="sectionIndexBackgroundColor" red="0.12586387621449663" green="0.12194207128454378" blue="0.16135110294117649" alpha="0.072817887931034483" colorSpace="calibratedRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" rowHeight="80" id="s8G-2R-iOX">
-                                        <rect key="frame" x="0.0" y="92" width="320" height="80"/>
+                                        <rect key="frame" x="0.0" y="28" width="320" height="80"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="s8G-2R-iOX" id="wqP-nY-cLG">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="79.5"/>
@@ -222,72 +326,56 @@
                                     <outlet property="delegate" destination="0mC-JM-akN" id="XO7-zd-tfT"/>
                                 </connections>
                             </tableView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="moon0_90x90.png" translatesAutoresizingMaskIntoConstraints="NO" id="kda-Xv-HCL">
-                                <rect key="frame" x="16" y="79" width="90" height="90"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="90" id="Xrr-xN-0Vm" userLabel="width = 90"/>
-                                    <constraint firstAttribute="height" constant="90" id="vK5-WS-5Ff" userLabel="height = 90"/>
-                                </constraints>
-                            </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="月齢：0.0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h4h-f2-KbT">
-                                <rect key="frame" x="30.5" y="177" width="62" height="17"/>
-                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="14"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="（新月）" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S1X-3A-l3X">
+                                <rect key="frame" x="43" y="189" width="36" height="11"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="9"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2016年7月21日" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="N2F-Wi-0ra">
-                                <rect key="frame" x="123" y="79" width="115" height="21"/>
-                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="（旧暦:2016年6月18日）" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zPJ-wt-4AF">
-                                <rect key="frame" x="123" y="102" width="157" height="17"/>
-                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="14"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="夏至" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tZh-cc-agY">
-                                <rect key="frame" x="123" y="131" width="34" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wsI-Pf-Ttk">
-                                <rect key="frame" x="123" y="156" width="177" height="38"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <string key="text">イベントの詳細、
-その他もろもろ</string>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="tZh-cc-agY" firstAttribute="leading" secondItem="N2F-Wi-0ra" secondAttribute="leading" id="1cf-v9-CQ1"/>
-                            <constraint firstItem="tZh-cc-agY" firstAttribute="top" secondItem="zPJ-wt-4AF" secondAttribute="bottom" constant="12" id="2kL-rb-fHL"/>
+                            <constraint firstItem="tZh-cc-agY" firstAttribute="top" secondItem="zPJ-wt-4AF" secondAttribute="bottom" constant="15" id="2kL-rb-fHL"/>
                             <constraint firstItem="zPJ-wt-4AF" firstAttribute="top" secondItem="N2F-Wi-0ra" secondAttribute="bottom" constant="2" id="3VK-Zh-vZq"/>
-                            <constraint firstItem="wsI-Pf-Ttk" firstAttribute="leading" secondItem="tZh-cc-agY" secondAttribute="leading" id="6Nn-yk-CJn"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="kCN-ZR-HNB" secondAttribute="trailing" id="4fT-bR-95J"/>
+                            <constraint firstItem="365-5L-8sz" firstAttribute="top" secondItem="105-rm-qLl" secondAttribute="bottom" id="7Kn-6m-xoV"/>
                             <constraint firstItem="N2F-Wi-0ra" firstAttribute="top" secondItem="kda-Xv-HCL" secondAttribute="top" id="9KQ-dW-xXO"/>
                             <constraint firstItem="kda-Xv-HCL" firstAttribute="leading" secondItem="P2G-wi-HaA" secondAttribute="leadingMargin" id="CeE-LD-klt"/>
+                            <constraint firstItem="365-5L-8sz" firstAttribute="leading" secondItem="P2G-wi-HaA" secondAttribute="leading" id="IHH-yd-THx"/>
                             <constraint firstItem="wsI-Pf-Ttk" firstAttribute="trailing" secondItem="P2G-wi-HaA" secondAttribute="trailingMargin" id="Kbz-VE-LK3"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="105-rm-qLl" secondAttribute="trailing" constant="-16" id="MBz-ue-m4r"/>
+                            <constraint firstItem="kCN-ZR-HNB" firstAttribute="centerY" secondItem="1Xl-Cp-jbE" secondAttribute="centerY" id="L12-S9-UGt"/>
+                            <constraint firstItem="S1X-3A-l3X" firstAttribute="centerX" secondItem="kda-Xv-HCL" secondAttribute="centerX" id="L80-Cs-ePV"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="105-rm-qLl" secondAttribute="trailingMargin" constant="-1" id="MBz-ue-m4r"/>
+                            <constraint firstItem="Lt4-fr-Aa7" firstAttribute="top" secondItem="365-5L-8sz" secondAttribute="bottom" id="MW0-7A-W3V"/>
                             <constraint firstItem="zPJ-wt-4AF" firstAttribute="leading" secondItem="N2F-Wi-0ra" secondAttribute="leading" id="RGk-cy-ytL"/>
                             <constraint firstItem="h4h-f2-KbT" firstAttribute="centerX" secondItem="kda-Xv-HCL" secondAttribute="centerX" id="T0l-ND-fAN"/>
-                            <constraint firstItem="h4h-f2-KbT" firstAttribute="top" secondItem="kda-Xv-HCL" secondAttribute="bottom" constant="8" id="WLl-t6-PJy"/>
-                            <constraint firstItem="105-rm-qLl" firstAttribute="leading" secondItem="P2G-wi-HaA" secondAttribute="leadingMargin" constant="-16" id="WW7-7e-p09"/>
-                            <constraint firstItem="wsI-Pf-Ttk" firstAttribute="top" secondItem="tZh-cc-agY" secondAttribute="bottom" constant="8" id="Yqu-kU-R80"/>
+                            <constraint firstItem="105-rm-qLl" firstAttribute="leadingMargin" secondItem="P2G-wi-HaA" secondAttribute="leadingMargin" constant="-1" id="WW7-7e-p09"/>
+                            <constraint firstItem="wsI-Pf-Ttk" firstAttribute="leading" secondItem="tZh-cc-agY" secondAttribute="trailing" constant="5" id="bMO-bL-6eB"/>
                             <constraint firstItem="N2F-Wi-0ra" firstAttribute="leading" secondItem="kda-Xv-HCL" secondAttribute="trailing" constant="17" id="gul-Cu-pzW"/>
+                            <constraint firstItem="kCN-ZR-HNB" firstAttribute="leading" secondItem="1Xl-Cp-jbE" secondAttribute="trailing" constant="10" id="k4G-xt-N8h"/>
+                            <constraint firstAttribute="trailing" secondItem="365-5L-8sz" secondAttribute="trailing" id="rLZ-Sv-o2R"/>
+                            <constraint firstItem="kCN-ZR-HNB" firstAttribute="top" secondItem="wsI-Pf-Ttk" secondAttribute="bottom" constant="10" id="sTt-5Z-312"/>
                             <constraint firstItem="105-rm-qLl" firstAttribute="top" secondItem="P2G-wi-HaA" secondAttribute="topMargin" constant="210" id="tBl-iW-j2Q"/>
                             <constraint firstItem="kda-Xv-HCL" firstAttribute="top" secondItem="olz-rL-Bmx" secondAttribute="bottom" constant="15" id="udv-YI-XON"/>
-                            <constraint firstItem="Lt4-fr-Aa7" firstAttribute="top" secondItem="105-rm-qLl" secondAttribute="bottom" id="wkY-Wa-r9N"/>
+                            <constraint firstItem="S1X-3A-l3X" firstAttribute="top" secondItem="h4h-f2-KbT" secondAttribute="bottom" constant="1" id="vJJ-3b-qh7"/>
+                            <constraint firstItem="h4h-f2-KbT" firstAttribute="top" secondItem="kda-Xv-HCL" secondAttribute="bottom" constant="2" id="yMv-Vx-z1p"/>
+                            <constraint firstItem="wsI-Pf-Ttk" firstAttribute="centerY" secondItem="tZh-cc-agY" secondAttribute="centerY" id="zwD-s4-AM7"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="vXS-sY-y7h"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="dateLabel" destination="N2F-Wi-0ra" id="5ph-Xd-j5h"/>
+                        <outlet property="detailTextView" destination="wsI-Pf-Ttk" id="Sjj-b4-eWO"/>
+                        <outlet property="editEventButton" destination="kCN-ZR-HNB" id="9i2-01-cPG"/>
+                        <outlet property="moonAge" destination="h4h-f2-KbT" id="N7V-4y-LTG"/>
+                        <outlet property="moonImage" destination="kda-Xv-HCL" id="2Yb-el-PlN"/>
+                        <outlet property="moonName" destination="S1X-3A-l3X" id="GTn-pm-OSb"/>
                         <outlet property="myTableView" destination="105-rm-qLl" id="DMv-EF-vka"/>
+                        <outlet property="subDateLabel" destination="zPJ-wt-4AF" id="zRV-5Z-5Qr"/>
+                        <outlet property="titleLabel" destination="tZh-cc-agY" id="cva-hd-2oi"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lpd-lD-BJx" userLabel="First Responder" sceneMemberID="firstResponder"/>
