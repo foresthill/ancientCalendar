@@ -34,5 +34,7 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSCalendarsUsageDescription</key>
+	<string>当アプリでイベントを閲覧・編集・削除するために、カレンダー情報を取得します</string>
 </dict>
 </plist>

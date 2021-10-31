@@ -100,7 +100,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         //self.navigationItem.prompt = calendarManager.scheduleBarPrompt
         
         //月齢の計算
-        calendarManager.calcMoonAge()
+        //calendarManager.calcMoonAge()
+        calendarManager.calcMoonAge(calendarManager.comps)
         
         //表示する文言をセット
         self.dateLabel.text = calendarManager.scheduleBarTitle

@@ -296,6 +296,9 @@ class CalendarManager {
         
         let prevDate: NSDate = prevCalendar.dateFromComponents(prevComps)!
         recreateCalendarParameter(prevCalendar, currentDate: prevDate)
+        
+        //2016/09/24 デバッグ用
+        calcMoonAge(prevComps)
     }
     
     /** 次の年月に該当するデータを取得する関数 */
@@ -561,7 +564,7 @@ class CalendarManager {
      
      - parameter : 新暦（NSDateComponents）
      - returns: 月齢（Float）
-     */
+
     //func calcMoonAge(comps: NSDateComponents) -> Float {
     //func calcMoonAge() -> Float {
     func calcMoonAge() {
@@ -576,5 +579,73 @@ class CalendarManager {
         moonAge = floor((temp % 30) * 10) / 10
         
     }
+      */
+    
+    /** 月齢計算２（2016/09/24）
+    http://news.local-group.jp/moonage/moonage.js.txt
+ 
+    - parameter : 新暦（NSDateComponents）
+    - returns: 月齢（Float）
+    */
+    //func calcMoonAge() -> Double {
+    func calcMoonAge(_comps: NSDateComponents) -> Double {
+        var moonAge: Double
+        
+        //var nowDate = Date()
+        
+        let julian = getJulian(_comps)
+        print("julian = \(julian)")
+        
+        //var year = nowDate.getYear()
+        //var year = comps.year
+        
+        var nmoon = getNewMoon(julian)
+        //getNewMoonは新月直前の日を与えるとうまく計算できないのでその対処
+        //（一日前の日付で再計算してみる）
+        if(nmoon > Double(julian)) {
+            nmoon = getNewMoon(julian - 1)
+        }
+        print("nmoon = \(nmoon)")
+        
+        //julian - nmoonが現在時刻の月齢
+        moonAge = Double(julian) - nmoon
+        
+        print("moonAge = \(moonAge)")
+        return moonAge
+        
+    }
+    
+    /** 月齢計算２ー新月日計算
+     http://news.local-group.jp/moonage/moonage.js.txt
+     
+     - parameter : ユリウス
+     - returns: 月齢（Float）
+     */
+    func getNewMoon(julian: UInt64) -> Double {
+        let k     = floor((Double(julian) - 2451550.09765) / 29.530589)
+        let t     = k / 1236.85;
+        let s     = sin(2.5534 +  29.1054 * k)
+        var nmoon = 2451550.09765
+        nmoon += 29.530589  * k
+        nmoon +=  0.0001337 * t * t
+        nmoon -=  0.40720   * sin((201.5643 + 385.8169 * k) * 0.017453292519943)
+        nmoon +=  0.17241   * (s * 0.017453292519943);
+        return nmoon;         // julian - nmoonが現在時刻の月齢
+    }
+    
+    /** 月齢計算２ーユリウス通日計算
+     http://news.local-group.jp/moonage/moonage.js.txt
+     
+     - parameter : 新暦（NSDateComponents）
+     - returns: 月齢（Float）
+     */
+    func getJulian(_comps: NSDateComponents) -> UInt64 {
+        let today = NSDate()
+        let sec = today.timeIntervalSince1970
+        let millisec = UInt64(sec * 1000)   //intだとあふれるので注意
+        print(millisec)
+        return millisec
+    }
 
+    
 }
