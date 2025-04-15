@@ -12,14 +12,9 @@ import EventKitUI
 
 class SingletonClass
 {
-    class var sharedInstance: SingletonClass {
-        struct Static {
-            static var onceToken: dispatch_once_t = 0
-            static var instance: SingletonClass? = nil
-        }
-        dispatch_once(&Static.onceToken) {
-            Static.instance = SingletonClass()
-        }
-        return Static.instance!
+    static let sharedInstance = SingletonClass()
+    
+    private init() {
+        // 初期化処理があればここに記述
     }
 };

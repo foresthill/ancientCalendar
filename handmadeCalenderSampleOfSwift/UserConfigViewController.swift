@@ -16,16 +16,16 @@ class UserConfigViewController: UIViewController {
     @IBOutlet weak var scrollNatural: UISwitch!
     
     //ユーザ設定保存用変数
-    var config: NSUserDefaults!
+    var config: UserDefaults!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        config = NSUserDefaults.standardUserDefaults()
+        config = UserDefaults.standard
         
-        let defaultConfig = config.objectForKey("scrollNatural")
+        let defaultConfig = config.object(forKey: "scrollNatural")
         if(defaultConfig != nil){
-            scrollNatural.on = defaultConfig as! Bool
+            scrollNatural.isOn = defaultConfig as! Bool
         }
         
         // タイトルの設定
@@ -36,14 +36,14 @@ class UserConfigViewController: UIViewController {
     }
     
     //「戻る」ボタン押下時に呼ばれるメソッド
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         
         //ユーザ設定に保存
-        config.setObject(scrollNatural.on, forKey: "scrollNatural")
+        config.set(scrollNatural.isOn, forKey: "scrollNatural")
         
         let viewControllers = self.navigationController?.viewControllers
         let vc:ViewController = viewControllers?.first as! ViewController
-        vc.scrollNatural = scrollNatural.on
+        vc.scrollNatural = scrollNatural.isOn
         
     }
 

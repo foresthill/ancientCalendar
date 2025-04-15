@@ -34,7 +34,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var datePickerBg: UIButton!
     
     //DatePickerの値を一時的に格納する変数
-    var datePickerValue: NSDate!
+    var datePickerValue: Date!
     
     //編集中のtagを格納する変数
     var textfieldTag: Int!
@@ -46,7 +46,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     var myEventStore: EKEventStore!
     
     //フォーマッター外だし
-    var dateFormatter: NSDateFormatter! //letにしてると（あるいは!つけないと）no initializerといって怒られる。
+    var dateFormatter: DateFormatter! //letにしてると（あるいは!つけないと）no initializerといって怒られる。
     
     //前画面（二画面前）に戻すためのイベント一覧
     var events: [EKEvent]!
@@ -56,12 +56,12 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         
-        let dateFormatter: NSDateFormatter = NSDateFormatter()
+        let dateFormatter: DateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
         eventTitle.text = myEvent.title
-        startTime.text = dateFormatter.stringFromDate(myEvent.startDate)
-        endTime.text = dateFormatter.stringFromDate(myEvent.endDate)
+        startTime.text = dateFormatter.string(from: myEvent.startDate)
+        endTime.text = dateFormatter.string(from: myEvent.endDate)
         location.text = myEvent.location
         detailText.text = myEvent.notes
         
@@ -71,7 +71,7 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         //DatePickerを非表示にする
         hideDatePicker()
         
-        datePicker.backgroundColor = UIColor.whiteColor()
+        datePicker.backgroundColor = UIColor.white
         
         self.navigationItem.title = "\(myEvent.title) 予定詳細"
 
@@ -150,16 +150,16 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
             //フラグ更新
             datePickerIsHidden = false
             
-            datePicker.hidden = false
+            datePicker.isHidden = false
             //datePicker.alpha = 0
             
-            dateDecideButton.hidden = false
+            dateDecideButton.isHidden = false
             
-            datePickerBg.hidden = false
+            datePickerBg.isHidden = false
             
-    //        UIView.animateKeyframesWithDuration(0.25,animations: { () -> Void in datePicker.alpha = 1.0}, delay:, option:nil, completion: {(Bool) -> Void in })
+    //        UIView.animateKeyframes(withDuration: 0.25,animations: { () -> Void in datePicker.alpha = 1.0}, delay:, option:nil, completion: {(Bool) -> Void in })
             
-            UIView.animateWithDuration(0.25, animations:{ () -> Void in self.datePicker.alpha = 1.0}
+            UIView.animate(withDuration: 0.25, animations:{ () -> Void in self.datePicker.alpha = 1.0}
             )
         }
         
@@ -171,32 +171,32 @@ class CalendarChangeViewController: UIViewController, UITextFieldDelegate {
         if(!datePickerIsHidden){
             datePickerIsHidden = true
             
-            dateDecideButton.hidden = true
-            datePickerBg.hidden = true
+            dateDecideButton.isHidden = true
+            datePickerBg.isHidden = true
             
-            UIView.animateWithDuration(0.25, animations:{ () -> Void in self.datePicker.alpha = 0}, completion: {(Bool) -> Void in self.datePicker.hidden = true
+            UIView.animate(withDuration: 0.25, animations:{ () -> Void in self.datePicker.alpha = 0}, completion: {(Bool) -> Void in self.datePicker.isHidden = true
             })
         }
     }
     
     
-    func dfDateFromString(str:String) -> NSDate{
-        let df = NSDateFormatter()
+    func dfDateFromString(str:String) -> Date{
+        let df = DateFormatter()
         //df.dateFormat = "yyyy/mm/dd hh:mm"
         df.dateFormat = "yyyy年MM月dd日 hh:mm"
-        //let mySelectDateString = df.stringFromDate(<#T##date: NSDate##NSDate#>)
-        return df.dateFromString(str)!
+        //let mySelectDateString = df.string(from: <#T##Date#>)
+        return df.date(from: str)!
     }
 
     
-    func dfStringFromDate(date:NSDate) -> String{
-        let df = NSDateFormatter()
+    func dfStringFromDate(date:Date) -> String{
+        let df = DateFormatter()
         //df.dateFormat = "yyyy/mm/dd hh:mm"
         df.dateFormat = "yyyy年MM月dd日 hh:mm"
-        //let mySelectDateString = df.stringFromDate(date)
-        //let mySelectDate = df.dateFromString(mySelectDateString)!
-        //myDate = NSDate(timeInterval: 0, sinceDate: mySelectDate)
-        return df.stringFromDate(date)
+        //let mySelectDateString = df.string(from: date)
+        //let mySelectDate = df.date(from: mySelectDateString)!
+        //myDate = Date(timeInterval: 0, since: mySelectDate)
+        return df.string(from: date)
     }
     
     
