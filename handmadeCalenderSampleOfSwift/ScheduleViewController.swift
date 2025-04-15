@@ -159,7 +159,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     /**
     tableViewメソッド - Cellの総数を返す
     **/
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return events.count
     }
     

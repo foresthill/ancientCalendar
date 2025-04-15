@@ -19,7 +19,7 @@ class CalendarDetailViewController: UIViewController {
     var mayaArray:[String]!
     
     //その日
-    var comps:NSDateComponents!
+    var comps:DateComponents!
 
     @IBOutlet weak var scheduleTitle: UILabel!
     @IBOutlet weak var startTime: UILabel!
@@ -31,15 +31,15 @@ class CalendarDetailViewController: UIViewController {
 
     
     override func viewDidLoad() {
-        let dateFormatter: NSDateFormatter = NSDateFormatter()
+        let dateFormatter: DateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy年MM月dd日 hh:mm"
         
         //デバッグコード、なぜdetailTextがでん？（2016/01/30）
         print(navigationController?.viewControllers)
         
         scheduleTitle.text = myEvent.title
-        startTime.text = dateFormatter.stringFromDate(myEvent.startDate)
-        endTime.text = dateFormatter.stringFromDate(myEvent.endDate)
+        startTime.text = dateFormatter.string(from: myEvent.startDate)
+        endTime.text = dateFormatter.string(from: myEvent.endDate)
         place.text = myEvent.location
         detailText.text = myEvent.notes
 
@@ -50,9 +50,9 @@ class CalendarDetailViewController: UIViewController {
     }
     
     //画面遷移時に呼ばれるメソッド
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //セゲエ用にダウンキャストしたCalendarChangeViewControllerのインスタンス
-        let ccvc = segue.destinationViewController as! CalendarChangeViewController
+        let ccvc = segue.destination as! CalendarChangeViewController
         //変数を渡す
         ccvc.myEvent = myEvent
     }
