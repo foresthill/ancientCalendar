@@ -51,7 +51,7 @@ class Designer {
     var calendarBarBgColor: UIColor!        //バーの背景色
     
     var navigationTintColor: UIColor!       //ナビゲーションの文字色
-    var navigationTextAttributes: [String: AnyObject]!  //ナビゲーションの文字色（２）
+    var navigationTextAttributes: [NSAttributedString.Key: Any]?  //ナビゲーションの文字色（２）
     var navigationBarTintColor: UIColor!    //ナビゲーションバーの色
     
     var prevMonthButtonBgColor: UIColor!    //「前へ」ボタンの背景色
@@ -214,7 +214,7 @@ class Designer {
             backgroundColor = UIColor(red: 15/255, green: 21/255, blue: 36/255, alpha: 1.0)
             calendarBarBgColor = UIColor(red: 8/255, green: 8/255, blue: 21/255, alpha: 1.0)
             navigationTintColor = UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)
-            navigationTextAttributes = [NSAttributedString.Key.foregroundColor.rawValue: UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0) as AnyObject]
+            navigationTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)]
             navigationBarTintColor = UIColor(red: 15/255, green: 16/255, blue: 19/255, alpha: 1.0)
             prevMonthButtonBgColor = UIColor(red: 30/255, green: 125/255, blue: 108/255, alpha: 1.0)
             nextMonthButtonBgColor = UIColor(red: 47/255, green: 103/255, blue: 127/255, alpha: 1.0)
@@ -223,7 +223,7 @@ class Designer {
             backgroundColor = UIColor.white
             calendarBarBgColor = UIColor(red: 235/255, green: 208/255, blue: 185/255, alpha: 1.0)
             navigationTintColor = UIColor.black
-            navigationTextAttributes = [NSAttributedString.Key.foregroundColor.rawValue: UIColor.black as AnyObject]
+            navigationTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black as AnyObject]
             navigationBarTintColor = UIColor(red: 248/255, green: 248/255, blue: 248/255, alpha: 1.0)
             prevMonthButtonBgColor = UIColor(red: 112/255, green: 229/255, blue: 208/255, alpha: 1.0)
             nextMonthButtonBgColor = UIColor(red: 161/255, green: 209/255, blue: 230/255, alpha: 1.0)

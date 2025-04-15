@@ -12,6 +12,10 @@ import EventKit
 import EventKitUI   //EKEventEditViewController
 
 class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        //
+    }
+    
 
     // Tableで使用する配列を設定する
     var events: [EKEvent]!
@@ -65,7 +69,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         setScheduleTitle()
 
         // Cell名の登録を行う
-        myTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "MyCell")
+        myTableView.register(UITableViewCell.self, forCellReuseIdentifier: "MyCell")
         
         // DateSourceの設定をする
         myTableView.dataSource = self
@@ -137,10 +141,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.moonAge.textColor = designer.navigationTintColor
     }
     
-    //画面遷移時に呼ばれるメソッド
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //EKEventEditViewController導入に伴うクラス削除により、メソッド処理なし
-    }
     
     /** 以下、更新・削除処理を実施するメソッド **/
     
@@ -150,10 +150,10 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         
         //イベントを編集する
-        editEvent(events[indexPath.row])
+        editEvent(event: events[indexPath.row])
         
         //選択を解除する
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        tableView.deselectRow(at: indexPath as IndexPath, animated: true)
     }
     
     /**
@@ -169,17 +169,17 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         // Cellの.を取得する
-        let cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "MyCell")
+        let cell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "MyCell")
         
         // Cellに値を設定する
         cell.textLabel?.text = events[indexPath.row].title
         cell.detailTextLabel?.text = calendarManager.tableViewDetailText(
-            events[indexPath.row].startDate, endDate: events[indexPath.row].endDate)
+            startDate: events[indexPath.row].startDate, endDate: events[indexPath.row].endDate)
 
         // 表示列数
         cell.textLabel?.numberOfLines = 2
         cell.detailTextLabel?.numberOfLines = 0 //2016/04/21 0にすることで制限なし表示（「…」とならない）#29
-        cell.backgroundColor = UIColor.clearColor() //背景色を透明に（ないとだめ！）
+        cell.backgroundColor = UIColor.clear //背景色を透明に（ないとだめ！）
         
         // 文字色
         cell.textLabel?.textColor = designer.navigationTintColor
@@ -198,42 +198,38 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     /**
      tableViewメソッド - 実際に削除された時の処理を実装する
      */
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        // 実データ削除メソッド
+        removeEvent(index: indexPath.row)
         
-        //実データ削除メソッド
-        removeEvent(indexPath.row)
+        // 先にデータを更新する
+        events.remove(at: indexPath.row)   // これがないと、絶対にエラーが出る
         
-        //先にデータを更新する
-        events.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
-        
-        //それからテーブルの更新
-        tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
+        // それからテーブルの更新
+        tableView.deleteRows(at: [IndexPath(row: indexPath.row, section: 0)], with: UITableView.RowAnimation.fade)
     }
-
+    
     //Editボタンを押した時の処理
-    override func setEditing(editing: Bool, animated: Bool) {
+    override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
-        myTableView.editing = editing
+        myTableView.isEditing = editing
         
         //編集中の時のみaddButtonをナビゲーションバーの左に表示する
         if editing {
             //編集中
-            let addButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: #selector(ScheduleViewController.addCell(_:)))
-            self.navigationItem.setLeftBarButtonItem(addButton, animated: true)
+            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addCell))
+            self.navigationItem.setLeftBarButton(addButton, animated: true)
         } else {
             //通常モード
-            self.navigationItem.setLeftBarButtonItem(nil, animated: true)
+            self.navigationItem.setLeftBarButton(nil, animated: true)
         }
     }
     
-    /*
-    addButtonが押された時に呼び出される
-    */
-    func addCell(sender: AnyObject) {
-        editEvent(nil)
-        
+    // メソッドの宣言
+    @objc func addCell(_ sender: Any) {
+        editEvent(event: nil)
     }
-
+    
     //モーダルでEditEventViewControllerを呼び出す
     func editEvent(event:EKEvent?){
         let eventEditController = EKEventEditViewController.init()
@@ -247,29 +243,29 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         } else {
             let newEvent = EKEvent.init(eventStore: calendarManager.eventStore)
-            newEvent.startDate = calendarManager.calendar.dateFromComponents(calendarManager.comps)!
-            newEvent.endDate = calendarManager.calendar.dateFromComponents(calendarManager.comps)!
+            newEvent.startDate = calendarManager.calendar.date(from: calendarManager.comps)!
+            newEvent.endDate = calendarManager.calendar.date(from: calendarManager.comps)!
             eventEditController.event = newEvent
             addNewEventFlag = true
         }
 
-        self.presentViewController(eventEditController, animated: true, completion: nil)
+        self.present(eventEditController, animated: true, completion: nil)
     }
     
     //EditEventViewControllerを閉じた時に呼ばれるメソッド（必須）
-    func eventEditViewController(controller: EKEventEditViewController, didCompleteWithAction action: EKEventEditViewAction){
-        self.dismissViewControllerAnimated(true, completion: nil)
+    func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction){
+        self.dismiss(animated: true, completion: nil)
         
         //作成したイベントの日時に戻るように改修（2016/04/16）　※そもそもSaved以外はリロードする必要ないんじゃん。。。※Deletedがきになる
         switch action{
-        case EKEventEditViewAction.Saved:
+        case EKEventEditViewAction.saved:
             //イベントが保存された時（カレンダーで指定した開始日に戻るように）
-            scheduleReload(controller.event!.startDate)
+            scheduleReload(startDate: controller.event!.startDate! as NSDate)
             break
-        case EKEventEditViewAction.Canceled:
+        case EKEventEditViewAction.canceled:
             if(addNewEventFlag){
                 do{
-                    try calendarManager.eventStore.removeEvent(controller.event!, span: EKSpan.ThisEvent)
+                    try calendarManager.eventStore.remove(controller.event!, span: EKSpan.thisEvent)
                 } catch _{
                     //もし削除できなかったらゴミが溜まる。。考慮中。
                 }
@@ -285,8 +281,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     func scheduleReload(startDate: NSDate){
         
         // 作成したイベントの日時に戻るように改修（2016/04/16）
-        calendarManager.comps = calendarManager.calendar.components([.Year, .Month, .Day], fromDate: startDate)
-        
+        calendarManager.comps = calendarManager.calendar.dateComponents([.year, .month, .day], from: startDate as Date)
+
         //タイトルを付け直す
         setScheduleTitle()
         
@@ -302,27 +298,27 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     /** イベントをカレンダーから削除するメソッド */
     func removeEvent(index:Int){
         
-        switch EKEventStore.authorizationStatusForEntityType(EKEntityType.Event){
+        switch EKEventStore.authorizationStatus(for: EKEntityType.event){
             
-        case .Authorized:
+        case .authorized:
             do{
-                calendarManager.eventStore.eventWithIdentifier(events[index].eventIdentifier)
-                try calendarManager.eventStore.removeEvent(events[index], span: EKSpan.ThisEvent)
+                calendarManager.eventStore.event(withIdentifier: events[index].eventIdentifier)
+                try calendarManager.eventStore.remove(events[index], span: EKSpan.thisEvent)
                 print("Deleted.")
             } catch _{
                 print("not Deleted(1).")
             }
             break
-        case .Denied:
+        case .denied:
             print("Access denied")
             break
-        case .NotDetermined:
-            calendarManager.eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+        case .notDetermined:
+            calendarManager.eventStore.requestAccess(to: EKEntityType.event, completion: {
                 //[weak self](granted:Bool, error:NSError!) -> Void in
                 granted, error in
                 if granted {
                     do{
-                        try self.calendarManager.eventStore.removeEvent(self.events[index], span: EKSpan.ThisEvent)
+                        try self.calendarManager.eventStore.remove(self.events[index], span: EKSpan.thisEvent)
                     } catch _{
                         print("not Deleted(2).")
                     }
@@ -341,18 +337,18 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
     /** 「予定を追加」ボタンを押下されたときに呼ばれるメソッド */
     @IBAction func addEventButtonAction(sender: AnyObject) {
-        editEvent(nil)
+        editEvent(event: nil)
     }
 
     /** 「編集」ボタンを押下されたときに呼ばれるメソッド */
     @IBAction func editEventButtonAction(sender: AnyObject) {
-        if(!self.myTableView.editing){
+        if(!self.myTableView.isEditing){
             //編集を開始する
             setEditing(true, animated: true)
-            editEventButton.setTitle("完了", forState: .Normal)
+            editEventButton.setTitle("完了", for: .normal)
         } else {
             setEditing(false, animated: true)
-            editEventButton.setTitle("編集", forState: .Normal)
+            editEventButton.setTitle("編集", for: .normal)
         }
     }
     
