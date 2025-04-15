@@ -60,11 +60,11 @@ class Designer {
     /** 初期化処理（インスタンス化禁止） */
     private init() {
         //色の標準化・共通化（2016/05/05） ※RGBカラーの設定は小数値をCGFloat型にしてあげる
-        baseNormal = UIColor.lightGrayColor()
+        baseNormal = UIColor.lightGray
         baseRed = UIColor(red: CGFloat(0.831), green: CGFloat(0.349), blue: CGFloat(0.224), alpha: CGFloat(1.0))
         baseBlue = UIColor(red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0))
-        baseBlack = UIColor.blackColor()
-        baseDarkGray = UIColor.darkGrayColor()
+        baseBlack = UIColor.black
+        baseDarkGray = UIColor.darkGray
         
         //画面初期化・最適化
         screenInit()
@@ -140,8 +140,8 @@ class Designer {
             
 //            self.prevMonthButton.frame = CGRectMake(15, 438, CGFloat(calendarSize), CGFloat(calendarSize));
 //            self.nextMonthButton.frame = CGRectMake(314, 438, CGFloat(calendarSize), CGFloat(calendarSize));
-            prevMonthButtonFrame = CGRectMake(15, 438, CGFloat(calendarSize), CGFloat(calendarSize));
-            nextMonthButtonFrame = CGRectMake(314, 438, CGFloat(calendarSize), CGFloat(calendarSize));
+            prevMonthButtonFrame = CGRect(x: 15, y: 438, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
+            nextMonthButtonFrame = CGRect(x: 314, y: 438, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
             
         //iPhone6 plus
         } else if (screenWidth == 414 && screenHeight == 736){
@@ -164,8 +164,8 @@ class Designer {
             
 //            self.prevMonthButton.frame = CGRectMake(18, 468, CGFloat(calendarSize), CGFloat(calendarSize));
 //            self.nextMonthButton.frame = CGRectMake(348, 468, CGFloat(calendarSize), CGFloat(calendarSize));
-            prevMonthButtonFrame = CGRectMake(18, 468, CGFloat(calendarSize), CGFloat(calendarSize));
-            nextMonthButtonFrame = CGRectMake(348, 468, CGFloat(calendarSize), CGFloat(calendarSize));
+            prevMonthButtonFrame = CGRect(x: 18, y: 468, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
+            nextMonthButtonFrame = CGRect(x: 348, y: 468, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
             
         }
         
@@ -178,52 +178,52 @@ class Designer {
     }
 
     /** ボタンのフォントをセット */
-    func setFont(strBtn: String, addDate: String) -> NSMutableAttributedString {
+    func setFont(_ strBtn: String, addDate: String) -> NSMutableAttributedString {
         //文字のフォント・文字色などをNSMutableAttributedStringで設定
         
         //大きい日付の文字色
         let mutableAttributedString:NSMutableAttributedString = NSMutableAttributedString(
             string: strBtn,
-            attributes: [NSFontAttributeName:UIFont.systemFontOfSize(11.9)])
+            attributes: [NSAttributedStringKey.font:UIFont.systemFont(ofSize: 11.9)])
         
         //大きい日付のフォントサイズ
-        mutableAttributedString.addAttribute(NSForegroundColorAttributeName, value: UIColor.whiteColor(), range: NSRange(location: 0, length: (strBtn.characters.count - addDate.characters.count)))
+        mutableAttributedString.addAttribute(NSAttributedStringKey.foregroundColor, value: UIColor.white, range: NSRange(location: 0, length: (strBtn.count - addDate.count)))
         
         //小さい日付の文字色
-        mutableAttributedString.addAttribute(NSForegroundColorAttributeName, value: UIColor(
+        mutableAttributedString.addAttribute(NSAttributedStringKey.foregroundColor, value: UIColor(
             red: CGFloat(0.989), green: CGFloat(0.919), blue: CGFloat(0.756), alpha: CGFloat(0.9)),
-                                     range: NSRange(location: (strBtn.characters.count - addDate.characters.count), length: addDate.characters.count))   //0.971,0.749, 0.456
+                                     range: NSRange(location: (strBtn.count - addDate.count), length: addDate.count))   //0.971,0.749, 0.456
         
         //小さい日付のフォントサイズ
-        mutableAttributedString.addAttribute(NSFontAttributeName, value: UIFont.systemFontOfSize(7.3),
-                                     range: NSRange(location: (strBtn.characters.count - addDate.characters.count), length: addDate.characters.count))   //7.6
+        mutableAttributedString.addAttribute(NSAttributedStringKey.font, value: UIFont.systemFont(ofSize: 7.3),
+                                     range: NSRange(location: (strBtn.count - addDate.count), length: addDate.count))   //7.6
         
         //文字に影をつける（2016/07/10）
         let shadow: NSShadow = NSShadow()
         //shadow.shadowColo
-        shadow.shadowOffset = CGSizeMake(1.0, 1.0)
-        mutableAttributedString.addAttribute(NSShadowAttributeName, value: shadow, range: NSRange(location: 0, length: strBtn.characters.count))
+        shadow.shadowOffset = CGSize(width: 1.0, height: 1.0)
+        mutableAttributedString.addAttribute(NSAttributedStringKey.shadow, value: shadow, range: NSRange(location: 0, length: strBtn.count))
         
         return mutableAttributedString
     }
     
     /** 色をセット */
-    func setColor(calendarMode: Int) {
+    func setColor(_ calendarMode: Int) {
         if(calendarMode == -1){
             //旧暦モード
             backgroundColor = UIColor(red: 15/255, green: 21/255, blue: 36/255, alpha: 1.0)
             calendarBarBgColor = UIColor(red: 8/255, green: 8/255, blue: 21/255, alpha: 1.0)
             navigationTintColor = UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)
-            navigationTextAttributes = [NSForegroundColorAttributeName: UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)]
+            navigationTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)]
             navigationBarTintColor = UIColor(red: 15/255, green: 16/255, blue: 19/255, alpha: 1.0)
             prevMonthButtonBgColor = UIColor(red: 30/255, green: 125/255, blue: 108/255, alpha: 1.0)
             nextMonthButtonBgColor = UIColor(red: 47/255, green: 103/255, blue: 127/255, alpha: 1.0)
         } else {
             //新暦モード
-            backgroundColor = UIColor.whiteColor()
+            backgroundColor = UIColor.white
             calendarBarBgColor = UIColor(red: 235/255, green: 208/255, blue: 185/255, alpha: 1.0)
-            navigationTintColor = UIColor.blackColor()
-            navigationTextAttributes = [NSForegroundColorAttributeName: UIColor.blackColor()]
+            navigationTintColor = UIColor.black
+            navigationTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.black]
             navigationBarTintColor = UIColor(red: 248/255, green: 248/255, blue: 248/255, alpha: 1.0)
             prevMonthButtonBgColor = UIColor(red: 112/255, green: 229/255, blue: 208/255, alpha: 1.0)
             nextMonthButtonBgColor = UIColor(red: 161/255, green: 209/255, blue: 230/255, alpha: 1.0)

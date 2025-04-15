@@ -88,7 +88,7 @@ class ViewController: UIViewController {
         //self.navigationItem.prompt = "\(year)年"   //見栄えが崩れるためコメントアウト
 
         //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
-        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toUserConfig))
+        let btn: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(ViewController.toUserConfig))
         navigationItem.rightBarButtonItem = btn
         
         //ウィンドウ（2015/07/21）
@@ -96,8 +96,8 @@ class ViewController: UIViewController {
         //        popUpWindowButton = UIButton()  // 同上
         
         //設定値を取得する
-        let config = NSUserDefaults.standardUserDefaults()
-        let result = config.objectForKey("scrollNatural")
+        let config = UserDefaults.standard
+        let result = config.object(forKey: "scrollNatural")
         if(result != nil){
             scrollNatural = result as! Bool
         }
@@ -175,11 +175,11 @@ class ViewController: UIViewController {
             calendarBaseLabel = UILabel()
             
             //X座標の値をCGFloat型へ変換して設定
-            calendarBaseLabel.frame = CGRectMake(
-                CGFloat(designer.calendarLabelIntervalX + tempCalendarLabelX * (i % calendarLabelCount)),
-                CGFloat(designer.calendarLabelY),
-                CGFloat(designer.calendarLabelWidth),
-                CGFloat(designer.calendarLabelHeight)
+            calendarBaseLabel.frame = CGRect(
+                x: CGFloat(designer.calendarLabelIntervalX + tempCalendarLabelX * (i % calendarLabelCount)),
+                y: CGFloat(designer.calendarLabelY),
+                width: CGFloat(designer.calendarLabelWidth),
+                height: CGFloat(designer.calendarLabelHeight)
             )
             
             if(i == 0){
@@ -198,7 +198,7 @@ class ViewController: UIViewController {
             
             //曜日ラベルの配置
             calendarBaseLabel.text = String(monthName[i] as NSString)
-            calendarBaseLabel.textAlignment = NSTextAlignment.Center
+            calendarBaseLabel.textAlignment = .center
             calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(designer.calendarLabelFontSize))
             self.view.addSubview(calendarBaseLabel)
             
@@ -241,38 +241,37 @@ class ViewController: UIViewController {
 
             //ボタンをつくる
             let button: UIButton = UIButton()
-            button.frame = CGRectMake(
-                CGFloat(positionX),
-                CGFloat(positionY),
-                CGFloat(buttonSizeX),
-                CGFloat(buttonSizeY)
-            );
+            button.frame = CGRect(
+                x: CGFloat(positionX),
+                y: CGFloat(positionY),
+                width: CGFloat(buttonSizeX),
+                height: CGFloat(buttonSizeY)
+            )
 
             //ボタン配置アニメーション（2016/08/16）
             let duration:Double = 0.3
             switch mode {
                 case 0:
                     //初期表示＆カレンダーモード切替はクルッと回る（2016/02/15）
-                    UIView.animateWithDuration(duration, animations: { () -> Void in
-                        button.transform = CGAffineTransformMakeScale(-1, 1)
-                        })
-                    {(Bool) -> Void in
-                        UIView.animateWithDuration(duration, animations: { () -> Void in
-                            button.transform = CGAffineTransformIdentity
+                    UIView.animate(withDuration: duration, animations: { () -> Void in
+                        button.transform = CGAffineTransform(scaleX: -1, y: 1)
+                        },
+                        completion: {(finished) -> Void in
+                            UIView.animate(withDuration: duration, animations: { () -> Void in
+                                button.transform = CGAffineTransform.identity
                             })
-                        { (Bool) -> Void in
                         }
-                    }
+                    )
                     break
                 default:
                     //前月＆後月の場合は左右にスライドする
                     let appearX: CGFloat = mode == 1 ? CGFloat(designer.screenWidth + 60) : -60.0
-                    button.layer.position = CGPointMake(appearX, CGFloat(positionY + buttonSizeY/2))
-                    UIView.animateWithDuration(duration, animations: {() -> Void in
+                    button.layer.position = CGPoint(x: appearX, y: CGFloat(positionY + buttonSizeY/2))
+                    UIView.animate(withDuration: duration, animations: {() -> Void in
                         //移動先の座標を指定する
                         //button.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
                         button.center = CGPoint(x: positionX + buttonSizeX/2, y: positionY + buttonSizeY/2)
-                        }, completion: {(Bool) -> Void in
+                        }, completion: {(finished) -> Void in
                     })
                     break
             }
@@ -286,8 +285,8 @@ class ViewController: UIViewController {
             if(i < calendarManager.dayOfWeek - 1){
                 
                 //日付の入らない部分はボタンを押せなくする
-                button.setTitle("", forState: .Normal)
-                button.enabled = false
+                button.setTitle("", for: .normal)
+                button.isEnabled = false
                 
             } else if (i == calendarManager.dayOfWeek - 1 || i < calendarManager.dayOfWeek + calendarManager.maxDay - 1){
                 
@@ -296,7 +295,7 @@ class ViewController: UIViewController {
                 
                 var strBtn :String = String(tagNumber) + " "
                 
-                var tmpComps :NSDateComponents = calendarManager.calendar.components([.Year, .Month, .Day], fromDate: NSDate())
+                var tmpComps: DateComponents = calendarManager.calendar.dateComponents([.year, .month, .day], from: Date())
                 tmpComps.year = calendarManager.year
                 tmpComps.month = calendarManager.month
                 tmpComps.day = tagNumber
@@ -327,7 +326,7 @@ class ViewController: UIViewController {
                 
                 strBtn += addDate
                 
-                button.setAttributedTitle(designer.setFont(strBtn, addDate: addDate), forState: .Normal)
+                button.setAttributedTitle(designer.setFont(strBtn, addDate: addDate), for: .normal)
                 
                 /*当日については、枠線で色をつける（旧暦に対応していないため、一旦保留）
                 if(nowComps.year == year && nowComps.month == month && nowComps.day == tagNumber){
@@ -341,7 +340,7 @@ class ViewController: UIViewController {
                 
                 //旧暦の場合背景画像（月）を設定
                 if(calendarManager.calendarMode == -1){
-                    button.setBackgroundImage(UIImage(named:"moon\(tagNumber).png"), forState: UIControlState.Normal)
+                    button.setBackgroundImage(UIImage(named:"moon\(tagNumber).png"), for: .normal)
                 }
                 
                 tagNumber += 1
@@ -349,8 +348,8 @@ class ViewController: UIViewController {
             } else if (i == calendarManager.dayOfWeek + calendarManager.maxDay - 1 || i < calendarManager.total){
                 
                 //日付の入らない部分はボタンを押せなくする
-                button.setTitle("", forState: .Normal)
-                button.enabled = false
+                button.setTitle("", for: .normal)
+                button.isEnabled = false
                 
             }
             
@@ -374,7 +373,7 @@ class ViewController: UIViewController {
             
             } else {
                 //旧暦モード
-                if(button.enabled){
+                if(button.isEnabled){
                     calendarBackGroundColor = designer.baseBlack
                     
                 } else {
@@ -395,7 +394,7 @@ class ViewController: UIViewController {
             }
             
             //配置したボタンに押した際のアクションを設定する
-            button.addTarget(self, action: #selector(ViewController.buttonTapped(_:)), forControlEvents: .TouchUpInside)
+            button.addTarget(self, action: #selector(ViewController.buttonTapped(_:)), for: .touchUpInside)
             
             //ボタンを配置する
             self.view.addSubview(button)
@@ -536,26 +535,26 @@ class ViewController: UIViewController {
     }
     
     //カレンダーボタンをタップした時のアクション
-    func buttonTapped(button: UIButton){
+    @objc func buttonTapped(_ button: UIButton){
         // コンソール表示
         //print("\(calendarManager.year)年\(calendarManager.month)月\(button.tag)日が選択されました！")
         calendarManager.day = button.tag
-        performSegueWithIdentifier("toScheduleView", sender: self)
+        performSegue(withIdentifier: "toScheduleView", sender: self)
         
     }
     
     //前の月のボタンを押した際のアクション
-    @IBAction func getPrevMonthData(sender: UIButton) {
+    @IBAction func getPrevMonthData(_ sender: UIButton) {
         prevCalendarSettings()
     }
     
     //次の月のボタンを押した際のアクション
-    @IBAction func getNextMonthData(sender: UIButton) {
+    @IBAction func getNextMonthData(_ sender: UIButton) {
         nextCalendarSettings()
     }
     
     //左スワイプ（ナチュラル時は右スワイプ）で前月を表示
-    @IBAction func swipePrevCalendar(sender: UISwipeGestureRecognizer) {
+    @IBAction func swipePrevCalendar(_ sender: UISwipeGestureRecognizer) {
         if(scrollNatural){
             nextCalendarSettings()
         } else {
@@ -564,7 +563,7 @@ class ViewController: UIViewController {
     }
     
     //右スワイプ（ナチュラル時は左スワイプ）で次月を表示
-    @IBAction func swipeNextCalendar(sender: UISwipeGestureRecognizer) {
+    @IBAction func swipeNextCalendar(_ sender: UISwipeGestureRecognizer) {
         if(scrollNatural){
             prevCalendarSettings()
         } else {
@@ -573,7 +572,7 @@ class ViewController: UIViewController {
     }
     
     // モードを切り替えるメソッド
-    @IBAction func changeCalendarMode(sendar: UIBarButtonItem){
+    @IBAction func changeCalendarMode(_ sender: UIBarButtonItem){
         calendarManager.calendarMode = calendarManager.calendarMode * -1
 
         removeCalendarButtonObject()
@@ -606,21 +605,21 @@ class ViewController: UIViewController {
  
         if(calendarManager.year >= Constants.maxYear){
             //上限を上回る場合はこれ以上進めないようにボタンを非活性にする
-            nextMonthButton.enabled = false
+            nextMonthButton.isEnabled = false
             nextMonthButton.alpha = 0.5
         } else if(calendarManager.year <= Constants.minYear){
             //下限を下回る場合はこれ以上戻れないようにボタンを非活性にする
-            prevMonthButton.enabled = false
+            prevMonthButton.isEnabled = false
             prevMonthButton.alpha = 0.5
         } else {
             //必要に応じてprevMonthButtonを復活させる
-            if(!prevMonthButton.enabled){
-                prevMonthButton.enabled = true
+            if(!prevMonthButton.isEnabled){
+                prevMonthButton.isEnabled = true
                 prevMonthButton.alpha = 1.0
             }
             //必要に応じてnextMonthButtonを復活させる
-            if(!nextMonthButton.enabled){
-                nextMonthButton.enabled = true
+            if(!nextMonthButton.isEnabled){
+                nextMonthButton.isEnabled = true
                 nextMonthButton.alpha = 1.0
             }
         }
@@ -633,23 +632,23 @@ class ViewController: UIViewController {
     func getAuthorization_status() -> Bool {
         
         // ステータスを取得
-        let status: EKAuthorizationStatus = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
+        let status: EKAuthorizationStatus = EKEventStore.authorizationStatus(for: EKEntityType.event)
         
         // ステータスを表示 許可されている場合のみtrueを返す
         switch status {
-        case EKAuthorizationStatus.NotDetermined:
+        case .notDetermined:
             print("NotDetermined")
             return false
             
-        case EKAuthorizationStatus.Denied:
+        case .denied:
             print("Denied")
             return false
             
-        case EKAuthorizationStatus.Authorized:
+        case .authorized:
             print("Authorized")
             return true
             
-        case EKAuthorizationStatus.Restricted:
+        case .restricted:
             print("Restricted")
             return false
             
@@ -673,7 +672,7 @@ class ViewController: UIViewController {
         } else {
             
             // ユーザーに許可を求める
-            calendarManager.eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+            calendarManager.eventStore.requestAccess(to: EKEntityType.event, completion: {
                 (granted, error) -> Void in
                 
                 // 許可を得られなかった場合アラート発動
@@ -683,16 +682,16 @@ class ViewController: UIViewController {
                 else {
                     
                     // メインスレッド 画面制御.非同期.
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    DispatchQueue.main.async { () -> Void in
                         
                         // アラート作成
-                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertControllerStyle.Alert)
+                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertController.Style.alert)
                         
                         // アラートアクション
-                        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
+                        let okAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil)
                         myAlert.addAction(okAction)
                         
-                    })
+                    }
                 }
             })
         }
@@ -734,13 +733,13 @@ class ViewController: UIViewController {
      */
     
     // 設定ボタンをタップした時の処理
-    func toUserConfig(){
-        performSegueWithIdentifier("toUserConfigView", sender: self)
+    @objc func toUserConfig(){
+        performSegue(withIdentifier: "toUserConfigView", sender: self)
     }
     
     // ステータスバーを黒くする
-    override func preferredStatusBarStyle() -> UIStatusBarStyle {
-        return UIStatusBarStyle.LightContent
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
     }
     
     // どのクラスにもあるメソッド Memory監視？
