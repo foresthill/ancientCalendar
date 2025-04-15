@@ -184,25 +184,25 @@ class Designer {
         //大きい日付の文字色
         let mutableAttributedString:NSMutableAttributedString = NSMutableAttributedString(
             string: strBtn,
-            attributes: [NSAttributedStringKey.font:UIFont.systemFont(ofSize: 11.9)])
+            attributes: [NSAttributedString.Key.font:UIFont.systemFont(ofSize: 11.9)])
         
         //大きい日付のフォントサイズ
-        mutableAttributedString.addAttribute(NSAttributedStringKey.foregroundColor, value: UIColor.white, range: NSRange(location: 0, length: (strBtn.count - addDate.count)))
+        mutableAttributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.white, range: NSRange(location: 0, length: (strBtn.count - addDate.count)))
         
         //小さい日付の文字色
-        mutableAttributedString.addAttribute(NSAttributedStringKey.foregroundColor, value: UIColor(
+        mutableAttributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(
             red: CGFloat(0.989), green: CGFloat(0.919), blue: CGFloat(0.756), alpha: CGFloat(0.9)),
                                      range: NSRange(location: (strBtn.count - addDate.count), length: addDate.count))   //0.971,0.749, 0.456
         
         //小さい日付のフォントサイズ
-        mutableAttributedString.addAttribute(NSAttributedStringKey.font, value: UIFont.systemFont(ofSize: 7.3),
+        mutableAttributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 7.3),
                                      range: NSRange(location: (strBtn.count - addDate.count), length: addDate.count))   //7.6
         
         //文字に影をつける（2016/07/10）
         let shadow: NSShadow = NSShadow()
         //shadow.shadowColo
         shadow.shadowOffset = CGSize(width: 1.0, height: 1.0)
-        mutableAttributedString.addAttribute(NSAttributedStringKey.shadow, value: shadow, range: NSRange(location: 0, length: strBtn.count))
+        mutableAttributedString.addAttribute(NSAttributedString.Key.shadow, value: shadow, range: NSRange(location: 0, length: strBtn.count))
         
         return mutableAttributedString
     }
@@ -214,7 +214,7 @@ class Designer {
             backgroundColor = UIColor(red: 15/255, green: 21/255, blue: 36/255, alpha: 1.0)
             calendarBarBgColor = UIColor(red: 8/255, green: 8/255, blue: 21/255, alpha: 1.0)
             navigationTintColor = UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)
-            navigationTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0)]
+            navigationTextAttributes = [NSAttributedString.Key.foregroundColor.rawValue: UIColor(red: 207/255, green: 215/255, blue: 234/255, alpha: 1.0) as AnyObject]
             navigationBarTintColor = UIColor(red: 15/255, green: 16/255, blue: 19/255, alpha: 1.0)
             prevMonthButtonBgColor = UIColor(red: 30/255, green: 125/255, blue: 108/255, alpha: 1.0)
             nextMonthButtonBgColor = UIColor(red: 47/255, green: 103/255, blue: 127/255, alpha: 1.0)
@@ -223,7 +223,7 @@ class Designer {
             backgroundColor = UIColor.white
             calendarBarBgColor = UIColor(red: 235/255, green: 208/255, blue: 185/255, alpha: 1.0)
             navigationTintColor = UIColor.black
-            navigationTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.black]
+            navigationTextAttributes = [NSAttributedString.Key.foregroundColor.rawValue: UIColor.black as AnyObject]
             navigationBarTintColor = UIColor(red: 248/255, green: 248/255, blue: 248/255, alpha: 1.0)
             prevMonthButtonBgColor = UIColor(red: 112/255, green: 229/255, blue: 208/255, alpha: 1.0)
             nextMonthButtonBgColor = UIColor(red: 161/255, green: 209/255, blue: 230/255, alpha: 1.0)
