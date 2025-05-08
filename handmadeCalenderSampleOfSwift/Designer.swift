@@ -90,7 +90,7 @@ class Designer {
             
             calendarLabelIntervalX = 5;
             calendarLabelX         = 45;
-            calendarLabelY         = 93;
+            calendarLabelY         = 120;
             calendarLabelWidth     = 40;
             calendarLabelHeight    = 25;
             calendarLabelFontSize  = 14;
@@ -99,7 +99,7 @@ class Designer {
             
             calendarIntervalX      = 5;
             calendarX              = 45;
-            calendarIntervalY      = 120;
+            calendarIntervalY      = 150;
             calendarY              = 45;
             calendarSize           = 40;
             calendarFontSize       = 17;
@@ -109,7 +109,7 @@ class Designer {
             
             calendarLabelIntervalX = 5;
             calendarLabelX         = 45;
-            calendarLabelY         = 93;
+            calendarLabelY         = 120;
             calendarLabelWidth     = 40;
             calendarLabelHeight    = 25;
             calendarLabelFontSize  = 14;
@@ -118,7 +118,7 @@ class Designer {
             
             calendarIntervalX      = 5;
             calendarX              = 45;
-            calendarIntervalY      = 120;
+            calendarIntervalY      = 150;
             calendarY              = 45;
             calendarSize           = 40;
             calendarFontSize       = 17;
@@ -128,7 +128,7 @@ class Designer {
             
             calendarLabelIntervalX = 15;
             calendarLabelX         = 50;
-            calendarLabelY         = 95;
+            calendarLabelY         = 120;
             calendarLabelWidth     = 45;
             calendarLabelHeight    = 25;
             calendarLabelFontSize  = 16;
@@ -137,7 +137,7 @@ class Designer {
             
             calendarIntervalX      = 15;
             calendarX              = 50;
-            calendarIntervalY      = 125;
+            calendarIntervalY      = 150;
             calendarY              = 50;
             calendarSize           = 45;
             calendarFontSize       = 19;
@@ -152,7 +152,7 @@ class Designer {
             
             calendarLabelIntervalX = 15;
             calendarLabelX         = 55;
-            calendarLabelY         = 95;
+            calendarLabelY         = 120;
             calendarLabelWidth     = 55;
             calendarLabelHeight    = 25;
             calendarLabelFontSize  = 18;
@@ -161,7 +161,7 @@ class Designer {
             
             calendarIntervalX      = 18;
             calendarX              = 55;
-            calendarIntervalY      = 125;
+            calendarIntervalY      = 150;
             calendarY              = 55;
             calendarSize           = 50;
             calendarFontSize       = 21;
@@ -176,7 +176,7 @@ class Designer {
             
             calendarLabelIntervalX = Int(15 * widthRatio);
             calendarLabelX         = Int(50 * widthRatio);
-            calendarLabelY         = Int(95 * widthRatio);
+            calendarLabelY         = Int(120 * widthRatio);
             calendarLabelWidth     = Int(45 * widthRatio);
             calendarLabelHeight    = Int(25 * widthRatio);
             calendarLabelFontSize  = Int(16 * widthRatio);
@@ -185,7 +185,7 @@ class Designer {
             
             calendarIntervalX      = Int(15 * widthRatio);
             calendarX              = Int(50 * widthRatio);
-            calendarIntervalY      = Int(125 * widthRatio);
+            calendarIntervalY      = Int(150 * widthRatio);
             calendarY              = Int(50 * widthRatio);
             calendarSize           = Int(45 * widthRatio);
             calendarFontSize       = Int(19 * widthRatio);

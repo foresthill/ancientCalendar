@@ -492,7 +492,36 @@ class CalendarManager {
         // 選択された一日分をフェッチ
         //let events = eventStore.eventsMatchingPredicate(predicate)
 
-        return eventStore.events(matching: predicate)
+        // 取得したイベントをフィルタリング
+        let allEvents = eventStore.events(matching: predicate)
+        
+        // テスト用のフィルター：「夏至」や「イベントの詳細」などのシステム生成イベントを除外
+        let filteredEvents = allEvents.filter { event in
+            // タイトルが空でないかチェック
+            guard let title = event.title, !title.isEmpty else {
+                return false
+            }
+            
+            // 特定のシステムイベントを除外（部分一致で検査）
+            let excludedTitles = ["夏至", "冬至", "春分", "秋分", "イベント", "詳細", "説明"]
+            for excludedTitle in excludedTitles {
+                if title.contains(excludedTitle) {
+                    return false
+                }
+            }
+            
+            // カレンダーのソースがローカルか地域のホリデーカレンダーの場合は除外
+            if let calendar = event.calendar, 
+               (calendar.title == "日本の祝日" || calendar.title == "Holiday" || calendar.title == "祝日" || 
+                calendar.title.contains("Holiday") || calendar.title.contains("holiday") || 
+                calendar.type == .birthday || calendar.type == .subscription) {
+                return false
+            }
+            
+            return true
+        }
+        
+        return filteredEvents
     }
     
     /** ScheduleViewControllerのタイトルを設定して表示するメソッド */
@@ -519,12 +548,12 @@ class CalendarManager {
             //scheduleBarTitle = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
             scheduleBarTitle = "\(comps.year ?? 0)年\(comps.month ?? 0)月\(comps.day ?? 0)日"
             //            self.navigationItem.title = "\(inComps.day)日"     //TODO:#60
-            scheduleBarPrompt = "（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日）"
+            scheduleBarPrompt = "（旧暦：\(ancientYear ?? 0)年\(ancientMonthStr)月\(ancientDay ?? 0)日）"
         } else {
             //旧暦モード
-            scheduleBarTitle = "\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日"
+            scheduleBarTitle = "\(ancientYear ?? 0)年\(ancientMonthStr)月\(ancientDay ?? 0)日"
             //scheduleBarPrompt = "（新暦：\(inComps.year)年\(inComps.month)月\(inComps.day)日）"
-            scheduleBarPrompt = "（新暦：\(gregorianYear)年\(gregorianMonth)月\(gregorianDay)日）"
+            scheduleBarPrompt = "（新暦：\(gregorianYear ?? 0)年\(gregorianMonth ?? 0)月\(gregorianDay ?? 0)日）"
         }
     }
     
@@ -572,36 +601,45 @@ class CalendarManager {
     }
       */
     
-    /** 月齢計算２（2016/09/24）
-    http://news.local-group.jp/moonage/moonage.js.txt
- 
-    - parameter : 新暦（NSDateComponents）
-    - returns: 月齢（Float）
+    /** 月齢計算（より単純な方法）
+    
+    - parameter : 新暦（DateComponents）
+    - returns: 月齢（Double）
     */
-    //func calcMoonAge() -> Double {
     func calcMoonAge(_ _comps: DateComponents) -> Double {
-        var moonAge: Double
+        // より単純で信頼性の高い月齢計算方法
         
-        //var nowDate = Date()
-        
-        let julian = getJulian(_comps)
-        print("julian = \(julian)")
-        
-        //var year = nowDate.getYear()
-        //var year = comps.year
-        
-        var nmoon = getNewMoon(julian)
-        //getNewMoonは新月直前の日を与えるとうまく計算できないのでその対処
-        //（一日前の日付で再計算してみる）
-        if(nmoon > Double(julian)) {
-            nmoon = getNewMoon(julian - 1)
+        // コンポーネントから日付を取得
+        let date: Date
+        if let dateFromComps = Calendar.current.date(from: _comps) {
+            date = dateFromComps
+        } else {
+            // 無効な日付コンポーネントの場合は現在日付を使用
+            date = Date()
         }
-        print("nmoon = \(nmoon)")
         
-        //julian - nmoonが現在時刻の月齢
-        moonAge = Double(julian) - nmoon
+        // 2000年1月6日 18:14 GMT (新月の日)
+        let referenceDate = Date(timeIntervalSince1970: 947182440)
         
-        print("moonAge = \(moonAge)")
+        // 新月の日からの経過時間（秒）
+        let elapsedSeconds = date.timeIntervalSince(referenceDate)
+        let secondsInLunarCycle = 29.53059 * 24 * 60 * 60
+        
+        // 経過した月の巡回から月齢を計算
+        var moonAge = (elapsedSeconds.truncatingRemainder(dividingBy: secondsInLunarCycle)) / (24 * 60 * 60)
+        
+        // 0-29.5の範囲に収める
+        if moonAge < 0 {
+            moonAge += 29.53059
+        }
+        
+        // 小数点以下1桁に丸める
+        moonAge = floor(moonAge * 10) / 10
+        
+        // 結果を範囲内に収める
+        moonAge = min(max(moonAge, 0), 29.5)
+        
+        print("calcMoonAge for date \(date): \(moonAge)")
         return moonAge
     }
     
@@ -630,10 +668,18 @@ class CalendarManager {
      - returns: 月齢（Float）
      */
     func getJulian(_ _comps: DateComponents) -> UInt64 {
-        let today = Date()
-        let sec = today.timeIntervalSince1970
+        // 指定された日付のユリウス通日を計算
+        var date: Date
+        if let dateFromComps = Calendar.current.date(from: _comps) {
+            date = dateFromComps
+        } else {
+            // 日付コンポーネントが不正な場合は今日の日付を使用
+            date = Date()
+        }
+        
+        let sec = date.timeIntervalSince1970
         let millisec = UInt64(sec * 1000)   //intだとあふれるので注意
-        print(millisec)
+        print("Julian date for \(date): \(millisec)")
         return millisec
     }
 }

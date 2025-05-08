@@ -312,7 +312,7 @@ class ViewController: UIViewController {
                         tmpComps = converter.convertForGregorianCalendar(dateArray: [calendarManager.year, -calendarManager.month, tagNumber, 0])
                     }
                     
-                    addDate += "\(tmpComps.month)/\(tmpComps.day)"
+                    addDate += "\(tmpComps.month ?? 0)/\(tmpComps.day ?? 0)"
                     
                 } else {
                     var array:[Int] = converter.convertForAncientCalendar(comps: tmpComps)

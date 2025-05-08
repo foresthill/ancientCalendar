@@ -109,9 +109,14 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.moonAge.text = String(calendarManager.moonAge)
         
         //月の画像
-        let moonAgeNumber: Int = Int(floor(calendarManager.moonAge))
-        self.moonName.text = calendarManager.moonName[moonAgeNumber]
-        self.moonImage.image = UIImage(named:"moon\(moonAgeNumber)_90x90.png")
+        let moonAgeNumber: Int = min(max(Int(floor(calendarManager.moonAge)), 0), 29)
+        if moonAgeNumber < calendarManager.moonName.count {
+            self.moonName.text = calendarManager.moonName[moonAgeNumber]
+            self.moonImage.image = UIImage(named:"moon\(moonAgeNumber)_90x90.png")
+        } else {
+            self.moonName.text = "満月"
+            self.moonImage.image = UIImage(named:"moon15_90x90.png")
+        }
         
     }
     
@@ -238,8 +243,14 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         } else {
             let newEvent = EKEvent.init(eventStore: calendarManager.eventStore)
-            newEvent.startDate = calendarManager.calendar.date(from: calendarManager.comps)!
-            newEvent.endDate = calendarManager.calendar.date(from: calendarManager.comps)!
+            if let date = calendarManager.calendar.date(from: calendarManager.comps) {
+                newEvent.startDate = date
+                newEvent.endDate = date
+            } else {
+                // コンポーネントから日付が作成できない場合は現在の日付を使用
+                newEvent.startDate = Date()
+                newEvent.endDate = Date()
+            }
             eventEditController.event = newEvent
             addNewEventFlag = true
         }
@@ -255,7 +266,12 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         switch action{
         case EKEventEditViewAction.saved:
             //イベントが保存された時（カレンダーで指定した開始日に戻るように）
-            scheduleReload(startDate: controller.event!.startDate! as NSDate)
+            if let event = controller.event, let startDate = event.startDate {
+                scheduleReload(startDate: startDate as NSDate)
+            } else {
+                // イベントがnilの場合は現在の日付を使用
+                scheduleReload(startDate: Date() as NSDate)
+            }
             break
         case EKEventEditViewAction.canceled:
             if(addNewEventFlag){
