@@ -358,7 +358,7 @@ class CalendarManager {
             currentComps.day   = day    //必要？
             
             //新暦→旧暦へ変換
-            let ancientDate: [Int] = converter.convertForAncientCalendar(comps: currentComps as NSDateComponents)   //2016/04/17
+            let ancientDate: [Int] = converter.convertForAncientCalendar(comps: currentComps)   //2016/04/17
             
             currentComps.year = ancientDate[0]
             currentComps.month = ancientDate[1]
@@ -439,7 +439,7 @@ class CalendarManager {
             
             //print("\(comps.year). \(comps.month). \(comps.day)")
             
-            let ancientDate: [Int] = converter.convertForAncientCalendar(comps: comps as! NSDateComponents)
+            let ancientDate: [Int] = converter.convertForAncientCalendar(comps: comps)
             ancientYear = ancientDate[0]
             ancientMonth = ancientDate[1]
             ancientDay = ancientDate[2]

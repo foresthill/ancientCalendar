@@ -202,7 +202,7 @@ class ViewController: UIViewController {
             calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(designer.calendarLabelFontSize))
             self.view.addSubview(calendarBaseLabel)
             
-            mArrayForLabel.addObject(calendarBaseLabel) //削除用（2016/02/11）
+            mArrayForLabel.add(calendarBaseLabel) //削除用（2016/02/11）
         }
         
 
@@ -244,8 +244,8 @@ class ViewController: UIViewController {
             button.frame = CGRect(
                 x: CGFloat(positionX),
                 y: CGFloat(positionY),
-                width: CGFloat(buttonSizeX),
-                height: CGFloat(buttonSizeY)
+                width: CGFloat(buttonSizeX ?? 0),
+                height: CGFloat(buttonSizeY ?? 0)
             )
 
             //ボタン配置アニメーション（2016/08/16）
@@ -266,11 +266,11 @@ class ViewController: UIViewController {
                 default:
                     //前月＆後月の場合は左右にスライドする
                     let appearX: CGFloat = mode == 1 ? CGFloat(designer.screenWidth + 60) : -60.0
-                    button.layer.position = CGPoint(x: appearX, y: CGFloat(positionY + buttonSizeY/2))
+                    button.layer.position = CGPoint(x: appearX, y: CGFloat(positionY + (buttonSizeY ?? 0)/2))
                     UIView.animate(withDuration: duration, animations: {() -> Void in
                         //移動先の座標を指定する
                         //button.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
-                        button.center = CGPoint(x: positionX + buttonSizeX/2, y: positionY + buttonSizeY/2)
+                        button.center = CGPoint(x: positionX + (buttonSizeX ?? 0)/2, y: positionY + (buttonSizeY ?? 0)/2)
                         }, completion: {(finished) -> Void in
                     })
                     break
@@ -305,16 +305,16 @@ class ViewController: UIViewController {
                 if(calendarManager.calendarMode == -1){ //旧暦モード
                     
                     if(!calendarManager.nowLeapMonth){  //通常月
-                        tmpComps = converter.convertForGregorianCalendar([calendarManager.year, calendarManager.month, tagNumber, 0])
+                        tmpComps = converter.convertForGregorianCalendar(dateArray: [calendarManager.year, calendarManager.month, tagNumber, 0])
                         
                     } else {    //閏月
-                        tmpComps = converter.convertForGregorianCalendar([calendarManager.year, -calendarManager.month, tagNumber, 0])
+                        tmpComps = converter.convertForGregorianCalendar(dateArray: [calendarManager.year, -calendarManager.month, tagNumber, 0])
                     }
                     
                     addDate += "\(tmpComps.month)/\(tmpComps.day)"
                     
                 } else {
-                    var array:[Int] = converter.convertForAncientCalendar(tmpComps)
+                    var array:[Int] = converter.convertForAncientCalendar(comps: tmpComps)
                     
                     if(array[3] == -1){
                         addDate += "閏"
@@ -411,7 +411,7 @@ class ViewController: UIViewController {
                         { (Bool) -> Void in
                     }
             }*/
-            mArray.addObject(button)
+            mArray.add(button)
     
         }
         
@@ -506,7 +506,7 @@ class ViewController: UIViewController {
         
         //ビューからボタンオブジェクトを削除する
         for i in 0..<mArray.count {
-             mArray[i].removeFromSuperview()
+             (mArray[i] as AnyObject).removeFromSuperview()
         }
         
         //配列に格納したボタンオブジェクトも削除する
@@ -519,7 +519,7 @@ class ViewController: UIViewController {
         
         //ビューから曜日オブジェクトを削除する
         for i in 0..<mArrayForLabel.count {
-            mArrayForLabel[i].removeFromSuperview()
+            (mArrayForLabel[i] as AnyObject).removeFromSuperview()
         }
         
         mArrayForLabel.removeAllObjects()
@@ -530,7 +530,7 @@ class ViewController: UIViewController {
     func setupCurrentCalendar() {
         
         calendarManager.setupCurrentCalendarData()
-        generateCalendar(0)
+        generateCalendar(mode: 0)
         setupCalendarTitleLabel()
     }
     
@@ -579,7 +579,7 @@ class ViewController: UIViewController {
         setupAnotherCalendarData()
         removecalendarBaseLabel()   //曜日のラベルを全削除
         setupCalendarLabel()        //曜日のラベルを作成
-        generateCalendar(0)
+        generateCalendar(mode: 0)
     }
     
     //前月を表示するメソッド
@@ -587,7 +587,7 @@ class ViewController: UIViewController {
         if(calendarManager.year > Constants.minYear){
             removeCalendarButtonObject()
             setupPrevCalendarData()
-            generateCalendar(-1)
+            generateCalendar(mode: -1)
         }
     }
     
@@ -596,7 +596,7 @@ class ViewController: UIViewController {
         if(calendarManager.year < Constants.maxYear){
             removeCalendarButtonObject()
             setupNextCalendarData()
-            generateCalendar(1)
+            generateCalendar(mode: 1)
         }
     }
     
@@ -652,10 +652,9 @@ class ViewController: UIViewController {
             print("Restricted")
             return false
             
-//        default:
-//            print("error")
-//            return false
-            
+        @unknown default:
+            print("error - unknown status")
+            return false
         }
     }
     
