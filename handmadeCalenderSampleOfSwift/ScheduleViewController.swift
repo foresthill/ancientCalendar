@@ -12,11 +12,7 @@ import EventKit
 import EventKitUI   //EKEventEditViewController
 
 class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //
-    }
     
-
     // Tableで使用する配列を設定する
     var events: [EKEvent]!
     
@@ -147,13 +143,13 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     /**
     tableViewメソッド - Cellがタップ（選択）された際に呼び出される
     **/
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
         
         //イベントを編集する
         editEvent(event: events[indexPath.row])
         
         //選択を解除する
-        tableView.deselectRow(at: indexPath as IndexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     /**
@@ -164,12 +160,21 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     }
     
     /**
+     * スタブから作られたメソッド（ダミー）
+     */
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // Cellの.を取得する
+        let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "MyCell")
+        return cell
+    }
+
+    /**
     tableViewメソッド - Cellの内容を指定する
     **/
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         // Cellの.を取得する
-        let cell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "MyCell")
+        let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "MyCell")
         
         // Cellに値を設定する
         cell.textLabel?.text = events[indexPath.row].title
@@ -191,7 +196,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     /**
      tableViewメソッド - 削除可能なセルのindexPath
      */
-    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
     
@@ -336,12 +341,12 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     }
 
     /** 「予定を追加」ボタンを押下されたときに呼ばれるメソッド */
-    @IBAction func addEventButtonAction(sender: AnyObject) {
+    @IBAction func addEventButtonAction(_ sender: AnyObject) {
         editEvent(event: nil)
     }
 
     /** 「編集」ボタンを押下されたときに呼ばれるメソッド */
-    @IBAction func editEventButtonAction(sender: AnyObject) {
+    @IBAction func editEventButtonAction(_ sender: AnyObject) {
         if(!self.myTableView.isEditing){
             //編集を開始する
             setEditing(true, animated: true)
@@ -353,17 +358,17 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     }
     
     /** ツールバーアクション（モード切替） */
-    @IBAction func changeCalendarMode(sender: UIBarButtonItem) {
+    @IBAction func changeCalendarMode(_ sender: UIBarButtonItem) {
         print("カレンダーモード切替")
     }
     
     /** ツールバーアクション（前の日へ） */
-    @IBAction func prevDayAction(sender: UIBarButtonItem) {
+    @IBAction func prevDayAction(_ sender: UIBarButtonItem) {
         print("前の日へ")
     }
 
     /** ツールバーアクション（次の日へ） */
-    @IBAction func nextDayAction(sender: UIBarButtonItem) {
+    @IBAction func nextDayAction(_ sender: UIBarButtonItem) {
         print("次の日へ")
     }
 

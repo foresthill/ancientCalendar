@@ -41,7 +41,7 @@ final class AncientCalendarConverter2
     
     /** イニシャライザ（private） */
     private init(){
-        ancientTbl = Array(count: 14, repeatedValue:[0, 0])
+        ancientTbl = Array(repeating: [0, 0], count: 14)
         isLeapMonth = 0
         leapMonth = 0
         ommax = 12
@@ -50,27 +50,27 @@ final class AncientCalendarConverter2
     }
     
     /** 旧暦変換（2016/02/06）*/
-    func convertForAncientCalendar(comps:NSDateComponents) -> [Int]{
+    func convertForAncientCalendar(comps: DateComponents) -> [Int]{
 
         var yearByAncient:Int = comps.year
         var monthByAncient:Int = comps.month
         var dayByAncient:Int = comps.day
 
-        let calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        var dayOfYear = calendar.ordinalityOfUnit(.Day, inUnit:.Year, forDate: calendar.dateFromComponents(comps)!)
+        let calendar: Calendar = Calendar(identifier: .gregorian)
+        var dayOfYear = calendar.ordinality(of: .day, in:.year, for: calendar.date(from: comps)!)
         
         //旧暦テーブルを作成する
-        tblExpand(yearByAncient)
+        tblExpand(inYear: yearByAncient)
         
         
         if(dayOfYear < ancientTbl[0][0]){   //旧暦で表すと、１年前になる場合
             yearByAncient -= 1;
-            dayOfYear += (365 + isLeapYear(yearByAncient))
-            tblExpand(yearByAncient)
+            dayOfYear += (365 + isLeapYear(inYear: yearByAncient))
+            tblExpand(inYear: yearByAncient)
         }
                 
         //どの月の、何日目かをancientTblから引き出す
-        for(var i=12; i>=0; i -= 1){
+        for i in (0...12).reversed() {
             if(ancientTbl[i][1] != 0){
                 if(ancientTbl[i][0] <= dayOfYear){
                     monthByAncient = ancientTbl[i][1]
@@ -94,19 +94,19 @@ final class AncientCalendarConverter2
     
     
     /** 旧暦→新暦変換 */
-    func convertForGregorianCalendar(dateArray:[Int]) -> NSDateComponents{
+    func convertForGregorianCalendar(dateArray:[Int]) -> DateComponents{
         
         //イマを刻むコンポーネント（2016/02/07）
-        let calendar: NSCalendar = NSCalendar.currentCalendar()
+        let calendar: Calendar = Calendar.current
         
-        let compsByGregorian = calendar.components([.Year, .Month, .Day], fromDate: NSDate())    //とりあえずイマを返す
+        var compsByGregorian = calendar.dateComponents([.year, .month, .day], from: Date())    //とりあえずイマを返す
         
         var yearByGregorian = dateArray[0]
         let monthByGregorian = dateArray[1]
         var dayByGregorian = dateArray[2]
         //var templeapMonth = dateArray[3]
         
-        tblExpand(yearByGregorian)
+        tblExpand(inYear: yearByGregorian)
         
         var dayOfYear:Int!
         
@@ -124,7 +124,7 @@ final class AncientCalendarConverter2
             return compsByGregorian
         }
         
-        var tmp:Int = 365 + isLeapYear(yearByGregorian)
+        var tmp:Int = 365 + isLeapYear(inYear: yearByGregorian)
         
         if(dayOfYear > tmp){
             dayOfYear = dayOfYear - tmp;
@@ -136,9 +136,9 @@ final class AncientCalendarConverter2
         compsByGregorian.year = yearByGregorian  //2016.3.20 毎年2/29が存在する件 修正
         compsByGregorian.day = 1
         
-        for(var i=12; i>=1; i -= 1){
+        for i in (0...12).reversed() {
             compsByGregorian.month = i
-            tmp = calendar.ordinalityOfUnit(.Day, inUnit:.Year, forDate:calendar.dateFromComponents(compsByGregorian)!)
+            tmp = calendar.ordinality(of: .day, in:.year, for:calendar.date(from: compsByGregorian)!)
             if(dayOfYear >= tmp){
                 dayByGregorian = dayOfYear - tmp + 1
                 break
