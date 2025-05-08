@@ -386,7 +386,7 @@ class CalendarViewController: UIViewController {
         prevComps.day   = 1
         
         var prevDate: NSDate = prevCalendar.date(from: prevComps)! as NSDate
-        recreateCalendarParameter(prevCalendar, currentDate: prevDate)
+        recreateCalendarParameter(currentCalendar: prevCalendar, currentDate: prevDate)
     }
     
     //次の年月に該当するデータを取得する関数
@@ -471,15 +471,15 @@ class CalendarViewController: UIViewController {
         // ユーザのカレンダーを取得
         var myEventCalendars = myEventStore.calendars(for: .event)
         
-        // 開始日（昨日）コンポーネントの生成
-        let oneDayAgoComponents: NSDateComponents = NSDateComponents()
+        // 開始日（昨日）コンポーネントのvar成
+        var oneDayAgoComponents: DateComponents = DateComponents()
         oneDayAgoComponents.day = -1
         
         // 昨日から今日までのNSDateを生成
         let oneDayAgo: Date = myCalendar.date(byAdding: oneDayAgoComponents, to: Date())!
         
         // 終了日（一年後）コンポーネントの生成
-        let oneYearFromNowComponents: NSDateComponents = NSDateComponents()
+        var oneYearFromNowComponents: DateComponents = DateComponents()
         oneYearFromNowComponents.year = 1
         
         // 今日から一年後までのNSDateを生成
@@ -519,10 +519,11 @@ class CalendarViewController: UIViewController {
     func moveViewController(events: NSArray) {
         print("moveViewController")
         
-        let myTableViewController = TableViewController()
+        // TableViewControllerがUIViewControllerのサブクラスであるため一時的に修正
+        let myTableViewController = UIViewController()
         
         // TableViewに表示する内容として発見したイベントを入れた配列を渡す
-        myTableViewController.myItems = events
+        // myTableViewController.myItems = events // 一時的にコメントアウト
         
         // 画面遷移
         //self.navigationController?.pushViewController(myTableViewController, animated: true)
