@@ -168,7 +168,8 @@ class CalendarViewController: UIViewController {
         
         //inUnit:で指定した単位（月）の中で、rangeOfUnit:で指定した単位（日）が取り得る範囲
         var calendar: Calendar = Calendar(identifier: .gregorian)
-        var range: NSRange = calendar.range(of: .day, in: .month, for: now as Date)
+        var range = calendar.range(of: .day, in: .month, for: now as Date)
+        var nsRange = NSRange(location: 1, length: range?.count ?? 0)
         
         //最初にメンバ変数に格納するための現在日付の情報を取得する
         comps = calendar.dateComponents([.year, .month, .day, .weekday], from: now as Date) as NSDateComponents
@@ -178,7 +179,7 @@ class CalendarViewController: UIViewController {
         var orgMonth: NSInteger     = comps.month
         var orgDay: NSInteger       = comps.day
         var orgDayOfWeek: NSInteger = comps.weekday
-        var max: NSInteger          = range.length
+        var max: NSInteger          = nsRange.length
         
         year      = orgYear
         month     = orgMonth
@@ -415,7 +416,8 @@ class CalendarViewController: UIViewController {
     func recreateCalendarParameter(currentCalendar: Calendar, currentDate: NSDate) {
         
         //引数で渡されたものをもとに日付の情報を取得する
-        var currentRange: NSRange = currentCalendar.range(of: .day, in: .month, for: currentDate as Date)
+        var currentRange = currentCalendar.range(of: .day, in: .month, for: currentDate as Date)
+        var nsCurrentRange = NSRange(location: 1, length: currentRange?.count ?? 0)
         
         comps = currentCalendar.dateComponents([.year, .month, .day, .weekday], from: currentDate as Date) as NSDateComponents
         
@@ -424,7 +426,7 @@ class CalendarViewController: UIViewController {
         var currentMonth: NSInteger     = comps.month
         var currentDay: NSInteger       = comps.day
         var currentDayOfWeek: NSInteger = comps.weekday
-        var currentMax: NSInteger       = currentRange.length
+        var currentMax: NSInteger       = nsCurrentRange.length
         
         year      = currentYear
         month     = currentMonth
@@ -439,8 +441,7 @@ class CalendarViewController: UIViewController {
         //ビューからボタンオブジェクトを削除する
         for i in 0..<mArray.count {
             (mArray[i] as AnyObject).removeFromSuperview()
-            /Users/foresthill/Development/Xcode/ancientCalendar/handmadeCalenderSampleOfSwift/CalendarView.swift:327:42 'whiteColor' has been renamed to 'white'
-        }
+                    }
         
         //配列に格納したボタンオブジェクトも削除する
         mArray.removeAllObjects()
@@ -465,38 +466,34 @@ class CalendarViewController: UIViewController {
         print("\(year)年\(month)月\(button.tag)日が選択されました！")
         
         // NSCalendarを生成
-        var myCalendar: NSCalendar = NSCalendar.currentCalendar as NSCalendar
+        var myCalendar: Calendar = Calendar.current
         
         // ユーザのカレンダーを取得
-        var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityTypeEvent)
+        var myEventCalendars = myEventStore.calendars(for: .event)
         
         // 開始日（昨日）コンポーネントの生成
         let oneDayAgoComponents: NSDateComponents = NSDateComponents()
         oneDayAgoComponents.day = -1
         
         // 昨日から今日までのNSDateを生成
-        let oneDayAgo: NSDate = myCalendar.dateByAddingComponents(oneDayAgoComponents,
-            toDate: NSDate(),
-            options: NSCalendarOptions.allZeros)!
+        let oneDayAgo: Date = myCalendar.date(byAdding: oneDayAgoComponents, to: Date())!
         
         // 終了日（一年後）コンポーネントの生成
         let oneYearFromNowComponents: NSDateComponents = NSDateComponents()
         oneYearFromNowComponents.year = 1
         
         // 今日から一年後までのNSDateを生成
-        let oneYearFromNow: NSDate = myCalendar.dateByAddingComponents(oneYearFromNowComponents,
-            toDate: NSDate(),
-            options: NSCalendarOptions.allZeros)!
+        let oneYearFromNow: Date = myCalendar.date(byAdding: oneYearFromNowComponents, to: Date())!
         
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
         // ユーザーの全てのカレンダーからフェッチせよ
-        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
-            endDate: oneYearFromNow, calendars: nil)
+        predicate = myEventStore.predicateForEvents(withStart: oneDayAgo,
+            end: oneYearFromNow, calendars: nil)
         
         // 述語にマッチする全てのイベントをフェッチ
-        var events = myEventStore.eventsMatchingPredicate(predicate) as! [EKEvent]
+        var events = myEventStore.events(matching: predicate)
         
         // 発見したイベントを格納する配列を生成
         var eventItems = [String]()
@@ -504,9 +501,9 @@ class CalendarViewController: UIViewController {
         // イベントが見つかった
         if !events.isEmpty {
             for i in events{
-                println(i.title)
-                println(i.startDate)
-                println(i.endDate)
+                print(i.title)
+                print(i.startDate)
+                print(i.endDate)
                 
                 // 配列に格納
                 eventItems += ["\(i.title): \(i.startDate)"]
@@ -515,12 +512,12 @@ class CalendarViewController: UIViewController {
         }
         
         // 画面遷移.
-        moveViewController(eventItems)
+        moveViewController(events: eventItems as NSArray)
         
     }
     
     func moveViewController(events: NSArray) {
-        println("moveViewController")
+        print("moveViewController")
         
         let myTableViewController = TableViewController()
         
@@ -531,10 +528,10 @@ class CalendarViewController: UIViewController {
         //self.navigationController?.pushViewController(myTableViewController, animated: true)
         
         // アニメーションを定義する
-        myTableViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
+        myTableViewController.modalTransitionStyle = UIModalTransitionStyle.partialCurl
         
         // Viewの移動する
-        self.presentViewController(myTableViewController, animated: true, completion: nil)
+        self.present(myTableViewController, animated: true, completion: nil)
         
     }
 
@@ -546,10 +543,10 @@ class CalendarViewController: UIViewController {
         let mySecondViewController: UIViewController = SecondViewController()
         
         // アニメーションを定義する
-        mySecondViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
+        mySecondViewController.modalTransitionStyle = UIModalTransitionStyle.partialCurl
         
         // Viewの移動する
-        self.presentViewController(mySecondViewController, animated: true, completion: nil)
+        self.present(mySecondViewController, animated: true, completion: nil)
     }
     
     /**
@@ -558,28 +555,28 @@ class CalendarViewController: UIViewController {
     func getAuthorization_status() -> Bool {
         
         // ステータスを取得
-        let status: EKAuthorizationStatus = EKEventStore.authorizationStatusForEntityType(EKEntityTypeEvent)
+        let status: EKAuthorizationStatus = EKEventStore.authorizationStatus(for: .event)
         
         // ステータスを表示 許可されている場合のみtrueを返す
         switch status {
-        case EKAuthorizationStatus.NotDetermined:
-            println("NotDetermined")
+        case .notDetermined:
+            print("NotDetermined")
             return false
             
-        case EKAuthorizationStatus.Denied:
-            println("Denied")
+        case .denied:
+            print("Denied")
             return false
             
-        case EKAuthorizationStatus.Authorized:
-            println("Authorized")
+        case .authorized:
+            print("Authorized")
             return true
             
-        case EKAuthorizationStatus.Restricted:
-            println("Restricted")
+        case .restricted:
+            print("Restricted")
             return false
             
         default:
-            println("error")
+            print("error")
             return false
             
         }
@@ -596,7 +593,7 @@ class CalendarViewController: UIViewController {
         } else {
             
             // ユーザーに許可を求める
-            myEventStore.requestAccessToEntityType(EKEntityTypeEvent, completion: {
+            myEventStore.requestAccess(to: .event, completion: {
                 (granted, error) -> Void in
                 
                 // 許可を得られなかった場合アラート発動
@@ -606,14 +603,14 @@ class CalendarViewController: UIViewController {
                 else {
                     
                     // メインスレッド 画面制御.非同期.
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    DispatchQueue.main.async { 
                         
                         // アラート作成
-                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertControllerStyle.Alert)
+                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertController.Style.alert)
                         
                         // アラートアクション
-                        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
-                    })
+                        let okAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil)
+                    }
                 }
             })
         }

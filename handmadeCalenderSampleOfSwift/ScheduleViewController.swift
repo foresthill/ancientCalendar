@@ -165,16 +165,6 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // Cellの.を取得する
         let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "MyCell")
-        return cell
-    }
-
-    /**
-    tableViewメソッド - Cellの内容を指定する
-    **/
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        // Cellの.を取得する
-        let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "MyCell")
         
         // Cellに値を設定する
         cell.textLabel?.text = events[indexPath.row].title

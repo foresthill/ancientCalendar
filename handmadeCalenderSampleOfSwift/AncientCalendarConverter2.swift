@@ -52,12 +52,12 @@ final class AncientCalendarConverter2
     /** 旧暦変換（2016/02/06）*/
     func convertForAncientCalendar(comps: DateComponents) -> [Int]{
 
-        var yearByAncient:Int = comps.year
-        var monthByAncient:Int = comps.month
-        var dayByAncient:Int = comps.day
+        var yearByAncient:Int = comps.year ?? 0
+        var monthByAncient:Int = comps.month ?? 0
+        var dayByAncient:Int = comps.day ?? 0
 
         let calendar: Calendar = Calendar(identifier: .gregorian)
-        var dayOfYear = calendar.ordinality(of: .day, in:.year, for: calendar.date(from: comps)!)
+        var dayOfYear = calendar.ordinality(of: .day, in:.year, for: calendar.date(from: comps)!) ?? 0
         
         //旧暦テーブルを作成する
         tblExpand(inYear: yearByAncient)
@@ -138,7 +138,7 @@ final class AncientCalendarConverter2
         
         for i in (0...12).reversed() {
             compsByGregorian.month = i
-            tmp = calendar.ordinality(of: .day, in:.year, for:calendar.date(from: compsByGregorian)!)
+            tmp = calendar.ordinality(of: .day, in:.year, for:calendar.date(from: compsByGregorian)!) ?? 0
             if(dayOfYear >= tmp){
                 dayByGregorian = dayOfYear - tmp + 1
                 break
