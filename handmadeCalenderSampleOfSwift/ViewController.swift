@@ -224,7 +224,7 @@ class ViewController: UIViewController {
         var tagNumber = 1   //タグナンバー（日数）
         
         let reviseX:Double =  7.0 / Double(calendarManager.numberOfDaysInWeek)
-        var tempCalendarX = Int(ceil(Double(designer.calendarX) * reviseX))
+        var tempCalendarX = Int(ceil(Double(designer.calendarX ?? 0) * reviseX))
         
         if(calendarManager.calendarMode == -1){
             tempCalendarX += 1      //微調整
@@ -234,10 +234,10 @@ class ViewController: UIViewController {
         for i in 0...calendarManager.total-1{
             
             //配置場所の定義
-            let positionX   = designer.calendarIntervalX + tempCalendarX * (i % calendarManager.numberOfDaysInWeek)   //Intervalは間隔ではなくて初期値でしたorz
-            let positionY   = designer.calendarIntervalY + designer.calendarY * (i / calendarManager.numberOfDaysInWeek)
-            let buttonSizeX = designer.calendarSize;
-            let buttonSizeY = designer.calendarSize;
+            let positionX   = (designer.calendarIntervalX ?? 0) + tempCalendarX * (i % calendarManager.numberOfDaysInWeek)   //Intervalは間隔ではなくて初期値でしたorz
+            let positionY   = (designer.calendarIntervalY ?? 0) + (designer.calendarY ?? 0) * (i / calendarManager.numberOfDaysInWeek)
+            let buttonSizeX = designer.calendarSize ?? 0;
+            let buttonSizeY = designer.calendarSize ?? 0;
 
             //ボタンをつくる
             let button: UIButton = UIButton()
@@ -386,11 +386,11 @@ class ViewController: UIViewController {
             button.backgroundColor = calendarBackGroundColor    //ここに置かないと色がずれちゃうよ。
                 
             //フォント
-            button.titleLabel!.font = UIFont(name: "System", size: CGFloat(designer.calendarFontSize))
+            button.titleLabel!.font = UIFont(name: "System", size: CGFloat(designer.calendarFontSize ?? 0))
             
             //旧暦モードの場合は、日付を丸くする。
             if(calendarManager.calendarMode == -1){
-                button.layer.cornerRadius = CGFloat(designer.buttonRadius)
+                button.layer.cornerRadius = CGFloat(designer.buttonRadius ?? 0)
             }
             
             //配置したボタンに押した際のアクションを設定する
