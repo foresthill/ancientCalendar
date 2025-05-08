@@ -161,7 +161,7 @@ class ViewController: UIViewController {
         let calendarLabelCount = monthName.count
         
         let reviseX:Double =  7.0 / Double(calendarLabelCount)
-        var tempCalendarLabelX = Int(ceil(Double(designer.calendarLabelX) * reviseX))
+        var tempCalendarLabelX = Int(ceil(Double(designer.calendarLabelX ?? 0) * reviseX))
         
         if(calendarManager.calendarMode == -1){
             tempCalendarLabelX += 1      //微調整
@@ -176,10 +176,10 @@ class ViewController: UIViewController {
             
             //X座標の値をCGFloat型へ変換して設定
             calendarBaseLabel.frame = CGRect(
-                x: CGFloat(designer.calendarLabelIntervalX + tempCalendarLabelX * (i % calendarLabelCount)),
-                y: CGFloat(designer.calendarLabelY),
-                width: CGFloat(designer.calendarLabelWidth),
-                height: CGFloat(designer.calendarLabelHeight)
+                x: CGFloat((designer.calendarLabelIntervalX ?? 0) + tempCalendarLabelX * (i % calendarLabelCount)),
+                y: CGFloat(designer.calendarLabelY ?? 0),
+                width: CGFloat(designer.calendarLabelWidth ?? 0),
+                height: CGFloat(designer.calendarLabelHeight ?? 0)
             )
             
             if(i == 0){
@@ -199,7 +199,7 @@ class ViewController: UIViewController {
             //曜日ラベルの配置
             calendarBaseLabel.text = String(monthName[i] as NSString)
             calendarBaseLabel.textAlignment = .center
-            calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(designer.calendarLabelFontSize))
+            calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(designer.calendarLabelFontSize ?? 0))
             self.view.addSubview(calendarBaseLabel)
             
             mArrayForLabel.add(calendarBaseLabel) //削除用（2016/02/11）

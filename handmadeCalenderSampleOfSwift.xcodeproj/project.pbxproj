@@ -728,6 +728,7 @@
 				TargetAttributes = {
 					DEA5389C1A2A0AE30092DCBA = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = M836YTN2FQ;
 					};
 					DEA538B11A2A0AE40092DCBA = {
 						CreatedOnToolsVersion = 6.1;
@@ -1134,8 +1135,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = M836YTN2FQ;
 				INFOPLIST_FILE = handmadeCalenderSampleOfSwift/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.foresthill.AncientCalendar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1144,8 +1147,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = M836YTN2FQ;
 				INFOPLIST_FILE = handmadeCalenderSampleOfSwift/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.foresthill.AncientCalendar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
