@@ -3,7 +3,7 @@
 //  AncientCalendar
 //
 //  Created by Morioka Naoya on H28/07/10.
-//  Copyright © 平成28年 just1factory. All rights reserved.
+//  Copyright © 2016-2025 just1factory. All rights reserved.
 //
 
 import Foundation

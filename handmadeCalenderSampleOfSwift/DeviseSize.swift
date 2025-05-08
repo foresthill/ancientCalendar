@@ -30,4 +30,11 @@ struct DeviseSize {
     static func screenHeight()->Int{
         return Int(UIScreen.main.bounds.size.height);
     }
+    
+    // 現代的なiPhoneの場合は別の設定を使用
+    static func isModernIPhone() -> Bool {
+        // iPhone X以降の特徴的な特性（ノッチあり）の場合はtrue
+        // iPhone X以降はすべて横幅が375以上
+        return screenWidth() >= 375 && UIScreen.main.nativeBounds.height >= 2436
+    }
 }

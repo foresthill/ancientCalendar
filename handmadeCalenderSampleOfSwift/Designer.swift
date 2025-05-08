@@ -3,7 +3,7 @@
 //  AncientCalendar
 //
 //  Created by Morioka Naoya on H28/07/10.
-//  Copyright © 平成28年 just1factory. All rights reserved.
+//  Copyright © 2016-2025 just1factory. All rights reserved.
 //
 
 import Foundation
@@ -81,6 +81,9 @@ class Designer {
         //現在起動中のデバイスを取得（スクリーンの幅・高さ）
         screenWidth  = DeviseSize.screenWidth()
         screenHeight = DeviseSize.screenHeight()
+        
+        // 現代的なiPhone（iPhone X以降）なら特別な処理を行う
+        let isModern = DeviseSize.isModernIPhone()
 
         //iPhone4s
         if(screenWidth == 320 && screenHeight == 480){
@@ -163,10 +166,37 @@ class Designer {
             calendarSize           = 50;
             calendarFontSize       = 21;
             
-//            self.prevMonthButton.frame = CGRectMake(18, 468, CGFloat(calendarSize), CGFloat(calendarSize));
-//            self.nextMonthButton.frame = CGRectMake(348, 468, CGFloat(calendarSize), CGFloat(calendarSize));
             prevMonthButtonFrame = CGRect(x: 18, y: 468, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
             nextMonthButtonFrame = CGRect(x: 348, y: 468, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
+            
+        // 現代的なiPhoneやその他の未定義のスクリーン
+        } else {
+            // 適応型レイアウト - iPhoneの幅に合わせて計算
+            let widthRatio = Double(screenWidth ?? 375) / 375.0 // iPhone 6/7/8を基準に倍率を計算
+            
+            calendarLabelIntervalX = Int(15 * widthRatio);
+            calendarLabelX         = Int(50 * widthRatio);
+            calendarLabelY         = Int(95 * widthRatio);
+            calendarLabelWidth     = Int(45 * widthRatio);
+            calendarLabelHeight    = Int(25 * widthRatio);
+            calendarLabelFontSize  = Int(16 * widthRatio);
+            
+            buttonRadius           = Float(25 * widthRatio);
+            
+            calendarIntervalX      = Int(15 * widthRatio);
+            calendarX              = Int(50 * widthRatio);
+            calendarIntervalY      = Int(125 * widthRatio);
+            calendarY              = Int(50 * widthRatio);
+            calendarSize           = Int(45 * widthRatio);
+            calendarFontSize       = Int(19 * widthRatio);
+            
+            // 「前へ」「次へ」ボタンの位置
+            let buttonY = screenHeight - 150 // 画面下部から固定位置
+            let leftX = Int(20 * widthRatio)
+            let rightX = screenWidth - Int(70 * widthRatio)
+            
+            prevMonthButtonFrame = CGRect(x: CGFloat(leftX), y: CGFloat(buttonY), width: CGFloat(calendarSize), height: CGFloat(calendarSize));
+            nextMonthButtonFrame = CGRect(x: CGFloat(rightX), y: CGFloat(buttonY), width: CGFloat(calendarSize), height: CGFloat(calendarSize));
             
         }
         

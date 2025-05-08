@@ -3,7 +3,7 @@
 //  swift2版 旧暦変換クラス（シングルトン）
 //
 //  Created by Morioka Naoya on H28/04/12.
-//  Copyright © 平成28年 foresthill. All rights reserved.
+//  Copyright © 2016-2025 foresthill. All rights reserved.
 //
 
 /**
