@@ -67,6 +67,7 @@ class Designer {
         baseDarkGray = UIColor.darkGray
         
         //画面初期化・最適化
+        //カレンダー設定を初期化
         screenInit()
         
     }

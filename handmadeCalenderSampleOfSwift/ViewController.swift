@@ -75,7 +75,8 @@ class ViewController: UIViewController {
         
         //画面初期化・最適化
         //screenInit()
-        designer.screenInit()
+        //余計に呼ぶと座標がおかしくなるのでコメントアウト
+        //designer.screenInit()
         
         //GregorianCalendarセットアップ
         setupGregorianCalendar()

@@ -141,21 +141,21 @@ class CalendarManager {
         //self.navigationItem.title = "\(year)年"
         
         var calendarTitle: String;
-        calendarTitle = "\(month)月"
+        calendarTitle = "\(month ?? 0)月"
         
         if((month == converter.leapMonth) && nowLeapMonth) {   //leapMonth→converter.leapMonth（2016/04/17）
-            calendarTitle = "閏\(month)月"
+            calendarTitle = "閏\(month ?? 0)月"
         }
         
         switch calendarMode {
         case -1:
             //calendarBar.text = String("" + jpnMonth[month-1] + "（旧暦 \(calendarTitle)）")
-            calendarBarTitle = String("【旧暦】" + "\(year)年" + jpnMonth[month-1] + "（\(calendarTitle)）")
+            calendarBarTitle = String("【旧暦】" + "\(year ?? 0)年" + jpnMonth[month-1] + "（\(calendarTitle)）")
             presentMode = "旧暦モード"
             break
         default:
             //calendarBar.text = String("新暦 \(month)月")
-            calendarBarTitle = String("【新暦】" + "\(year)年" + "\(month)月")
+            calendarBarTitle = String("【新暦】" + "\(year ?? 0)年" + "\(month ?? 0)月")
             presentMode = "通常モード（新暦）"
         }
         
@@ -517,7 +517,7 @@ class CalendarManager {
         if(calendarMode == 1) {
             //新暦モード
             //scheduleBarTitle = "\(inComps.year)年\(inComps.month)月\(inComps.day)日"
-            scheduleBarTitle = "\(comps.year!)年\(comps.month!)月\(comps.day!)日"
+            scheduleBarTitle = "\(comps.year ?? 0)年\(comps.month ?? 0)月\(comps.day ?? 0)日"
             //            self.navigationItem.title = "\(inComps.day)日"     //TODO:#60
             scheduleBarPrompt = "（旧暦：\(ancientYear)年\(ancientMonthStr)月\(ancientDay)日）"
         } else {
