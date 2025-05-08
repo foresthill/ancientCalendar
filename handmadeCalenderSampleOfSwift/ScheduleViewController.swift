@@ -101,21 +101,24 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         //月齢の計算
         //calendarManager.calcMoonAge()
-        calendarManager.calcMoonAge(calendarManager.comps)
+        let currentMoonAge = calendarManager.calcMoonAge(calendarManager.comps)
+        calendarManager.moonAge = currentMoonAge  // 計算結果をプロパティに保存
         
         //表示する文言をセット
         self.dateLabel.text = calendarManager.scheduleBarTitle
         self.subDateLabel.text = calendarManager.scheduleBarPrompt
-        self.moonAge.text = String(calendarManager.moonAge)
+        self.moonAge.text = String(currentMoonAge)
         
         //月の画像
-        let moonAgeNumber: Int = min(max(Int(floor(calendarManager.moonAge)), 0), 29)
+        let moonAgeNumber: Int = min(max(Int(floor(currentMoonAge)), 0), 29)
         if moonAgeNumber < calendarManager.moonName.count {
             self.moonName.text = calendarManager.moonName[moonAgeNumber]
             self.moonImage.image = UIImage(named:"moon\(moonAgeNumber)_90x90.png")
+            print("Setting moon image to: moon\(moonAgeNumber)_90x90.png")
         } else {
             self.moonName.text = "満月"
             self.moonImage.image = UIImage(named:"moon15_90x90.png")
+            print("Using default full moon image: moon15_90x90.png")
         }
         
     }
@@ -303,7 +306,8 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         //tableViewを更新
         self.myTableView.reloadData()
-
+        
+        print("Schedule reloaded for date: \(startDate)")
     }
     
     /** イベントをカレンダーから削除するメソッド */
