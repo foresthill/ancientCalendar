@@ -412,16 +412,41 @@ class CalendarManager {
             
         } else {    //新暦モードへ戻す
             //旧暦→新暦へ変換
+            // 現在の日付を保存（変換後も同じ日にするため）
+            let currentDay = day ?? 1
+            
+            // 月の最大日数を取得（旧暦）
+            var ancientMonthMaxDay = 30  // デフォルト値
+            
+            // 正確な月日数を計算
+            if let year = year, let month = month {
+                // インデックスが範囲内か確認
+                let monthIndex = month - 1
+                let prevMonthIndex = monthIndex - 1
+                
+                if prevMonthIndex >= 0 && monthIndex < 14 {
+                    // 月日数を取得
+                    ancientMonthMaxDay = converter.ancientTbl[monthIndex][0] - converter.ancientTbl[prevMonthIndex][0]
+                    print("旧暦\(month)月の日数: \(ancientMonthMaxDay)日")
+                }
+            }
+            
+            // 日付が旧暦の月日数を超えないように調整
+            let adjustedDay = min(currentDay, ancientMonthMaxDay)
+            print("変換に使用する日付: \(adjustedDay)日")
+            
             if(!nowLeapMonth) {  //閏月でない場合
-                currentComps = converter.convertForGregorianCalendar(dateArray: [year, month, 29, 0]) as DateComponents
+                // 通常月から新暦への変換
+                currentComps = converter.convertForGregorianCalendar(dateArray: [year, month, adjustedDay, 0]) as DateComponents
                 
             } else {
-                currentComps = converter.convertForGregorianCalendar(dateArray: [year, -month, 29, 0]) as DateComponents
+                // 閏月から新暦への変換
+                currentComps = converter.convertForGregorianCalendar(dateArray: [year, -month, adjustedDay, -1]) as DateComponents
                 nowLeapMonth = false    //閏月の初期化
             }
             
-            // 新暦変換時に曜日を設定し直す #46
-            currentComps.day = 1
+            // デバッグ情報（変換前後の確認）
+            print("モード切替: 旧暦\(year ?? 0)年\(nowLeapMonth ? "閏" : "")\(month ?? 0)月\(currentDay)日 → 新暦\(currentComps.year ?? 0)年\(currentComps.month ?? 0)月\(currentComps.day ?? 0)日")
             
         }
                 

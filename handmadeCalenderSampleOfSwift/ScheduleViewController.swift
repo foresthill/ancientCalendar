@@ -1026,6 +1026,11 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // 変更前の状態を保存
         let oldMode = calendarManager.calendarMode ?? 1
+        let oldYear = calendarManager.year
+        let oldMonth = calendarManager.month
+        let oldDay = calendarManager.day
+        
+        print("モード切替前: \(oldYear ?? 0)年\(oldMonth ?? 0)月\(oldDay ?? 0)日（\(oldMode == 1 ? "新暦" : "旧暦")）")
         
         // カレンダーモードを切り替え（新暦⇔旧暦）
         calendarManager.calendarMode = calendarManager.calendarMode * -1
@@ -1036,16 +1041,60 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         // 現在の日付情報を維持しながらモード切替
         calendarManager.setupAnotherCalendarData()
         
+        // 切替後の日付情報を確認
+        print("モード切替後: \(calendarManager.year ?? 0)年\(calendarManager.month ?? 0)月\(calendarManager.day ?? 0)日（\(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")）")
+        
+        // 新暦モードに切り替え後に日付が1日になっていたら、以前の日が存在するかチェック
+        if calendarManager.calendarMode == 1 && calendarManager.day == 1 && oldDay != 1 {
+            checkAndAdjustDay(oldDay: oldDay ?? 1)
+        }
+        
         // カレンダーのデザインを更新
         setupCalendarDesign()
         
         // 画面を更新
         setupDisplay()
         
+        // デバッグ用テスト実行
+        runModeChangeTests()
+        
         print("モード切替: \(oldMode == 1 ? "新暦" : "旧暦") → \(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")")
         print("新しいモード情報がCalendarManagerに保存されました")
+    }
+    
+    // 新暦モードでの日付の調整（1日になってしまう問題の対応）
+    private func checkAndAdjustDay(oldDay: Int) {
+        guard let year = calendarManager.year, 
+              let month = calendarManager.month else {
+            return
+        }
         
-        // モード変更後、テスト実行（デバッグ用）
+        // 月の最大日数を取得
+        let calendar = Calendar.current
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        
+        guard let date = calendar.date(from: components),
+              let range = calendar.range(of: .day, in: .month, for: date) else {
+            return
+        }
+        
+        let maxDay = range.count
+        
+        // 以前の日が月の日数範囲内なら、その日付に設定
+        if oldDay <= maxDay && oldDay > 1 {
+            calendarManager.day = oldDay
+            print("日付を調整: 1日→\(oldDay)日")
+        } else {
+            // 範囲外なら月の最終日に設定
+            calendarManager.day = maxDay
+            print("日付を調整: 1日→\(maxDay)日（月末）")
+        }
+    }
+    
+    /** モード変更後、テスト実行（デバッグ用） */
+    private func runModeChangeTests() {
         if calendarManager.calendarMode == -1 {
             // 旧暦モードになったときに旧暦テーブルを詳細表示（必要に応じて有効化）
             // dumpAncientTable()
