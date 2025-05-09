@@ -11,7 +11,16 @@ import UIKit
 import EventKit
 import EventKitUI   //EKEventEditViewController
 
+// デリゲートプロトコルを定義
+protocol ScheduleViewControllerDelegate: AnyObject {
+    // 日付やモードが変更されたことを通知するメソッド（オプショナル引数対応）
+    func scheduleViewControllerDidUpdateDate(year: Int?, month: Int?, day: Int?, mode: Int)
+}
+
 class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITableViewDelegate, UITableViewDataSource {
+    
+    // デリゲート
+    weak var delegate: ScheduleViewControllerDelegate?
     
     // Tableで使用する配列を設定する
     var events: [EKEvent]!
@@ -248,14 +257,32 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.navigationItem.titleView?.tintColor = designer.navigationTintColor
         self.navigationController?.navigationBar.titleTextAttributes = designer.navigationTextAttributes
         self.navigationController?.navigationBar.barTintColor = designer.navigationBarTintColor
+        self.navigationController?.navigationBar.tintColor = designer.navigationTintColor
         
-        //表示系（色）
-        self.dateLabel.textColor = designer.navigationTintColor
-        self.subDateLabel.textColor = designer.navigationTintColor
-        self.titleLabel.textColor = designer.navigationTintColor
-        self.detailTextView.textColor = designer.navigationTintColor
-        self.moonName.textColor = designer.navigationTintColor
-        self.moonAge.textColor = designer.navigationTintColor
+        //表示系（色）- nilチェック追加
+        dateLabel?.textColor = designer.navigationTintColor
+        subDateLabel?.textColor = designer.navigationTintColor
+        titleLabel?.textColor = designer.navigationTintColor
+        detailTextView?.textColor = designer.navigationTintColor
+        moonName?.textColor = designer.navigationTintColor
+        moonAge?.textColor = designer.navigationTintColor
+        
+        //テーブルビュー
+        myTableView?.backgroundColor = UIColor.clear
+        
+        //ツールバー（nilチェック追加）
+        if let toolbar = self.toolBar {
+            toolbar.barTintColor = designer.navigationBarTintColor
+            toolbar.tintColor = designer.navigationTintColor
+        }
+        
+        //詳細テキストビュー
+        detailTextView?.backgroundColor = UIColor.clear
+        
+        //編集ボタン
+        editEventButton?.setTitleColor(designer.navigationTintColor, for: .normal)
+        
+        print("詳細画面デザインを更新しました: \(calendarManager.calendarMode == 1 ? "新暦モード" : "旧暦モード")")
     }
     
     
@@ -484,8 +511,14 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     @IBAction func changeCalendarMode(_ sender: UIBarButtonItem) {
         print("カレンダーモード切替")
         
+        // 変更前の状態を保存
+        let oldMode = calendarManager.calendarMode ?? 1
+        
         // カレンダーモードを切り替え（新暦⇔旧暦）
         calendarManager.calendarMode = calendarManager.calendarMode * -1
+        
+        // モード変更を保存（シングルトンの一貫性を保証）
+        UserDefaults.standard.set(calendarManager.calendarMode, forKey: "currentMode")
         
         // 現在の日付情報を維持しながらモード切替
         calendarManager.setupAnotherCalendarData()
@@ -495,6 +528,9 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // 画面を更新
         setupDisplay()
+        
+        print("モード切替: \(oldMode == 1 ? "新暦" : "旧暦") → \(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")")
+        print("新しいモード情報がCalendarManagerに保存されました")
     }
     
     /** ツールバーアクション（前の日へ） */
@@ -588,11 +624,61 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // テーブルの再読み込み
         myTableView.reloadData()
+        
+        // 現在の状態をデバッグ出力
+        print("画面表示更新 - 現在の状態:")
+        print("- 現在のモード: \(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")")
+        print("- 年月日: \(calendarManager.year ?? 0)年\(calendarManager.month ?? 0)月\(calendarManager.day ?? 0)日")
+        print("- 旧暦日付: \(calendarManager.ancientYear ?? 0)年\(calendarManager.ancientMonth ?? 0)月\(calendarManager.ancientDay ?? 0)日")
     }
 
     /** メモリ監視 */
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    /** 画面が非表示になる前に呼ばれるメソッド */
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // 画面遷移の理由が「戻るボタン」によるものかを確認
+        if isMovingFromParentViewController || isBeingDismissed {
+            // カレンダーマネージャーに現在の状態を確実に保存
+            if let year = calendarManager.year,
+               let month = calendarManager.month,
+               let day = calendarManager.day,
+               let mode = calendarManager.calendarMode {
+                
+                // CalendarManagerに反映
+                // （すでに設定されているはずだが、念のため明示的に設定）
+                calendarManager.year = year
+                calendarManager.month = month
+                calendarManager.day = day
+                calendarManager.calendarMode = mode
+                
+                // コンポーネントも更新
+                var dateComponents = DateComponents()
+                dateComponents.year = year
+                dateComponents.month = month
+                dateComponents.day = day
+                calendarManager.comps = dateComponents
+                
+                // デリゲートに現在の日付とモードを通知
+                delegate?.scheduleViewControllerDidUpdateDate(
+                    year: year,
+                    month: month, 
+                    day: day,
+                    mode: mode
+                )
+                
+                print("詳細画面から戻る - 現在の状態を通知:")
+                print("- 日付: \(year)年\(month)月\(day)日")
+                print("- モード: \(mode == 1 ? "新暦" : "旧暦")")
+                print("- CalendarManagerに状態を保存しました")
+            } else {
+                print("日付情報が不完全なため通知をスキップします")
+            }
+        }
     }
 
 }

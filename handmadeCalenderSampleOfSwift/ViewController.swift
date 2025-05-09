@@ -19,7 +19,7 @@ import Foundation   //floor関数使用のため
 //CALayerクラスのインポート
 import QuartzCore
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, ScheduleViewControllerDelegate {
 
     //メンバ変数の設定（配列格納用）
     var count: Int!
@@ -109,6 +109,44 @@ class ViewController: UIViewController {
         }
         
      }
+     
+    /** 画面が表示される直前に呼ばれるメソッド */
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // カレンダーマネージャーから最新の状態を取得
+        let currentYear = calendarManager.year ?? 0
+        let currentMonth = calendarManager.month ?? 0
+        let currentDay = calendarManager.day ?? 0
+        let currentMode = calendarManager.calendarMode ?? 1
+        
+        print("ViewController - viewWillAppearで状態を確認:")
+        print("- 日付: \(currentYear)年\(currentMonth)月\(currentDay)日")
+        print("- モード: \(currentMode == 1 ? "新暦" : "旧暦")")
+        
+        // 前回の状態から完全に画面を再描画
+        // モードに応じたデザイン更新
+        designer.setColor(currentMode)
+        
+        // UI全体のカラー設定を更新
+        setupCalendarDesign()
+        
+        // カレンダーの完全更新
+        removeCalendarButtonObject()
+        calendarManager.setupCurrentCalendarData()
+        
+        // モードに応じた曜日ラベルの更新
+        removecalendarBaseLabel()
+        setupCalendarLabel()
+        
+        // カレンダーを再生成して表示
+        generateCalendar(mode: 0)
+        setupCalendarTitleLabel()
+        
+        print("ViewController - 画面を完全に再描画しました")
+        print("- 背景色: \(designer.backgroundColor == designer.baseBlack ? "黒（旧暦モード）" : "白（新暦モード）")")
+        print("- ナビゲーションバー色: \(designer.navigationBarTintColor == designer.baseBlack ? "黒（旧暦モード）" : "白（新暦モード）")")
+    }
     
     /** GregorianCalendarセットアップ */
     func setupGregorianCalendar(){
@@ -524,17 +562,34 @@ class ViewController: UIViewController {
     func setupCalendarDesign(){
         //カレンダーモードに応じて色をセット
         designer.setColor(calendarManager.calendarMode)
+        
         //背景
         self.view.backgroundColor = designer.backgroundColor
+        
         //カレンダバー
-        self.calendarBar.backgroundColor = designer.calendarBarBgColor
+        calendarBar?.backgroundColor = designer.calendarBarBgColor
+        calendarBar?.textColor = designer.navigationTintColor
+        
+        //モード表示ラベル
+        presentMode?.textColor = designer.navigationTintColor
+        
         //ナビゲーションバー
         self.navigationItem.titleView?.tintColor = designer.navigationTintColor
         self.navigationController?.navigationBar.titleTextAttributes = designer.navigationTextAttributes
         self.navigationController?.navigationBar.barTintColor = designer.navigationBarTintColor
+        self.navigationController?.navigationBar.tintColor = designer.navigationTintColor
+        
         //「前月」「次月」ボタン
-        self.prevMonthButton.backgroundColor = designer.prevMonthButtonBgColor
-        self.nextMonthButton.backgroundColor = designer.nextMonthButtonBgColor
+        prevMonthButton?.backgroundColor = designer.prevMonthButtonBgColor
+        nextMonthButton?.backgroundColor = designer.nextMonthButtonBgColor
+        
+        //ツールバー
+        if let toolbar = self.toolBar {
+            toolbar.barTintColor = designer.navigationBarTintColor
+            toolbar.tintColor = designer.navigationTintColor
+        }
+        
+        print("カレンダーデザインを更新しました: \(calendarManager.calendarMode == 1 ? "新暦モード" : "旧暦モード")")
     }
         
     //表示されているボタンオブジェクトを一旦削除する関数
@@ -733,39 +788,38 @@ class ViewController: UIViewController {
     }
     
     //画面遷移時に呼ばれるメソッド
-    /* 2016/07/13 CalendarManagerですべて持つためコメントアウト
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-
-        switch (segue.identifier)! {
-            case "toScheduleView":
-                /*
-                //セゲエ用にダウンキャストしたScheduleViewControllerのインスタンス
-                let svc = segue.destinationViewController as! ScheduleViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        switch segue.identifier {
+        case "toScheduleView":
+            // ScheduleViewControllerへの遷移
+            if let scheduleVC = segue.destination as? ScheduleViewController {
+                // デリゲートを設定
+                scheduleVC.delegate = self
                 
-                //変数を渡す
-                svc.calendarMode = calendarMode
-                svc.year = year
-                svc.month = month
-                svc.day = day
-                svc.isLeapMonth = isLeapMonth
+                // 現在の日付情報を確認（デバッグ用）
+                let currentYear = calendarManager.year ?? 0
+                let currentMonth = calendarManager.month ?? 0
+                let currentDay = calendarManager.day ?? 0
+                let currentMode = calendarManager.calendarMode ?? 1
                 
-                //eventStoreも渡す（2016/04/13：これをシングルトンと呼ぶのか？なんか違う気がする。）
-                svc.eventStore = eventStore
-
-                //converterも渡す（2016/04/17）
-                svc.converter = converter
-                */
-                break
+                print("ScheduleViewControllerに遷移: デリゲートを設定")
+                print("- 現在の日付: \(currentYear)年\(currentMonth)月\(currentDay)日")
+                print("- 現在のモード: \(currentMode == 1 ? "新暦" : "旧暦")")
+                
+                // 遷移前の状態を保存（デバッグ用）
+                UserDefaults.standard.set(currentYear, forKey: "lastYear")
+                UserDefaults.standard.set(currentMonth, forKey: "lastMonth")
+                UserDefaults.standard.set(currentDay, forKey: "lastDay")
+                UserDefaults.standard.set(currentMode, forKey: "lastMode")
+            }
             
-            case "toUserConfigView":
-                break
+        case "toUserConfigView":
+            break
             
-            default:
-                break
+        default:
+            break
         }
-        
     }
-     */
     
     // 設定ボタンをタップした時の処理
     @objc func toUserConfig(){
@@ -780,6 +834,80 @@ class ViewController: UIViewController {
     // どのクラスにもあるメソッド Memory監視？
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    // MARK: - ScheduleViewControllerDelegate
+    
+    /** ScheduleViewControllerからの日付・モード変更通知を受け取るメソッド */
+    func scheduleViewControllerDidUpdateDate(year: Int?, month: Int?, day: Int?, mode: Int) {
+        // 受け取った値が有効な場合のみ処理を行う
+        guard let updatedYear = year, updatedYear > 0,
+              let updatedMonth = month, updatedMonth > 0,
+              let updatedDay = day, updatedDay > 0 else {
+            print("ViewController - 無効な日付データを受信したため更新をスキップします")
+            return
+        }
+        
+        print("ViewController - 日付更新の通知を受信:")
+        print("- 日付: \(updatedYear)年\(updatedMonth)月\(updatedDay)日")
+        print("- モード: \(mode == 1 ? "新暦" : "旧暦")")
+        
+        // モードや日付の変更前にまず値を保存
+        let oldMode = calendarManager.calendarMode
+        let oldYear = calendarManager.year
+        let oldMonth = calendarManager.month
+        let oldDay = calendarManager.day
+        
+        // まずデータを更新
+        calendarManager.year = updatedYear
+        calendarManager.month = updatedMonth
+        calendarManager.day = updatedDay
+        calendarManager.calendarMode = mode
+        
+        // 全体を更新する必要があるか確認
+        let modeChanged = oldMode != mode
+        let yearChanged = oldYear != updatedYear
+        let monthChanged = oldMonth != updatedMonth
+        let needFullUpdate = modeChanged || yearChanged || monthChanged
+        
+        if needFullUpdate {
+            print("画面の完全更新が必要です")
+            
+            // モードに応じたデザイン更新を先に適用
+            designer.setColor(mode)
+            self.view.backgroundColor = designer.backgroundColor
+            
+            // カレンダーの更新
+            removeCalendarButtonObject()
+            
+            if modeChanged {
+                print("モードが変更されているため更新: \(oldMode ?? 0) → \(mode)")
+                // カレンダーモード切替処理
+                calendarManager.setupAnotherCalendarData()
+                removecalendarBaseLabel()   // 曜日のラベルを全削除
+                setupCalendarLabel()        // 曜日のラベルを作成
+                
+                // ナビゲーションバーやタイトル表示の更新
+                self.navigationItem.titleView?.tintColor = designer.navigationTintColor
+                self.navigationController?.navigationBar.titleTextAttributes = designer.navigationTextAttributes
+                self.navigationController?.navigationBar.barTintColor = designer.navigationBarTintColor
+            } 
+            else if yearChanged || monthChanged {
+                print("年月が変更されているため更新: \(oldYear ?? 0)/\(oldMonth ?? 0) → \(updatedYear)/\(updatedMonth)")
+                // 年月のみ変更の場合、新しい年月でカレンダーを再構築
+                calendarManager.setupCurrentCalendarData()
+            }
+            
+            // カレンダーを再生成して表示
+            generateCalendar(mode: 0)
+            setupCalendarTitleLabel()
+        } 
+        else if let oldD = oldDay, oldD != updatedDay {
+            // 日のみ変更された場合
+            print("日付のみ変更: \(oldD) → \(updatedDay)")
+            // 日変更の場合もカレンダーの見た目は更新しておく
+            setupCalendarTitleLabel()
+        }
     }
 
 }
