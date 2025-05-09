@@ -172,6 +172,33 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.dateLabel.text = calendarManager.scheduleBarTitle
         self.subDateLabel.text = calendarManager.scheduleBarPrompt
         
+        // タイトルラベルと詳細テキストビューの設定
+        if events.isEmpty {
+            self.titleLabel.text = "予定なし"
+            self.detailTextView.text = "この日の予定はありません。"
+        } else {
+            let event = events.first! // 最初のイベントを表示
+            self.titleLabel.text = event.title
+            
+            // 詳細テキスト（開始時間、終了時間、メモなど）を設定
+            var detailText = ""
+            
+            // 開始・終了時間を追加
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy/MM/dd HH:mm"
+            detailText += "開始: \(dateFormatter.string(from: event.startDate))\n"
+            detailText += "終了: \(dateFormatter.string(from: event.endDate))\n\n"
+            
+            // メモがあれば追加
+            if let notes = event.notes, !notes.isEmpty {
+                detailText += "メモ: \(notes)"
+            } else {
+                detailText += "メモ: なし"
+            }
+            
+            self.detailTextView.text = detailText
+        }
+        
         // 月齢表示のデバッグ
         print("月齢表示値（詳細）: calculatedMoonAge=\(calculatedMoonAge)")
         
