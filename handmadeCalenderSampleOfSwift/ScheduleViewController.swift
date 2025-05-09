@@ -170,22 +170,34 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.subDateLabel.text = calendarManager.scheduleBarPrompt
         self.moonAge.text = String(format: "%.1f", calculatedMoonAge)
         
-        // 月齢の名前を表示（従来のmoonName配列を使用）
+        // 月齢に基づいて月相名を表示
         let moonAgeIndex = min(max(Int(floor(calculatedMoonAge)), 0), 29)
-        let moonPhaseName = moonAgeIndex < calendarManager.moonName.count && !calendarManager.moonName[moonAgeIndex].isEmpty 
-                          ? calendarManager.moonName[moonAgeIndex] 
-                          : "満月"
         
-        self.moonName.text = moonPhaseName
+        // 月相名が空文字列の場合は非表示にする
+        if moonAgeIndex < calendarManager.moonName.count && !calendarManager.moonName[moonAgeIndex].isEmpty {
+            self.moonName.text = calendarManager.moonName[moonAgeIndex]
+            self.moonName.isHidden = false
+        } else {
+            self.moonName.text = ""
+            self.moonName.isHidden = true
+        }
         
-        print("月相情報: 月齢=\(calculatedMoonAge), 月相名=\(moonPhaseName)")
+        print("月相情報: 月齢=\(calculatedMoonAge), 月相名=\(moonAgeIndex < calendarManager.moonName.count ? calendarManager.moonName[moonAgeIndex] : "なし")")
         
-        // 日付が有効な範囲内であることを確認
-        let safeDay = max(min(dayNumber, 30), 1) // 1〜30の範囲内に収める
+        // 月齢と画像番号のマッピング
+        // 既存の画像ファイル名: moon0.png, moon1.png, ..., moon30.png
+        // ファイル内容: moon0.png = 新月, moon15.pngまたはmoon16.png = 満月
         
-        print("月画像設定: 選択された日付: \(dayNumber), 安全な日付範囲: \(safeDay), 計算された月齢: \(calculatedMoonAge)")
-        self.moonImage.image = UIImage(named:"moon\(safeDay)_90x90.png")
-        print("月画像設定: moon\(safeDay)_90x90.png を表示")
+        // 月齢から画像番号への変換（moon0.png = 新月, moon15.png = 満月となるよう調整）
+        // 月齢0〜29.5を画像番号0〜30に変換
+        let imageNumber = Int(floor(calculatedMoonAge))
+        
+        // 範囲を0〜30に制限
+        let safeImageNumber = max(min(imageNumber, 30), 0)
+        
+        print("月画像設定（月齢ベース）: 月齢=\(calculatedMoonAge), 画像番号=\(safeImageNumber)")
+        self.moonImage.image = UIImage(named:"moon\(safeImageNumber)_90x90.png")
+        print("月画像設定: moon\(safeImageNumber)_90x90.png を表示")
         
     }
     
