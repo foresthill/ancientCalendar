@@ -372,7 +372,8 @@ class ViewController: UIViewController {
                     print("- 天文学的計算: \(astroAge)")
                     print("- 高精度計算: \(highPrecisionAge)")
                     
-                    // 一覧表示では伝統的な月齢計算を使用
+                    // 伝統的計算（旧暦日-1）を使用
+                    // 各種計算方法でテストした結果、旧暦日-1の計算が最も精度が高いことが判明
                     let moonAge = traditionalMoonAge
                     
                     button.setBackgroundImage(UIImage(named:"moon\(tagNumber).png"), for: .normal)

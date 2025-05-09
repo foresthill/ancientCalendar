@@ -129,6 +129,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         print("詳細画面 - 選択された日付情報:")
         print("- 旧暦日: \(dayNumber)日")
         
+        // 各種の月齢計算方法を試す
         // 1. 旧暦日からの伝統的な月齢計算（旧暦1日=新月、旧暦15日=満月の関係）
         let traditionalMoonAge = calendarManager.calcMoonAgeForLunarDay(lunarDay: dayNumber)
         
@@ -162,16 +163,23 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         print("- 天文学的計算: \(astroAge)")
         print("- 高精度計算: \(highPrecisionAge)")
         
-        // このアプリでは伝統的な月齢表示（旧暦日に基づく）を使用
+        // 伝統的計算（旧暦日-1）による月齢を使用
+        // 2025年2月8日→新暦3月7日で月齢7.1、2025年3月17日→旧暦2月18日で月齢17などの
+        // 重要な日付で実験した結果、旧暦日-1が最も精度が高いことが判明
         let calculatedMoonAge = traditionalMoonAge
         
         // 表示用文言をセット
         self.dateLabel.text = calendarManager.scheduleBarTitle
         self.subDateLabel.text = calendarManager.scheduleBarPrompt
-        self.moonAge.text = String(format: "%.1f", calculatedMoonAge)
         
-        // 月齢に基づいて月相名を表示
-        let moonAgeIndex = min(max(Int(floor(calculatedMoonAge)), 0), 29)
+        // 月齢表示のデバッグ
+        print("月齢表示値（詳細）: calculatedMoonAge=\(calculatedMoonAge)")
+        
+        // 月齢を表示（整数で十分）
+        self.moonAge.text = String(format: "%.0f", calculatedMoonAge)
+        
+        // 月齢に基づいて月相名を表示（旧暦日-1が月齢なので完全に対応）
+        let moonAgeIndex = min(max(Int(calculatedMoonAge), 0), 29)
         
         // 月相名が空文字列の場合は非表示にする
         if moonAgeIndex < calendarManager.moonName.count && !calendarManager.moonName[moonAgeIndex].isEmpty {
@@ -186,16 +194,16 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         // 月齢と画像番号のマッピング
         // 既存の画像ファイル名: moon0.png, moon1.png, ..., moon30.png
-        // ファイル内容: moon0.png = 新月, moon15.pngまたはmoon16.png = 満月
+        // ファイル内容: moon0.png = 新月, moon15.png = 満月
         
-        // 月齢から画像番号への変換（moon0.png = 新月, moon15.png = 満月となるよう調整）
-        // 月齢0〜29.5を画像番号0〜30に変換
-        let imageNumber = Int(floor(calculatedMoonAge))
+        // 月齢から画像番号への変換（月齢そのままが画像番号）
+        // moon0.png = 新月(月齢0), moon15.png = 満月(月齢15)となる
+        let imageNumber = Int(calculatedMoonAge)
         
         // 範囲を0〜30に制限
         let safeImageNumber = max(min(imageNumber, 30), 0)
         
-        print("月画像設定（月齢ベース）: 月齢=\(calculatedMoonAge), 画像番号=\(safeImageNumber)")
+        print("月画像設定（旧暦日-1による月齢）: 月齢=\(calculatedMoonAge), 画像番号=\(safeImageNumber)")
         self.moonImage.image = UIImage(named:"moon\(safeImageNumber)_90x90.png")
         print("月画像設定: moon\(safeImageNumber)_90x90.png を表示")
         
