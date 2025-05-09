@@ -117,12 +117,48 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         //タイトルの設定
         self.navigationItem.title = calendarManager.scheduleBarTitle
-        //self.navigationItem.prompt = calendarManager.scheduleBarPrompt
+        
+        // プロンプト表示（小さく上に表示される括弧内の文字列）を有効化
+        self.navigationItem.prompt = calendarManager.scheduleBarPrompt
+        
+        // フラグの不一致をチェック（念のため）
+        if calendarManager.nowLeapMonth != ((calendarManager.isLeapMonth ?? 0) < 0) {
+            print("⚠️ タイトル設定時の閏月フラグ不一致: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+        }
+        
+        // 旧暦日付のフォーマット（両方のフラグを考慮）
+        var ancientMonthStr = ""
+        if let ancientMonth = calendarManager.ancientMonth {
+            // 閏月かどうかをチェック
+            let isLeapMonthValid = (ancientMonth == calendarManager.converter.leapMonth)
+            let shouldDisplayAsLeapMonth = isLeapMonthValid && 
+                                           (calendarManager.nowLeapMonth || (calendarManager.isLeapMonth ?? 0) < 0)
+            
+            // 閏月か通常月かに応じて表示文字列を設定
+            ancientMonthStr = shouldDisplayAsLeapMonth ? "閏\(ancientMonth)" : "\(ancientMonth)"
+            
+            // フラグの状態を更新（表示との一貫性を保つ）
+            if shouldDisplayAsLeapMonth {
+                if !calendarManager.nowLeapMonth {
+                    calendarManager.nowLeapMonth = true
+                    print("閏月フラグを有効化: nowLeapMonth=true")
+                }
+                if (calendarManager.isLeapMonth ?? 0) >= 0 {
+                    calendarManager.isLeapMonth = -1
+                    print("閏月フラグを有効化: isLeapMonth=-1")
+                }
+            }
+            
+            // 閏月表示のデバッグログ
+            print("旧暦月表示処理: 月=\(ancientMonth), 閏月判定=\(shouldDisplayAsLeapMonth), 表示=\(ancientMonthStr)")
+            print("閏月フラグ状態: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+        }
         
         print("詳細画面情報 - CalendarManager状態:")
         print("現在のモード: \(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")")
-        print("新暦日付: \(calendarManager.year)年\(calendarManager.month)月\(calendarManager.day)日")
-        print("旧暦日付: \(calendarManager.ancientYear ?? 0)年\(calendarManager.ancientMonth ?? 0)月\(calendarManager.ancientDay ?? 0)日")
+        print("新暦日付: \(calendarManager.year ?? 0)年\(calendarManager.month ?? 0)月\(calendarManager.day ?? 0)日")
+        print("旧暦日付: \(calendarManager.ancientYear ?? 0)年\(ancientMonthStr)月\(calendarManager.ancientDay ?? 0)日")
+        print("閏月フラグ: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
         
         // 旧暦日付に基づく月齢計算と表示（伝統的な方法）
         let dayNumber: Int
@@ -132,7 +168,7 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
             dayNumber = calendarManager.ancientDay ?? 15
         } else {
             // 旧暦モード: 現在の日を使用
-            dayNumber = calendarManager.day
+            dayNumber = calendarManager.day ?? 1
         }
         
         print("詳細画面 - 選択された日付情報:")
@@ -531,16 +567,42 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         
         print("モード切替: \(oldMode == 1 ? "新暦" : "旧暦") → \(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")")
         print("新しいモード情報がCalendarManagerに保存されました")
+        
+        // モード変更後、テスト実行（デバッグ用）
+        if calendarManager.calendarMode == -1 {
+            // 旧暦モードになったときに旧暦テーブルを詳細表示（必要に応じて有効化）
+            // dumpAncientTable()
+            
+            // テスト実行（開発時のみ有効化）
+            // runLeapMonthNavigationTest()
+        }
     }
     
     /** ツールバーアクション（前の日へ） */
     @IBAction func prevDayAction(_ sender: UIBarButtonItem) {
         print("前の日へ")
         
+        // カレンダーモードに応じた処理
+        if calendarManager.calendarMode == 1 {
+            // 新暦モード: 通常の日付計算
+            moveToPreviousDay()
+        } else {
+            // 旧暦モード: 閏月も考慮した旧暦日付移動
+            moveToAncientPreviousDay()
+        }
+        
+        // 表示を更新
+        setupDisplay()
+    }
+    
+    /** 新暦モードでの前日移動 */
+    private func moveToPreviousDay() {
         // 現在の日を保存
-        let currentYear = calendarManager.year
-        let currentMonth = calendarManager.month
-        let currentDay = calendarManager.day
+        guard let currentYear = calendarManager.year,
+              let currentMonth = calendarManager.month,
+              let currentDay = calendarManager.day else {
+            return
+        }
         
         // 前日を計算
         var dateComponents = DateComponents()
@@ -568,18 +630,229 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         calendarManager.month = prevComponents.month
         calendarManager.day = prevComponents.day
         
-        // 表示を更新
-        setupDisplay()
+        print("新暦モード - 前日: \(prevComponents.year ?? 0)年\(prevComponents.month ?? 0)月\(prevComponents.day ?? 0)日")
+    }
+    
+    /** 旧暦モードでの前日移動（閏月考慮） - 完全修正版 */
+    private func moveToAncientPreviousDay() {
+        guard let year = calendarManager.year,
+              let month = calendarManager.month,
+              let day = calendarManager.day else {
+            return
+        }
+        
+        // 現在が閏月かどうか - 両方のフラグを確認して整合性を取る
+        let isCurrentLeapMonth = calendarManager.nowLeapMonth && ((calendarManager.isLeapMonth ?? 0) < 0)
+        
+        // フラグの不一致があれば修正（このタイミングで修正しておく）
+        if calendarManager.nowLeapMonth != ((calendarManager.isLeapMonth ?? 0) < 0) {
+            print("⚠️ 閏月フラグの不一致を修正します: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+            if calendarManager.nowLeapMonth {
+                calendarManager.isLeapMonth = -1
+            } else {
+                calendarManager.isLeapMonth = 0
+            }
+        }
+        
+        // 閏月の情報を取得
+        let leapMonth = calendarManager.converter.leapMonth
+        
+        print("旧暦モード - 前日移動開始: \(year)年\(isCurrentLeapMonth ? "閏" : "")\(month)月\(day)日")
+        print("現在の年の閏月: \(leapMonth)月")
+        
+        // 旧暦テーブルの内容を詳細に確認（デバッグ用）
+        let ommax = calendarManager.converter.ommax
+        print("月数: \(ommax)月（閏月含む）")
+        
+        // 閏月の月テーブルインデックスを確認
+        if let leapMonthVal = leapMonth, leapMonthVal > 0 && leapMonthVal < 14 {
+            let leapMonthTabValue = calendarManager.converter.ancientTbl[leapMonthVal][1]
+            print("閏月(\(leapMonthVal)月)のテーブル値: \(leapMonthTabValue)")
+        }
+        
+        // 前日の旧暦日付を計算
+        if day > 1 {
+            // 同じ月内で前日に移動
+            calendarManager.day = day - 1
+            print("同じ月内で前日に移動します: \(day-1)日")
+        } else if isCurrentLeapMonth {
+            // 閏月の初日から通常月の末日へ
+            // ここが重要: 両方のフラグを確実に同期
+            calendarManager.nowLeapMonth = false
+            calendarManager.isLeapMonth = 0
+            
+            // 通常月の日数を取得
+            let normalMonthIndex = month - 1
+            let prevMonthIndex = normalMonthIndex - 1
+            
+            // インデックスが有効範囲内かチェック
+            if prevMonthIndex >= 0 && normalMonthIndex < 14 {
+                let normalMonthDays = calendarManager.converter.ancientTbl[normalMonthIndex][0] - calendarManager.converter.ancientTbl[prevMonthIndex][0]
+                calendarManager.day = normalMonthDays
+                print("閏\(month)月初日から通常\(month)月末日へ移動: \(month)月\(normalMonthDays)日")
+            } else {
+                // 範囲外の場合はデフォルト値
+                calendarManager.day = 30
+                print("閏\(month)月初日から通常\(month)月末日へ移動: \(month)月30日（デフォルト値）")
+            }
+        } else if month > 1 {
+            // 通常月の初日から前月末日へ
+            let prevMonth = month - 1
+            
+            // デバッグ情報：leapMonthとprevMonthの関係
+            print("leapMonth = \(leapMonth), prevMonth = \(prevMonth)")
+            
+            // 前月のテーブル情報を取得
+            let prevMonthIndex = prevMonth - 1
+            if prevMonthIndex >= 0 && prevMonthIndex < 14 {
+                let prevMonthTabValue = calendarManager.converter.ancientTbl[prevMonthIndex][1]
+                print("前月のテーブル値: \(prevMonthTabValue)")
+            }
+            
+            // 前月が閏月かどうかを確認（正確な判定のため追加処理）
+            if prevMonth == leapMonth {
+                // 前月が閏月の場合、閏月設定で前月に移動
+                calendarManager.month = prevMonth
+                
+                // ここが重要: 両方のフラグを確実に設定
+                calendarManager.nowLeapMonth = true
+                calendarManager.isLeapMonth = -1
+                
+                // 閏月の日数を取得
+                // 閏月の日数計算は特殊：leapMonth+1インデックスから閏月の日数を引く
+                guard let leapMonthIndex = leapMonth else {
+                    print("⚠️ 閏月が設定されていません")
+                    return
+                }
+                let nextMonthIndex = leapMonthIndex + 1
+                
+                if nextMonthIndex < 14 {
+                    let leapMonthDays = calendarManager.converter.ancientTbl[nextMonthIndex][0] - calendarManager.converter.ancientTbl[leapMonthIndex][0]
+                    calendarManager.day = leapMonthDays
+                    print("前月は閏月です。閏月末日へ移動: 閏\(prevMonth)月\(leapMonthDays)日")
+                } else {
+                    // 範囲外エラー時のデフォルト値
+                    calendarManager.day = 30
+                    print("前月は閏月です。閏月末日へ移動: 閏\(prevMonth)月30日（デフォルト値）")
+                }
+            } else {
+                // 通常の前月移動
+                calendarManager.month = prevMonth
+                
+                // ここが重要: 両方のフラグを確実にリセット
+                calendarManager.nowLeapMonth = false
+                calendarManager.isLeapMonth = 0
+                
+                // 通常月の日数を取得
+                let prevMonthIndex = prevMonth - 1
+                let prevPrevMonthIndex = prevMonthIndex - 1
+                
+                if prevPrevMonthIndex >= 0 && prevMonthIndex < 14 {
+                    let prevMonthDays = calendarManager.converter.ancientTbl[prevMonthIndex][0] - calendarManager.converter.ancientTbl[prevPrevMonthIndex][0]
+                    calendarManager.day = prevMonthDays
+                    print("通常の前月末日へ移動: \(prevMonth)月\(prevMonthDays)日")
+                } else {
+                    // 範囲外エラー時のデフォルト値
+                    calendarManager.day = 30
+                    print("通常の前月末日へ移動: \(prevMonth)月30日（デフォルト値）")
+                }
+            }
+        } else if month == 1 && day == 1 {
+            // 1月1日から前年12月末日へ
+            calendarManager.year = year - 1
+            calendarManager.month = 12
+            
+            // 旧暦テーブルを前年に拡張
+            calendarManager.converter.tblExpand(inYear: year - 1)
+            
+            // 前年の閏月情報を確認
+            let prevYearLeapMonth = calendarManager.converter.leapMonth
+            print("前年の閏月: \(prevYearLeapMonth)月")
+            
+            // 前年12月が閏月かどうか確認
+            if prevYearLeapMonth == 12 {
+                // 前年12月が閏月の場合、閏12月に設定（両方のフラグを設定）
+                calendarManager.nowLeapMonth = true
+                calendarManager.isLeapMonth = -1
+                print("前年12月は閏月です。閏12月末日へ移動します")
+            } else {
+                // 閏月でない場合は明示的にフラグをリセット（両方のフラグをリセット）
+                calendarManager.nowLeapMonth = false
+                calendarManager.isLeapMonth = 0
+            }
+            
+            // 12月（または閏12月）の日数を取得
+            let monthIndex = calendarManager.nowLeapMonth ? 12 : 11  // インデックスは0から始まるため調整
+            let prevMonthIndex = monthIndex - 1
+            
+            if prevMonthIndex >= 0 && monthIndex < 14 {
+                let monthDays = calendarManager.converter.ancientTbl[monthIndex][0] - calendarManager.converter.ancientTbl[prevMonthIndex][0]
+                calendarManager.day = monthDays
+                print("前年12月\(calendarManager.nowLeapMonth ? "(閏)" : "")末日: \(monthDays)日に移動")
+            } else {
+                // 範囲外エラー時のデフォルト値
+                calendarManager.day = 30
+                print("前年12月\(calendarManager.nowLeapMonth ? "(閏)" : "")末日: 30日に移動（デフォルト値）")
+            }
+        } else {
+            // 想定外の状況: 安全のためデフォルト処理
+            print("⚠️ 想定外の日付状態です: \(year)年\(isCurrentLeapMonth ? "閏" : "")\(month)月\(day)日")
+            if day > 1 {
+                calendarManager.day = day - 1
+            } else {
+                calendarManager.day = 1
+            }
+        }
+        
+        // 旧暦から新暦への変換も更新
+        calendarManager.initScheduleViewController()
+        
+        // 移動後のデバッグ情報を表示
+        let resultYear = calendarManager.year ?? 0
+        let resultMonth = calendarManager.month ?? 0
+        let resultDay = calendarManager.day ?? 0
+        let resultIsLeap = calendarManager.nowLeapMonth
+        
+        print("旧暦モード - 前日移動完了: \(resultYear)年\(resultIsLeap ? "閏" : "")\(resultMonth)月\(resultDay)日")
+        print("移動後の閏月状態: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+        
+        if let gregorianYear = calendarManager.gregorianYear,
+           let gregorianMonth = calendarManager.gregorianMonth,
+           let gregorianDay = calendarManager.gregorianDay {
+            print("  対応する新暦: \(gregorianYear)年\(gregorianMonth)月\(gregorianDay)日")
+        }
+        
+        // 最終チェック：閏月フラグの整合性を確認
+        if calendarManager.nowLeapMonth != ((calendarManager.isLeapMonth ?? 0) < 0) {
+            print("⚠️ 警告：移動後にフラグの不一致があります: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+        }
     }
 
     /** ツールバーアクション（次の日へ） */
     @IBAction func nextDayAction(_ sender: UIBarButtonItem) {
         print("次の日へ")
         
+        // カレンダーモードに応じた処理
+        if calendarManager.calendarMode == 1 {
+            // 新暦モード: 通常の日付計算
+            moveToNextDay()
+        } else {
+            // 旧暦モード: 閏月も考慮した旧暦日付移動
+            moveToAncientNextDay()
+        }
+        
+        // 表示を更新
+        setupDisplay()
+    }
+    
+    /** 新暦モードでの次日移動 */
+    private func moveToNextDay() {
         // 現在の日を保存
-        let currentYear = calendarManager.year
-        let currentMonth = calendarManager.month
-        let currentDay = calendarManager.day
+        guard let currentYear = calendarManager.year,
+              let currentMonth = calendarManager.month,
+              let currentDay = calendarManager.day else {
+            return
+        }
         
         // 翌日を計算
         var dateComponents = DateComponents()
@@ -607,8 +880,202 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         calendarManager.month = nextComponents.month
         calendarManager.day = nextComponents.day
         
-        // 表示を更新
-        setupDisplay()
+        print("新暦モード - 次日: \(nextComponents.year ?? 0)年\(nextComponents.month ?? 0)月\(nextComponents.day ?? 0)日")
+    }
+    
+    /** 旧暦モードでの次日移動（閏月考慮） - 完全修正版 */
+    private func moveToAncientNextDay() {
+        guard let year = calendarManager.year,
+              let month = calendarManager.month,
+              let day = calendarManager.day else {
+            return
+        }
+        
+        // 現在が閏月かどうか - 両方のフラグを確認して整合性を取る
+        let isCurrentLeapMonth = calendarManager.nowLeapMonth && ((calendarManager.isLeapMonth ?? 0) < 0)
+        
+        // フラグの不一致があれば修正（このタイミングで修正しておく）
+        if calendarManager.nowLeapMonth != ((calendarManager.isLeapMonth ?? 0) < 0) {
+            print("⚠️ 閏月フラグの不一致を修正します: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+            if calendarManager.nowLeapMonth {
+                calendarManager.isLeapMonth = -1
+            } else {
+                calendarManager.isLeapMonth = 0
+            }
+        }
+        
+        // 閏月の情報を取得
+        let leapMonth = calendarManager.converter.leapMonth
+        
+        print("旧暦モード - 次日移動開始: \(year)年\(isCurrentLeapMonth ? "閏" : "")\(month)月\(day)日")
+        print("現在の年の閏月: \(leapMonth)月")
+        
+        // 旧暦テーブルから月のインデックスを取得（閏月処理のため重要）
+        let monthIndex: Int
+        
+        // 通常の月と閏月でインデックスが異なる
+        if isCurrentLeapMonth {
+            // 閏月の場合は特別なインデックス処理（leapMonthと同じインデックスを使用）
+            guard let leapMonthVal = leapMonth else {
+                print("⚠️ 閏月が設定されていません")
+                return
+            }
+            monthIndex = leapMonthVal
+            
+            // ancientTblのテーブル構造を確認（デバッグ出力）
+            print("閏月index = \(monthIndex), ancientTbl[\(monthIndex)][1] = \(calendarManager.converter.ancientTbl[monthIndex][1])")
+            if monthIndex + 1 < 14 {
+                print("次月index = \(monthIndex+1), ancientTbl[\(monthIndex+1)][1] = \(calendarManager.converter.ancientTbl[monthIndex+1][1])")
+            }
+        } else {
+            // 通常月の場合は月と同じインデックス
+            monthIndex = month - 1
+            
+            // テーブル構造を確認（デバッグ出力）
+            print("通常月index = \(monthIndex), ancientTbl[\(monthIndex)][1] = \(calendarManager.converter.ancientTbl[monthIndex][1])")
+            if monthIndex + 1 < 14 {
+                print("次index = \(monthIndex+1), ancientTbl[\(monthIndex+1)][1] = \(calendarManager.converter.ancientTbl[monthIndex+1][1])")
+            }
+        }
+        
+        // 現在月の日数を取得
+        var currentMonthDays: Int
+        if isCurrentLeapMonth {
+            // 閏月の日数を取得
+            guard let leapMonthVal = leapMonth else {
+                print("⚠️ 閏月が設定されていません")
+                return
+            }
+            let nextMonthIndex = leapMonthVal + 1
+            if nextMonthIndex < 14 {
+                currentMonthDays = calendarManager.converter.ancientTbl[nextMonthIndex][0] - calendarManager.converter.ancientTbl[leapMonthVal][0]
+            } else {
+                // 範囲外エラー時のデフォルト値
+                currentMonthDays = 30
+                print("⚠️ インデックス範囲外エラー: デフォルト日数30日を使用")
+            }
+        } else {
+            // 通常月の日数を取得
+            let prevMonthIndex = month - 1
+            let nextMonthIndex = month
+            
+            // インデックスが有効範囲内かチェック
+            if prevMonthIndex >= 0 && nextMonthIndex < 14 {
+                currentMonthDays = calendarManager.converter.ancientTbl[nextMonthIndex][0] - calendarManager.converter.ancientTbl[prevMonthIndex][0]
+            } else {
+                // 範囲外の場合はデフォルト値
+                currentMonthDays = 30
+                print("⚠️ インデックス範囲外エラー: デフォルト日数30日を使用")
+            }
+        }
+        
+        print("現在月の日数: \(currentMonthDays)日")
+        
+        // 次日の旧暦日付を計算
+        if day < currentMonthDays {
+            // 同じ月内で次日に移動
+            calendarManager.day = day + 1
+            print("同じ月内で次日に移動します: \(month)月\(day + 1)日")
+        } else {
+            // 月末から次月初日に移動
+            
+            if isCurrentLeapMonth {
+                // 閏月の最終日から通常の次月初日へ
+                calendarManager.month = month + 1
+                
+                // ここが重要: 必ず閏月フラグをリセット（両方のフラグを同期）
+                calendarManager.nowLeapMonth = false
+                calendarManager.isLeapMonth = 0
+                
+                print("閏\(month)月の最終日から通常の次月初日へ移動: \(month + 1)月1日")
+            } else if month == leapMonth {
+                // 月番号が閏月と一致する場合のみ、通常月から閏月へ移動
+                // つまり、通常月の最終日から閏月初日へ（月番号はそのまま、閏フラグのみ変更）
+                
+                // 両方のフラグを確実に設定
+                calendarManager.nowLeapMonth = true
+                calendarManager.isLeapMonth = -1
+                
+                print("通常\(month)月の最終日から閏\(month)月初日へ移動")
+            } else if month < 12 {
+                // 通常の次月移動
+                calendarManager.month = month + 1
+                
+                // 次の月が閏月かどうかチェック（通常は最初は通常月に設定）
+                if month + 1 == leapMonth {
+                    // 通常月にはっきり設定（閏月フラグをリセット）
+                    calendarManager.nowLeapMonth = false
+                    calendarManager.isLeapMonth = 0
+                    print("注意: 次の月(\(month + 1)月)は閏月ですが、通常月を優先します")
+                } else {
+                    // 閏月でないことを明示（両方のフラグを確実にリセット）
+                    calendarManager.nowLeapMonth = false
+                    calendarManager.isLeapMonth = 0
+                }
+                
+                print("通常の次月移動: \(month + 1)月1日")
+            } else {
+                // 次年の1月に移動
+                calendarManager.year = year + 1
+                calendarManager.month = 1
+                
+                // 閏月フラグを確実にリセット（両方のフラグを同期）
+                calendarManager.nowLeapMonth = false
+                calendarManager.isLeapMonth = 0
+                
+                // 旧暦テーブルを次年に拡張
+                calendarManager.converter.tblExpand(inYear: year + 1)
+                
+                // 次年の閏月情報を確認（デバッグ用）
+                let nextYearLeapMonth = calendarManager.converter.leapMonth
+                print("次年の閏月: \(nextYearLeapMonth)月")
+                
+                // 次年1月が閏月かどうか確認
+                if nextYearLeapMonth == 1 {
+                    // 年が変わったときは常に通常月から始める
+                    print("注意: 次年1月は閏月ですが、通常1月に移動します")
+                }
+                
+                print("次年の1月に移動します: \(year + 1)年1月1日")
+            }
+            
+            // 次月の初日は常に1日
+            calendarManager.day = 1
+        }
+        
+        // 旧暦から新暦への変換も更新（閏月状態が正しく設定されるように）
+        calendarManager.initScheduleViewController()
+        
+        // 移動後のデバッグ情報を表示
+        let resultYear = calendarManager.year ?? 0
+        let resultMonth = calendarManager.month ?? 0
+        let resultDay = calendarManager.day ?? 0
+        let resultIsLeap = calendarManager.nowLeapMonth
+        
+        print("旧暦モード - 次日移動完了: \(resultYear)年\(resultIsLeap ? "閏" : "")\(resultMonth)月\(resultDay)日")
+        print("移動後の閏月状態: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+        
+        if let gregorianYear = calendarManager.gregorianYear,
+           let gregorianMonth = calendarManager.gregorianMonth,
+           let gregorianDay = calendarManager.gregorianDay {
+            print("  対応する新暦: \(gregorianYear)年\(gregorianMonth)月\(gregorianDay)日")
+        }
+        
+        // 最終チェック：閏月フラグの整合性を確認
+        if calendarManager.nowLeapMonth != ((calendarManager.isLeapMonth ?? 0) < 0) {
+            print("⚠️ 警告：移動後にフラグの不一致があります: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+        }
+    }
+    
+    /** 閏月のナビゲーションテストを実行 */
+    func runLeapMonthNavigationTest() {
+        // デバッグヘルパーから閏月テストを実行
+        print("閏月ナビゲーションテストを実行します")
+        
+        // 現在の状態を表示
+        print("現在の旧暦: \(calendarManager.year ?? 0)年\(calendarManager.nowLeapMonth ? "閏" : "")\(calendarManager.month ?? 0)月\(calendarManager.day ?? 0)日")
+        print("閏月フラグ: nowLeapMonth=\(calendarManager.nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+        print("現在の年の閏月: \(calendarManager.converter.leapMonth)月")
     }
     
     /** 画面表示を更新するヘルパーメソッド */

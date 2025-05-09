@@ -102,9 +102,20 @@ final class AncientCalendarConverter2
         var compsByGregorian = calendar.dateComponents([.year, .month, .day], from: Date())    //とりあえずイマを返す
         
         var yearByGregorian = dateArray[0]
-        let monthByGregorian = dateArray[1]
+        var monthByGregorian = dateArray[1]
         var dayByGregorian = dateArray[2]
-        //var templeapMonth = dateArray[3]
+        let leapMonthFlag = dateArray[3]
+        
+        // デバッグ情報
+        print("旧暦→新暦変換: \(yearByGregorian)年\(monthByGregorian < 0 ? "閏" : "")\(abs(monthByGregorian))月\(dayByGregorian)日, isLeapMonth=\(leapMonthFlag)")
+        
+        // 閏月の場合（マイナス値として渡される）
+        let isMonthLeap = monthByGregorian < 0
+        if isMonthLeap {
+            // マイナス値を絶対値に変換
+            monthByGregorian = abs(monthByGregorian)
+            print("閏月として計算します: \(monthByGregorian)月")
+        }
         
         tblExpand(inYear: yearByGregorian)
         
@@ -112,10 +123,25 @@ final class AncientCalendarConverter2
         
         dayOfYear = -1
         
+        // この年の閏月を確認
+        print("現在の年(\(yearByGregorian))の閏月: \(leapMonth)月")
+        
         for i in 0 ... 13{
-            if(ancientTbl[i][1] == monthByGregorian){
-                dayOfYear = ancientTbl[i][0] + dayByGregorian - 1
-                break
+            // 通常月の場合は ancientTbl[i][1] == monthByGregorian
+            // 閏月の場合は ancientTbl[i][1] == -monthByGregorian
+            if(isMonthLeap) {
+                // 閏月の場合: tblExpandで設定された負数の月と一致するか
+                if(ancientTbl[i][1] == -monthByGregorian){
+                    dayOfYear = ancientTbl[i][0] + dayByGregorian - 1
+                    print("閏月のマッチを発見: \(ancientTbl[i][1])月")
+                    break
+                }
+            } else {
+                // 通常月の場合
+                if(ancientTbl[i][1] == monthByGregorian){
+                    dayOfYear = ancientTbl[i][0] + dayByGregorian - 1
+                    break
+                }
             }
         }
         
