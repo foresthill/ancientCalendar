@@ -341,6 +341,40 @@ class ViewController: UIViewController {
                 
                 //旧暦の場合背景画像（月）を設定
                 if(calendarManager.calendarMode == -1){
+                    // 旧暦日付の月齢を計算
+                    // 一覧表示では旧暦日(tagNumber)から直接月齢を計算（伝統的方法）
+                    let traditionalMoonAge = calendarManager.calcMoonAgeForLunarDay(lunarDay: tagNumber)
+                    
+                    print("一覧表示 - 選択日付情報:")
+                    print("- 旧暦日: \(tagNumber)日")
+                    print("- 伝統的月齢（旧暦日-1）: \(traditionalMoonAge)")
+                    
+                    // 詳細なデバッグのために他の計算方法も比較
+                    var tmpDate = DateComponents()
+                    tmpDate.year = calendarManager.year
+                    tmpDate.month = calendarManager.month
+                    tmpDate.day = tagNumber
+                    
+                    // 一時的に日付を設定して月齢計算
+                    let savedComps = calendarManager.comps
+                    calendarManager.comps = tmpDate
+                    
+                    // 複数の計算方法による結果の比較
+                    let simpleAge = calendarManager.calcMoonAgeSimple()
+                    let astroAge = calendarManager.calcMoonAgeAstronomical()
+                    let highPrecisionAge = calendarManager.calcMoonAgeHighPrecision()
+                    
+                    calendarManager.comps = savedComps  // 元に戻す
+                    
+                    print("月齢計算比較（一覧表示）:")
+                    print("- 伝統的計算（旧暦日-1）: \(traditionalMoonAge)")
+                    print("- 簡易計算: \(simpleAge)")
+                    print("- 天文学的計算: \(astroAge)")
+                    print("- 高精度計算: \(highPrecisionAge)")
+                    
+                    // 一覧表示では伝統的な月齢計算を使用
+                    let moonAge = traditionalMoonAge
+                    
                     button.setBackgroundImage(UIImage(named:"moon\(tagNumber).png"), for: .normal)
                 }
                 

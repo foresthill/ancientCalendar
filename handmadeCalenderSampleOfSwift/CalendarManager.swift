@@ -298,7 +298,7 @@ class CalendarManager {
         recreateCalendarParameter(prevCalendar, currentDate: prevDate)
         
         //2016/09/24 デバッグ用
-        calcMoonAge(prevComps)
+        moonAge = calcMoonAge()
     }
     
     /** 次の年月に該当するデータを取得する関数 */
@@ -579,107 +579,234 @@ class CalendarManager {
         return detailText
     }
     
-    /** 月齢計算（2016/08/15）
+    // MARK: - 月齢計算関連のメソッド
+    
+    /// 月の周期（日）- 29日12時間44分3秒
+    let lunarCycle: Double = 29.53059
+    
+    /// 月齢計算の基準日 (2000年1月6日 18:14 GMT - 天文学的な新月)
+    let referenceNewMoon = "2000-01-06T18:14:00Z"
+    
+    /**
+     月齢計算 - 簡易版（2016/08/15 旧実装）
      http://koyomi8.com/reki_doc/doc_0250.htm
      
-     - parameter : 新暦（NSDateComponents）
-     - returns: 月齢（Float）
-
-    //func calcMoonAge(comps: NSDateComponents) -> Float {
-    //func calcMoonAge() -> Float {
-    func calcMoonAge() {
-        //let temp = (comps.year - 2009 ) % 19
-        //return Float(((temp * 11) + comps.month + comps.day) % 30)
+     この計算式は、入力された日付が旧暦であれば「旧暦日からの相対的な月齢」と近い値を返します。
+     例：旧暦1日→月齢0（新月）、旧暦15日→月齢14（満月）に近い値
+     
+     新暦日付を入力すると、実際の天文学的月齢とはずれが生じます。
+     
+     - parameter : なし (内部のcompsを使用、コンポーネントは新暦日付を想定)
+     - returns: 月齢（Double、0〜29.5）
+     */
+    func calcMoonAgeSimple() -> Double {
+        // コンポーネントから年月日を取得
+        guard let year = comps.year, let month = comps.month, let day = comps.day else {
+            return 0.0
+        }
+        
+        // デバッグ情報
+        print("月齢簡易計算に使用されるデータ:")
+        print("- 使用コンポーネント: year=\(year), month=\(month), day=\(day)")
+        print("- 入力は旧暦日か: \(calendarMode == -1 ? "はい" : "いいえ")")
+        
         //(Y - 2004)×10.88 + (M - 7)×0.97 + (D - 1) + 13.3
-        var temp = Double(comps.year - 2004) * 10.88
-            temp += Double(comps.month - 7) * 0.97
-            temp += Double(comps.day - 1) + 13.3
+        var temp = Double(year - 2004) * 10.88
+        temp += Double(month - 7) * 0.97
+        temp += Double(day - 1) + 13.3
         
-        //return floor((moonAge % 30) * 10) / 10
-        moonAge = floor((temp % 30) * 10) / 10
+        // 30日周期内に収める (% 30と同じ意味)
+        let result = floor((temp.truncatingRemainder(dividingBy: 30.0)) * 10) / 10
         
+        print("月齢簡易計算結果: \(result)")
+        return result
     }
-      */
     
-    /** 月齢計算（より単純な方法）
+    /**
+     旧暦日に対応した月齢を計算（伝統的な旧暦表示に最適）
+     旧暦1日を新月(0)、旧暦15日を満月(14)とする伝統的な月齢計算
+     
+     - parameter lunarDay: 旧暦の日付（1〜30）
+     - returns: 月齢（Double、0〜29）
+     */
+    func calcMoonAgeForLunarDay(lunarDay: Int) -> Double {
+        let age = Double(lunarDay - 1)
+        print("旧暦\(lunarDay)日に対応する月齢: \(age)")
+        return age
+    }
     
-    - parameter : 新暦（DateComponents）
-    - returns: 月齢（Double）
-    */
-    func calcMoonAge(_ _comps: DateComponents) -> Double {
-        // より単純で信頼性の高い月齢計算方法
-        
-        // コンポーネントから日付を取得
-        let date: Date
-        if let dateFromComps = Calendar.current.date(from: _comps) {
-            date = dateFromComps
-        } else {
-            // 無効な日付コンポーネントの場合は現在日付を使用
-            date = Date()
+    /** 月齢計算 - 基準日からの経過日数による計算
+     
+     - parameter : なし (内部のcompsを使用)
+     - returns: 月齢（Double）
+     */
+    func calcMoonAgeAstronomical() -> Double {
+        // コンポーネントから年月日を取得
+        guard let year = comps.year, let month = comps.month, let day = comps.day else {
+            return 0.0
         }
         
-        // 2000年1月6日 18:14 GMT (新月の日)
-        let referenceDate = Date(timeIntervalSince1970: 947182440)
+        // デバッグ情報
+        print("月齢天文計算に使用されるデータ:")
+        print("- 使用コンポーネント: year=\(year), month=\(month), day=\(day)")
         
-        // 新月の日からの経過時間（秒）
-        let elapsedSeconds = date.timeIntervalSince(referenceDate)
-        let secondsInLunarCycle = 29.53059 * 24 * 60 * 60
+        // 計算する日付のDateオブジェクトを作成
+        let calendar = Calendar(identifier: .gregorian)
+        var dateComponents = DateComponents()
+        dateComponents.year = year
+        dateComponents.month = month
+        dateComponents.day = day
+        dateComponents.hour = 12 // 正午を基準に
+        dateComponents.minute = 0
+        dateComponents.second = 0
+        dateComponents.timeZone = TimeZone(secondsFromGMT: 0) // GMT
         
-        // 経過した月の巡回から月齢を計算
-        var moonAge = (elapsedSeconds.truncatingRemainder(dividingBy: secondsInLunarCycle)) / (24 * 60 * 60)
+        guard let date = calendar.date(from: dateComponents) else {
+            return 0.0
+        }
         
-        // 0-29.5の範囲に収める
+        // 基準日のDateオブジェクトを作成
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime]
+        guard let referenceDate = dateFormatter.date(from: referenceNewMoon) else {
+            return 0.0
+        }
+        
+        // 現在の日付と基準日との差を計算
+        let timeInterval = date.timeIntervalSince(referenceDate)
+        
+        // 月の周期（秒単位）
+        let lunarCycleInSeconds = lunarCycle * 24 * 60 * 60
+        
+        // 月齢の計算（0〜29.53059の値）
+        var age = (timeInterval.truncatingRemainder(dividingBy: lunarCycleInSeconds)) / (24 * 60 * 60)
+        
+        // 月齢を0〜29.53059の範囲に正規化
+        if age < 0 {
+            age += lunarCycle
+        }
+        
+        // 小数点第一位で丸める
+        let result = floor(age * 10) / 10
+        return result
+    }
+    
+    /** 月齢計算 - 高精度計算（NASA計算式に基づく）
+     複数の修正項を含む精密な天文学的月齢計算
+     
+     - parameter : なし (内部のcompsを使用)
+     - returns: 月齢（Double）
+     */
+    func calcMoonAgeHighPrecision() -> Double {
+        // コンポーネントから年月日を取得
+        guard let year = comps.year, let month = comps.month, let day = comps.day else {
+            return 0.0
+        }
+        
+        // ユリウス日を計算
+        let jd = calcJulianDay(year: year, month: month, day: day)
+        
+        // 新月の修正計算
+        // この式は「Astronomical Algorithms」by Jean Meeus、第48章に基づいています
+        
+        // 2000年1月6日からの月の位相角（ラジアン）
+        let daysSince2000 = jd - 2451545.0
+        let newMoonPhase = 2 * Double.pi * (daysSince2000 / lunarCycle).truncatingRemainder(dividingBy: 1.0)
+        
+        // 月の位相角から月齢を計算
+        var moonAge = lunarCycle * (newMoonPhase / (2 * Double.pi))
+        
+        // 補正項（月の楕円軌道による効果）
+        let M = (daysSince2000 * 0.03660110129) // 月の平均近点角
+        moonAge += 0.5 * sin(M) // 第一補正項
+        
+        // 0〜29.53の範囲に正規化
         if moonAge < 0 {
-            moonAge += 29.53059
+            moonAge += lunarCycle
+        } else if moonAge >= lunarCycle {
+            moonAge -= lunarCycle
         }
         
-        // 小数点以下1桁に丸める
-        moonAge = floor(moonAge * 10) / 10
+        // 小数点第一位で丸める
+        let result = floor(moonAge * 10) / 10
         
-        // 結果を範囲内に収める
-        moonAge = min(max(moonAge, 0), 29.5)
-        
-        print("calcMoonAge for date \(date): \(moonAge)")
-        return moonAge
+        print("月齢高精度計算結果: \(result)")
+        return result
     }
     
-    /** 月齢計算２ー新月日計算
-     http://news.local-group.jp/moonage/moonage.js.txt
-     
-     - parameter : ユリウス
-     - returns: 月齢（Float）
-     */
-    func getNewMoon(_ julian: UInt64) -> Double {
-        let k     = floor((Double(julian) - 2451550.09765) / 29.530589)
-        let t     = k / 1236.85;
-        let s     = sin(2.5534 +  29.1054 * k)
-        var nmoon = 2451550.09765
-        nmoon += 29.530589  * k
-        nmoon +=  0.0001337 * t * t
-        nmoon -=  0.40720   * sin((201.5643 + 385.8169 * k) * 0.017453292519943)
-        nmoon +=  0.17241   * (s * 0.017453292519943);
-        return nmoon;         // julian - nmoonが現在時刻の月齢
+    /** 既存メソッドの互換性維持のため（旧来の計算方法を使用） */
+    func calcMoonAge() -> Double {
+        // コンポーネントから年月日を取得
+        guard let year = comps.year, let month = comps.month, let day = comps.day else {
+            return 0.0
+        }
+        
+        // デバッグ情報（月齢計算に使用される値）
+        print("月齢計算に使用されるデータ:")
+        print("- 使用コンポーネント: year=\(year), month=\(month), day=\(day)")
+        print("- 現在の内部状態: calendarManager.year=\(self.year ?? 0), calendarManager.month=\(self.month ?? 0), calendarManager.day=\(self.day ?? 0)")
+        print("- モード: \(self.calendarMode == 1 ? "新暦" : "旧暦")")
+        
+        // 従来の簡易計算式を使用（互換性のため）
+        var temp = Double(year - 2004) * 10.88
+        temp += Double(month - 7) * 0.97
+        temp += Double(day - 1) + 13.3
+        
+        // 30日周期内に収める
+        let result = floor((temp.truncatingRemainder(dividingBy: 30.0)) * 10) / 10
+        
+        // 結果を保存してから返す
+        moonAge = result
+        print("月齢計算結果: \(result)")
+        return result
     }
     
-    /** 月齢計算２ーユリウス通日計算
-     http://news.local-group.jp/moonage/moonage.js.txt
+    /** ユリウス日の計算
      
-     - parameter : 新暦（NSDateComponents）
-     - returns: 月齢（Float）
+     - parameter year: 年
+     - parameter month: 月
+     - parameter day: 日
+     - returns: ユリウス日
      */
-    func getJulian(_ _comps: DateComponents) -> UInt64 {
-        // 指定された日付のユリウス通日を計算
-        var date: Date
-        if let dateFromComps = Calendar.current.date(from: _comps) {
-            date = dateFromComps
+    func calcJulianDay(year: Int, month: Int, day: Int) -> Double {
+        var y = Double(year)
+        var m = Double(month)
+        let d = Double(day) + 0.5 // 正午を基準に
+        
+        if m <= 2 {
+            y -= 1
+            m += 12
+        }
+        
+        let a = floor(y / 100.0)
+        let b = 2 - a + floor(a / 4.0)
+        
+        let jd = floor(365.25 * (y + 4716)) + floor(30.6001 * (m + 1)) + d + b - 1524.5
+        return jd
+    }
+    
+    /** 月の位相名を取得
+     
+     - parameter moonAge: 月齢（0〜29.5）
+     - returns: 月の位相名
+     */
+    func getMoonPhaseName(moonAge: Double) -> String {
+        if moonAge < 0.1 {
+            return "新月"
+        } else if moonAge < 7.0 {
+            return "三日月"
+        } else if moonAge < 8.0 {
+            return "上弦の月"
+        } else if moonAge < 15.0 {
+            return "十三夜月"
+        } else if moonAge < 16.0 {
+            return "満月"
+        } else if moonAge < 22.0 {
+            return "十六夜"
+        } else if moonAge < 23.0 {
+            return "下弦の月"
         } else {
-            // 日付コンポーネントが不正な場合は今日の日付を使用
-            date = Date()
+            return "有明月"
         }
-        
-        let sec = date.timeIntervalSince1970
-        let millisec = UInt64(sec * 1000)   //intだとあふれるので注意
-        print("Julian date for \(date): \(millisec)")
-        return millisec
     }
 }

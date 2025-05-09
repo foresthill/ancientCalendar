@@ -48,8 +48,19 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print("詳細画面初期化開始 - 日付情報:")
+        print("初期化前 - CalendarManager状態:")
+        print("現在のモード: \(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")")
+        print("年月日: \(calendarManager.year)年\(calendarManager.month)月\(calendarManager.day)日")
+        print("旧暦日付: \(calendarManager.ancientYear ?? 0)年\(calendarManager.ancientMonth ?? 0)月\(calendarManager.ancientDay ?? 0)日")
+        
         //初期化
         calendarManager.initScheduleViewController()
+        
+        print("初期化後 - CalendarManager状態:")
+        print("現在のモード: \(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")")
+        print("年月日: \(calendarManager.year)年\(calendarManager.month)月\(calendarManager.day)日")
+        print("旧暦日付: \(calendarManager.ancientYear ?? 0)年\(calendarManager.ancientMonth ?? 0)月\(calendarManager.ancientDay ?? 0)日")
         
         //フェッチ
         //events = calendarManager.fetchEvent(calendarManager.comps)
@@ -99,27 +110,82 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
         self.navigationItem.title = calendarManager.scheduleBarTitle
         //self.navigationItem.prompt = calendarManager.scheduleBarPrompt
         
-        //月齢の計算
-        //calendarManager.calcMoonAge()
-        let currentMoonAge = calendarManager.calcMoonAge(calendarManager.comps)
-        calendarManager.moonAge = currentMoonAge  // 計算結果をプロパティに保存
+        print("詳細画面情報 - CalendarManager状態:")
+        print("現在のモード: \(calendarManager.calendarMode == 1 ? "新暦" : "旧暦")")
+        print("新暦日付: \(calendarManager.year)年\(calendarManager.month)月\(calendarManager.day)日")
+        print("旧暦日付: \(calendarManager.ancientYear ?? 0)年\(calendarManager.ancientMonth ?? 0)月\(calendarManager.ancientDay ?? 0)日")
         
-        //表示する文言をセット
+        // 旧暦日付に基づく月齢計算と表示（伝統的な方法）
+        let dayNumber: Int
+        
+        if calendarManager.calendarMode == 1 {
+            // 新暦モード: 旧暦の日付を取得
+            dayNumber = calendarManager.ancientDay ?? 15
+        } else {
+            // 旧暦モード: 現在の日を使用
+            dayNumber = calendarManager.day
+        }
+        
+        print("詳細画面 - 選択された日付情報:")
+        print("- 旧暦日: \(dayNumber)日")
+        
+        // 1. 旧暦日からの伝統的な月齢計算（旧暦1日=新月、旧暦15日=満月の関係）
+        let traditionalMoonAge = calendarManager.calcMoonAgeForLunarDay(lunarDay: dayNumber)
+        
+        // 2. 天文学的月齢計算（各計算方法で比較）
+        // 計算のために一時的に日付を設定
+        var tmpDate = DateComponents()
+        if calendarManager.calendarMode == 1 {
+            tmpDate.year = calendarManager.ancientYear
+            tmpDate.month = calendarManager.ancientMonth
+        } else {
+            tmpDate.year = calendarManager.year
+            tmpDate.month = calendarManager.month
+        }
+        tmpDate.day = dayNumber
+        
+        // 計算前の状態を保存
+        let savedComps = calendarManager.comps
+        calendarManager.comps = tmpDate
+        
+        // 3種類の計算方法による月齢を計算
+        let simpleAge = calendarManager.calcMoonAgeSimple()
+        let astroAge = calendarManager.calcMoonAgeAstronomical()
+        let highPrecisionAge = calendarManager.calcMoonAgeHighPrecision()
+        
+        // 元のcompsに戻す
+        calendarManager.comps = savedComps
+        
+        print("月齢計算比較:")
+        print("- 伝統的計算（旧暦日-1）: \(traditionalMoonAge)")
+        print("- 簡易計算: \(simpleAge)")
+        print("- 天文学的計算: \(astroAge)")
+        print("- 高精度計算: \(highPrecisionAge)")
+        
+        // このアプリでは伝統的な月齢表示（旧暦日に基づく）を使用
+        let calculatedMoonAge = traditionalMoonAge
+        
+        // 表示用文言をセット
         self.dateLabel.text = calendarManager.scheduleBarTitle
         self.subDateLabel.text = calendarManager.scheduleBarPrompt
-        self.moonAge.text = String(currentMoonAge)
+        self.moonAge.text = String(format: "%.1f", calculatedMoonAge)
         
-        //月の画像
-        let moonAgeNumber: Int = min(max(Int(floor(currentMoonAge)), 0), 29)
-        if moonAgeNumber < calendarManager.moonName.count {
-            self.moonName.text = calendarManager.moonName[moonAgeNumber]
-            self.moonImage.image = UIImage(named:"moon\(moonAgeNumber)_90x90.png")
-            print("Setting moon image to: moon\(moonAgeNumber)_90x90.png")
-        } else {
-            self.moonName.text = "満月"
-            self.moonImage.image = UIImage(named:"moon15_90x90.png")
-            print("Using default full moon image: moon15_90x90.png")
-        }
+        // 月齢の名前を表示（従来のmoonName配列を使用）
+        let moonAgeIndex = min(max(Int(floor(calculatedMoonAge)), 0), 29)
+        let moonPhaseName = moonAgeIndex < calendarManager.moonName.count && !calendarManager.moonName[moonAgeIndex].isEmpty 
+                          ? calendarManager.moonName[moonAgeIndex] 
+                          : "満月"
+        
+        self.moonName.text = moonPhaseName
+        
+        print("月相情報: 月齢=\(calculatedMoonAge), 月相名=\(moonPhaseName)")
+        
+        // 日付が有効な範囲内であることを確認
+        let safeDay = max(min(dayNumber, 30), 1) // 1〜30の範囲内に収める
+        
+        print("月画像設定: 選択された日付: \(dayNumber), 安全な日付範囲: \(safeDay), 計算された月齢: \(calculatedMoonAge)")
+        self.moonImage.image = UIImage(named:"moon\(safeDay)_90x90.png")
+        print("月画像設定: moon\(safeDay)_90x90.png を表示")
         
     }
     
