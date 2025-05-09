@@ -1,5 +1,63 @@
 # 旧暦カレンダーアプリの開発ガイド
 
+## 画面遷移とデータ同期（2025年5月9日更新）
+
+### 画面間の状態同期の実装
+
+画面間で確実にデータを同期するため、以下の実装を行いました：
+
+1. **ScheduleViewController → ViewController への同期**
+   - `viewWillDisappear`メソッドで「戻る」ボタン検出: `isMovingFromParentViewController || isBeingDismissed`
+   - カレンダーマネージャー(シングルトン)に現在の日付とモードを確実に保存
+   - デリゲートパターンを使用して親ビューに変更を通知
+   - 実装箇所: `ScheduleViewController.swift:612-654`
+
+2. **モード切替時のデータ同期**
+   - モード変更を`UserDefaults`に保存して一貫性を確保
+   - 各画面のUI更新メソッドで確実に状態を反映
+   - 実装箇所: `ScheduleViewController.swift:493-516`
+
+3. **ViewController での状態更新**
+   - `viewWillAppear`で画面を完全再描画
+   - カレンダーとUI要素を最新の状態で更新
+   - 実装箇所: `ViewController.swift:114-149`
+
+### UI要素のNilチェック
+
+潜在的なクラッシュを防止するため、以下のnilチェックを追加：
+
+1. **オプショナルチェーニング**
+   - UI要素へのアクセス時に`?`を使用: `dateLabel?.textColor = designer.navigationTintColor`
+   - 実装箇所: `ScheduleViewController.swift:263-268`, `ViewController.swift:570-584`
+
+2. **明示的なnilチェック**
+   - 重要なUI要素は`if let`で安全に処理: 
+   ```swift
+   if let toolbar = self.toolBar {
+       toolbar.barTintColor = designer.navigationBarTintColor
+       toolbar.tintColor = designer.navigationTintColor
+   }
+   ```
+   - 実装箇所: `ScheduleViewController.swift:274-277`, `ViewController.swift:587-590`
+
+### デザイン更新のためのUI設定
+
+モード切替時に全UI要素の色を一貫して更新するため、以下を実装：
+
+1. **backgroundColor設定**
+   - 背景色を現在のモードに合わせて設定: `self.view.backgroundColor = designer.backgroundColor`
+
+2. **テキスト色の設定**
+   - すべてのラベルとテキストビューの色を更新: `moonName?.textColor = designer.navigationTintColor`
+
+3. **ナビゲーションバーの更新**
+   - タイトル、背景、テキスト色を完全に更新
+   - 実装箇所: `ViewController.swift:577-580`
+
+4. **ツールバーの更新**
+   - ツールバーの色とアイコン色を更新
+   - 実装箇所: `ViewController.swift:587-590`, `ScheduleViewController.swift:274-277`
+
 ## 月齢計算と月相表示
 
 ### 月齢計算の方法
