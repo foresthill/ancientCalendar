@@ -483,16 +483,111 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     /** ツールバーアクション（モード切替） */
     @IBAction func changeCalendarMode(_ sender: UIBarButtonItem) {
         print("カレンダーモード切替")
+        
+        // カレンダーモードを切り替え（新暦⇔旧暦）
+        calendarManager.calendarMode = calendarManager.calendarMode * -1
+        
+        // 現在の日付情報を維持しながらモード切替
+        calendarManager.setupAnotherCalendarData()
+        
+        // カレンダーのデザインを更新
+        setupCalendarDesign()
+        
+        // 画面を更新
+        setupDisplay()
     }
     
     /** ツールバーアクション（前の日へ） */
     @IBAction func prevDayAction(_ sender: UIBarButtonItem) {
         print("前の日へ")
+        
+        // 現在の日を保存
+        let currentYear = calendarManager.year
+        let currentMonth = calendarManager.month
+        let currentDay = calendarManager.day
+        
+        // 前日を計算
+        var dateComponents = DateComponents()
+        dateComponents.year = currentYear
+        dateComponents.month = currentMonth
+        dateComponents.day = currentDay
+        
+        // 現在の日付のDateオブジェクトを作成
+        let calendar = Calendar.current
+        guard let currentDate = calendar.date(from: dateComponents) else {
+            return
+        }
+        
+        // 1日前のDateオブジェクトを計算
+        guard let prevDate = calendar.date(byAdding: .day, value: -1, to: currentDate) else {
+            return
+        }
+        
+        // 日付コンポーネントを取得
+        let prevComponents = calendar.dateComponents([.year, .month, .day], from: prevDate)
+        
+        // カレンダーマネージャーに設定
+        calendarManager.comps = prevComponents
+        calendarManager.year = prevComponents.year
+        calendarManager.month = prevComponents.month
+        calendarManager.day = prevComponents.day
+        
+        // 表示を更新
+        setupDisplay()
     }
 
     /** ツールバーアクション（次の日へ） */
     @IBAction func nextDayAction(_ sender: UIBarButtonItem) {
         print("次の日へ")
+        
+        // 現在の日を保存
+        let currentYear = calendarManager.year
+        let currentMonth = calendarManager.month
+        let currentDay = calendarManager.day
+        
+        // 翌日を計算
+        var dateComponents = DateComponents()
+        dateComponents.year = currentYear
+        dateComponents.month = currentMonth
+        dateComponents.day = currentDay
+        
+        // 現在の日付のDateオブジェクトを作成
+        let calendar = Calendar.current
+        guard let currentDate = calendar.date(from: dateComponents) else {
+            return
+        }
+        
+        // 1日後のDateオブジェクトを計算
+        guard let nextDate = calendar.date(byAdding: .day, value: 1, to: currentDate) else {
+            return
+        }
+        
+        // 日付コンポーネントを取得
+        let nextComponents = calendar.dateComponents([.year, .month, .day], from: nextDate)
+        
+        // カレンダーマネージャーに設定
+        calendarManager.comps = nextComponents
+        calendarManager.year = nextComponents.year
+        calendarManager.month = nextComponents.month
+        calendarManager.day = nextComponents.day
+        
+        // 表示を更新
+        setupDisplay()
+    }
+    
+    /** 画面表示を更新するヘルパーメソッド */
+    private func setupDisplay() {
+        // ScheduleViewController初期化
+        calendarManager.initScheduleViewController()
+        
+        // イベントを再取得
+        events = calendarManager.fetchEvent()
+        
+        // タイトルと日付の設定
+        setScheduleTitle()
+        
+        // テーブルの再読み込み
+        myTableView.reloadData()
     }
 
     /** メモリ監視 */
