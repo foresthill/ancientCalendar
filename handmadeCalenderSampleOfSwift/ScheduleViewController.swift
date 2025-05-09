@@ -411,79 +411,271 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
     
     //モーダルでEditEventViewControllerを呼び出す
     func editEvent(event:EKEvent?){
-        let eventEditController = EKEventEditViewController.init()
+        // まず標準のEKEventEditViewControllerを試す
+        tryStandardEventEditController(event: event)
+    }
+    
+    // 標準のEKEventEditViewControllerを使用してみる
+    private func tryStandardEventEditController(event: EKEvent?) {
+        // 現在の権限状態を確認
+        let authStatus = EKEventStore.authorizationStatus(for: .event)
         
-        eventEditController.eventStore = calendarManager.eventStore
-        eventEditController.editViewDelegate = self
-        
-        if(event != nil){
-            eventEditController.event = event
-            addNewEventFlag = false
-        
-        } else {
-            let newEvent = EKEvent.init(eventStore: calendarManager.eventStore)
-            if let date = calendarManager.calendar.date(from: calendarManager.comps) {
-                newEvent.startDate = date
-                newEvent.endDate = date
-            } else {
-                // コンポーネントから日付が作成できない場合は現在の日付を使用
-                newEvent.startDate = Date()
-                newEvent.endDate = Date()
+        switch authStatus {
+        case .authorized:
+            // すでに許可されている場合、標準のイベント編集画面を表示
+            do {
+                let eventEditController = EKEventEditViewController()
+                eventEditController.eventStore = calendarManager.eventStore
+                eventEditController.editViewDelegate = self
+                
+                if let existingEvent = event {
+                    // 既存のイベントを編集
+                    eventEditController.event = existingEvent
+                    addNewEventFlag = false
+                } else {
+                    // 新規イベントを作成
+                    let newEvent = EKEvent(eventStore: calendarManager.eventStore)
+                    
+                    // 選択中の日付を反映
+                    if let date = getSelectedDate() {
+                        newEvent.startDate = date
+                        // 終了時間は1時間後
+                        newEvent.endDate = date.addingTimeInterval(60 * 60)
+                    } else {
+                        // 日付が取得できない場合はデフォルト値
+                        newEvent.startDate = Date()
+                        newEvent.endDate = Date().addingTimeInterval(60 * 60)
+                    }
+                    
+                    eventEditController.event = newEvent
+                    addNewEventFlag = true
+                }
+                
+                // 画面表示を試みる
+                self.present(eventEditController, animated: true) {
+                    print("イベント編集画面の表示に成功しました")
+                }
+            } catch {
+                print("イベント編集画面の表示に失敗: \(error.localizedDescription)")
+                // 失敗した場合はカスタム入力フォームを表示
+                showCustomEventForm(event: event)
             }
-            eventEditController.event = newEvent
-            addNewEventFlag = true
+            
+        case .notDetermined:
+            // まだ決定されていない場合、システムの許可ダイアログを表示
+            calendarManager.eventStore.requestAccess(to: .event) { [weak self] granted, error in
+                DispatchQueue.main.async {
+                    if granted {
+                        // 許可されたら再度試す
+                        self?.tryStandardEventEditController(event: event)
+                    } else {
+                        // 拒否された場合はカスタム入力フォームを表示
+                        self?.showCustomEventForm(event: event)
+                    }
+                }
+            }
+            
+        case .denied, .restricted:
+            // 権限がない場合はカスタム入力フォームを表示
+            showCustomEventForm(event: event)
+            
+        @unknown default:
+            showCustomEventForm(event: event)
         }
-
-        self.present(eventEditController, animated: true, completion: nil)
+    }
+    
+    // 選択中の日付を取得するヘルパーメソッド
+    private func getSelectedDate() -> Date? {
+        // 旧暦モードかどうかを確認
+        let isAncientMode = calendarManager.calendarMode == -1
+        
+        // 選択中の日付を取得
+        if isAncientMode {
+            // 旧暦モードの場合、対応する新暦の日付を返す
+            return getGregorianDateFromSelectedAncientDate()
+        } else {
+            // 新暦モードの場合、そのまま選択中の日付を返す
+            return getGregorianDateFromSelectedGregorianDate()
+        }
+    }
+    
+    // 選択中の新暦日付を新暦日付として取得
+    private func getGregorianDateFromSelectedGregorianDate() -> Date? {
+        guard let year = calendarManager.year,
+              let month = calendarManager.month,
+              let day = calendarManager.day else {
+            return nil
+        }
+        
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = day
+        components.hour = Calendar.current.component(.hour, from: Date())
+        components.minute = 0
+        
+        return Calendar.current.date(from: components)
+    }
+    
+    // 選択中の旧暦日付を新暦日付に変換して取得
+    private func getGregorianDateFromSelectedAncientDate() -> Date? {
+        // 選択中の旧暦日付を取得
+        guard let ancientYear = calendarManager.year,
+              let ancientMonth = calendarManager.month,
+              let ancientDay = calendarManager.day else {
+            return nil
+        }
+        
+        // 現在の閏月状態を取得
+        let isLeapMonth = calendarManager.nowLeapMonth
+        let leapMonthValue = isLeapMonth ? -1 : 0
+        
+        // 旧暦の日付情報を表示（デバッグ用）
+        print("旧暦日付: \(ancientYear)年\(isLeapMonth ? "閏" : "")\(ancientMonth)月\(ancientDay)日")
+        
+        // 旧暦→新暦変換
+        // 閏月の場合は月をマイナスにして渡す
+        let ancientMonthValue = isLeapMonth ? -ancientMonth : ancientMonth
+        let gregorianComps = calendarManager.converter.convertForGregorianCalendar(
+            dateArray: [ancientYear, ancientMonthValue, ancientDay, leapMonthValue]
+        )
+        
+        // 新暦日付に現在時刻の時間部分を追加
+        if let gregorianYear = gregorianComps.year,
+           let gregorianMonth = gregorianComps.month,
+           let gregorianDay = gregorianComps.day {
+            
+            print("変換後の新暦日付: \(gregorianYear)年\(gregorianMonth)月\(gregorianDay)日")
+            
+            var components = DateComponents()
+            components.year = gregorianYear
+            components.month = gregorianMonth
+            components.day = gregorianDay
+            components.hour = Calendar.current.component(.hour, from: Date())
+            components.minute = 0
+            
+            return Calendar.current.date(from: components)
+        }
+        
+        return nil
+    }
+    
+    // カスタム予定入力フォームを表示（EKEventEditViewControllerが使えない場合）
+    private func showCustomEventForm(event: EKEvent?) {
+        print("カスタムイベント入力フォームを表示します")
+        
+        // 既存イベントがあれば編集モード、なければ新規作成モード
+        if let existingEvent = event {
+            // 編集モード
+            showExistingEventEditor(event: existingEvent)
+        } else {
+            // 新規作成モード
+            showNewEventCreator()
+        }
+    }
+    
+    // この関数は不要となったため削除
+    
+    // カレンダーへのアクセス権限がない場合のアラート
+    private func showAccessDeniedAlert() {
+        let alert = UIAlertController(
+            title: "カレンダーへのアクセスが必要です",
+            message: "予定の追加・編集には、カレンダーへのアクセス許可が必要です。\n\n「設定」アプリを開き、「プライバシーとセキュリティ」→「カレンダー」から、このアプリにアクセス許可を与えてください。",
+            preferredStyle: .alert
+        )
+        
+        // ユーザーにカレンダー権限設定の詳細手順を表示
+        alert.addAction(UIAlertAction(title: "詳細手順を確認", style: .default) { _ in
+            self.showCalendarPermissionInstructions()
+        })
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    // カレンダー権限設定の詳細手順を表示
+    private func showCalendarPermissionInstructions() {
+        let instructionAlert = UIAlertController(
+            title: "カレンダー権限設定手順",
+            message: 
+            "1. ホーム画面に戻り「設定」アプリを開きます\n\n" +
+            "2. 「プライバシーとセキュリティ」をタップします\n\n" +
+            "3. 「カレンダー」をタップします\n\n" +
+            "4. アプリリストから「旧暦カレンダー」を探し、スイッチをオンにします\n\n" +
+            "5. 設定が完了したら、アプリに戻り再度お試しください",
+            preferredStyle: .alert
+        )
+        
+        instructionAlert.addAction(UIAlertAction(title: "了解しました", style: .default, handler: nil))
+        
+        self.present(instructionAlert, animated: true, completion: nil)
     }
     
     //EditEventViewControllerを閉じた時に呼ばれるメソッド（必須）
     func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction){
-        self.dismiss(animated: true, completion: nil)
-        
-        //作成したイベントの日時に戻るように改修（2016/04/16）　※そもそもSaved以外はリロードする必要ないんじゃん。。。※Deletedがきになる
-        switch action{
-        case EKEventEditViewAction.saved:
-            //イベントが保存された時（カレンダーで指定した開始日に戻るように）
-            if let event = controller.event, let startDate = event.startDate {
-                scheduleReload(startDate: startDate as NSDate)
-            } else {
-                // イベントがnilの場合は現在の日付を使用
-                scheduleReload(startDate: Date() as NSDate)
-            }
-            break
-        case EKEventEditViewAction.canceled:
-            if(addNewEventFlag){
-                do{
-                    try calendarManager.eventStore.remove(controller.event!, span: EKSpan.thisEvent)
-                } catch _{
-                    //もし削除できなかったらゴミが溜まる。。考慮中。
+        self.dismiss(animated: true) {
+            // イベント編集画面を閉じた後の処理
+            switch action {
+            case .saved:
+                // イベントが保存された場合
+                print("イベントが保存されました")
+                if let event = controller.event {
+                    print("イベント情報: \(event.title ?? "無題"), \(event.startDate)")
+                    
+                    // 選択中の日付を保持したまま、イベント一覧を更新
+                    self.scheduleReload(startDate: Date() as NSDate)
+                    
+                    // 成功メッセージを表示
+                    let alert = UIAlertController(
+                        title: "予定を保存しました",
+                        message: nil,
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self.present(alert, animated: true)
                 }
+                
+            case .canceled:
+                // キャンセルされた場合、一時的なイベントを削除
+                if self.addNewEventFlag, let event = controller.event {
+                    do {
+                        try self.calendarManager.eventStore.remove(event, span: .thisEvent)
+                        print("キャンセルされたイベントを削除しました")
+                    } catch {
+                        print("キャンセルされたイベントの削除に失敗: \(error.localizedDescription)")
+                    }
+                }
+                
+            case .deleted:
+                // イベントが削除された場合
+                print("イベントが削除されました")
+                // 選択中の日付を保持したまま、イベント一覧を更新
+                self.scheduleReload(startDate: Date() as NSDate)
+                
+            @unknown default:
+                print("未知のアクション: \(action)")
             }
-        default:
-            break
         }
-
-        
     }
     
     /** スケジュールを再読込するメソッド */
     func scheduleReload(startDate: NSDate){
+        // 現在の日付情報を保存（選択していた日付を維持するため）
+        let currentYear = calendarManager.year
+        let currentMonth = calendarManager.month
+        let currentDay = calendarManager.day
+        let currentMode = calendarManager.calendarMode
         
-        // 作成したイベントの日時に戻るように改修（2016/04/16）
-        calendarManager.comps = calendarManager.calendar.dateComponents([.year, .month, .day], from: startDate as Date)
-
-        //タイトルを付け直す
-        setScheduleTitle()
+        print("現在選択中の日付: \(currentYear ?? 0)年\(currentMonth ?? 0)月\(currentDay ?? 0)日, モード: \(currentMode ?? 1)")
         
-        // イベントをフェッチ
-        //calendarManager.fetchEvent(calendarManager.comps)
+        // 先にイベントをフェッチ（日付を変えずに）
         events = calendarManager.fetchEvent()
         
-        //tableViewを更新
+        // 日付やタイトルは変更せず、テーブルビューのみ更新
         self.myTableView.reloadData()
         
-        print("Schedule reloaded for date: \(startDate)")
+        print("選択中の日付でスケジュールを再読込しました: \(currentYear ?? 0)年\(currentMonth ?? 0)月\(currentDay ?? 0)日")
     }
     
     /** イベントをカレンダーから削除するメソッド */
@@ -528,7 +720,292 @@ class ScheduleViewController: UIViewController, EKEventEditViewDelegate, UITable
 
     /** 「予定を追加」ボタンを押下されたときに呼ばれるメソッド */
     @IBAction func addEventButtonAction(_ sender: AnyObject) {
+        // まず標準のEKEventEditViewControllerを試す
         editEvent(event: nil)
+    }
+    
+    // 新規予定作成フォーム
+    private func showNewEventCreator() {
+        let alert = UIAlertController(
+            title: "新規予定の追加",
+            message: "予定の詳細を入力してください",
+            preferredStyle: .alert
+        )
+        
+        // タイトル入力欄
+        alert.addTextField { textField in
+            textField.placeholder = "タイトル"
+        }
+        
+        // メモ入力欄
+        alert.addTextField { textField in
+            textField.placeholder = "メモ（オプション）"
+        }
+        
+        // 開始時間入力欄（時）
+        alert.addTextField { textField in
+            textField.placeholder = "開始時間（時）"
+            textField.keyboardType = .numberPad
+            
+            // 現在時刻+1時間をデフォルト値に
+            let hour = Calendar.current.component(.hour, from: Date()) + 1
+            textField.text = "\(min(hour, 23))" // 23時を超えないようにする
+        }
+        
+        // 開始時間入力欄（分）
+        alert.addTextField { textField in
+            textField.placeholder = "開始時間（分）"
+            textField.keyboardType = .numberPad
+            textField.text = "00" // デフォルト値
+        }
+        
+        // 選択された日付情報を取得
+        var selectedYear = Calendar.current.component(.year, from: Date())
+        var selectedMonth = Calendar.current.component(.month, from: Date())
+        var selectedDay = Calendar.current.component(.day, from: Date())
+        var selectedDateStr = "\(selectedYear)年\(selectedMonth)月\(selectedDay)日"
+        
+        // 新暦の日付を取得（旧暦モードの場合は変換が必要）
+        if let date = getSelectedDate() {
+            // 取得した日付から年月日を抽出
+            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+            if let year = components.year,
+               let month = components.month,
+               let day = components.day {
+                selectedYear = year
+                selectedMonth = month
+                selectedDay = day
+                selectedDateStr = "\(year)年\(month)月\(day)日"
+            }
+        }
+        
+        // 旧暦モードの場合は追加情報を表示
+        if calendarManager.calendarMode == -1 {
+            // 旧暦の年月日を取得
+            if let ancientYear = calendarManager.year,
+               let ancientMonth = calendarManager.month,
+               let ancientDay = calendarManager.day {
+                // 閏月かどうかをチェック
+                let isLeapMonth = calendarManager.nowLeapMonth
+                
+                // 旧暦と新暦の両方を表示
+                selectedDateStr = "新暦: \(selectedDateStr)\n旧暦: \(ancientYear)年\(isLeapMonth ? "閏" : "")\(ancientMonth)月\(ancientDay)日"
+                
+                // デバッグ用
+                print("日付変換: 旧暦\(ancientYear)年\(isLeapMonth ? "閏" : "")\(ancientMonth)月\(ancientDay)日 → 新暦\(selectedYear)年\(selectedMonth)月\(selectedDay)日")
+            }
+        }
+        
+        // 日付情報をメッセージに表示
+        alert.message = "\(selectedDateStr)\n予定の詳細を入力してください"
+        
+        // 保存ボタン
+        alert.addAction(UIAlertAction(title: "保存", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            
+            // テキストフィールドからタイトルとメモを取得
+            let title = alert.textFields?[0].text ?? "無題の予定"
+            let notes = alert.textFields?[1].text
+            
+            // 時間を取得
+            let hourText = alert.textFields?[2].text ?? "12"
+            let minuteText = alert.textFields?[3].text ?? "00"
+            
+            // 文字列から数値へ変換
+            let hour = min(max(Int(hourText) ?? 12, 0), 23) // 0-23時の範囲
+            let minute = min(max(Int(minuteText) ?? 0, 0), 59) // 0-59分の範囲
+            
+            // 日時コンポーネントを作成
+            var components = DateComponents()
+            components.year = selectedYear
+            components.month = selectedMonth
+            components.day = selectedDay
+            components.hour = hour
+            components.minute = minute
+            
+            // 日付を生成
+            guard let startDate = Calendar.current.date(from: components) else {
+                print("日付の生成に失敗しました")
+                return
+            }
+            
+            // 終了時間（開始から1時間後）
+            let endDate = startDate.addingTimeInterval(60 * 60)
+            
+            // イベントを作成して保存
+            self.createAndSaveEvent(title: title, notes: notes, startDate: startDate, endDate: endDate)
+        })
+        
+        // キャンセルボタン
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        
+        // アラートを表示
+        self.present(alert, animated: true)
+    }
+    
+    // 既存の予定編集フォーム
+    private func showExistingEventEditor(event: EKEvent) {
+        let alert = UIAlertController(
+            title: "予定の編集",
+            message: "予定の詳細を編集してください",
+            preferredStyle: .alert
+        )
+        
+        // タイトル入力欄
+        alert.addTextField { textField in
+            textField.placeholder = "タイトル"
+            textField.text = event.title
+        }
+        
+        // メモ入力欄
+        alert.addTextField { textField in
+            textField.placeholder = "メモ（オプション）"
+            textField.text = event.notes
+        }
+        
+        // 選択された日付情報を表示
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy年MM月dd日 HH:mm"
+        alert.message = "開始: \(dateFormatter.string(from: event.startDate))\n終了: \(dateFormatter.string(from: event.endDate))"
+        
+        // 更新ボタン
+        alert.addAction(UIAlertAction(title: "更新", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            
+            // テキストフィールドからタイトルとメモを取得
+            let title = alert.textFields?[0].text ?? event.title ?? "無題の予定"
+            let notes = alert.textFields?[1].text
+            
+            // 更新内容を適用
+            let updatedEvent = event
+            updatedEvent.title = title
+            updatedEvent.notes = notes
+            
+            // イベントを更新
+            self.updateEvent(event: updatedEvent)
+        })
+        
+        // 削除ボタン
+        alert.addAction(UIAlertAction(title: "削除", style: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+            
+            // イベントを削除
+            self.removeEvent(index: self.events.firstIndex(of: event) ?? 0)
+            
+            // テーブルビューを更新
+            self.scheduleReload(startDate: Date() as NSDate)
+        })
+        
+        // キャンセルボタン
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        
+        // アラートを表示
+        self.present(alert, animated: true)
+    }
+    
+    // イベントを更新
+    private func updateEvent(event: EKEvent) {
+        do {
+            try calendarManager.eventStore.save(event, span: .thisEvent)
+            print("イベントが更新されました: \(event.title ?? "無題")")
+            
+            // イベント一覧を更新
+            self.scheduleReload(startDate: Date() as NSDate)
+            
+            // 成功メッセージを表示
+            let alert = UIAlertController(
+                title: "予定を更新しました",
+                message: nil,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+            
+        } catch {
+            print("イベントの更新に失敗しました: \(error.localizedDescription)")
+            
+            // エラーメッセージを表示
+            let alert = UIAlertController(
+                title: "予定の更新に失敗しました",
+                message: error.localizedDescription,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
+    
+    // イベントを作成して保存する
+    private func createAndSaveEvent(title: String, notes: String?, startDate: Date, endDate: Date) {
+        // カレンダー権限を確認
+        let status = EKEventStore.authorizationStatus(for: .event)
+        
+        switch status {
+        case .authorized:
+            // 権限がある場合、イベントを作成
+            saveEvent(title: title, notes: notes, startDate: startDate, endDate: endDate)
+            
+        case .notDetermined:
+            // 権限がまだ決定されていない場合
+            calendarManager.eventStore.requestAccess(to: .event) { [weak self] granted, error in
+                if granted {
+                    DispatchQueue.main.async {
+                        self?.saveEvent(title: title, notes: notes, startDate: startDate, endDate: endDate)
+                    }
+                } else {
+                    print("カレンダー権限が拒否されました: \(error?.localizedDescription ?? "不明なエラー")")
+                }
+            }
+            
+        case .denied, .restricted:
+            // 権限がない場合
+            showAccessDeniedAlert()
+            
+        @unknown default:
+            print("未知の認証状態です")
+        }
+    }
+    
+    // 実際にイベントを保存する
+    private func saveEvent(title: String, notes: String?, startDate: Date, endDate: Date) {
+        // 新規イベントを作成
+        let event = EKEvent(eventStore: calendarManager.eventStore)
+        event.title = title
+        event.notes = notes
+        event.startDate = startDate
+        event.endDate = endDate
+        
+        // デフォルトカレンダーを取得
+        event.calendar = calendarManager.eventStore.defaultCalendarForNewEvents
+        
+        do {
+            try calendarManager.eventStore.save(event, span: .thisEvent)
+            print("イベントが保存されました: \(title)")
+            
+            // イベント一覧を更新
+            self.scheduleReload(startDate: Date() as NSDate)
+            
+            // 成功メッセージを表示
+            let alert = UIAlertController(
+                title: "予定を保存しました",
+                message: nil,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+            
+        } catch {
+            print("イベントの保存に失敗しました: \(error.localizedDescription)")
+            
+            // エラーメッセージを表示
+            let alert = UIAlertController(
+                title: "予定の保存に失敗しました",
+                message: error.localizedDescription,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+        }
     }
 
     /** 「編集」ボタンを押下されたときに呼ばれるメソッド */

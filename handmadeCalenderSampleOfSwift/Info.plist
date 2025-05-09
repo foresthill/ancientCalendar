@@ -41,5 +41,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCalendarsUsageDescription</key>
+	<string>予定の表示、追加、編集のためにカレンダーへのアクセス許可が必要です</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>リマインダーの表示、追加、編集のためにカレンダーへのアクセス許可が必要です</string>
 </dict>
 </plist>
