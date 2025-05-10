@@ -370,17 +370,21 @@ class CalendarManager {
             }
             
         } else {    //新暦モードへ戻す
-            //旧暦→新暦へ変換
+            //旧暦→新暦へ変換（実際の日付を使用）
+            let currentDay = day ?? 1  // 現在の日付を使用
+
             if(!nowLeapMonth) {  //閏月でない場合
-                currentComps = converter.convertForGregorianCalendar(dateArray: [year, month, 29, 0]) as DateComponents
-                
+                currentComps = converter.convertForGregorianCalendar(dateArray: [year, month, currentDay, 0]) as DateComponents
+
             } else {
-                currentComps = converter.convertForGregorianCalendar(dateArray: [year, -month, 29, 0]) as DateComponents
+                currentComps = converter.convertForGregorianCalendar(dateArray: [year, -month, currentDay, -1]) as DateComponents
                 nowLeapMonth = false    //閏月の初期化
             }
-            
-            // 新暦変換時に曜日を設定し直す #46
-            currentComps.day = 1
+
+            // 日付が設定されていない場合のみデフォルト設定
+            if currentComps.day == nil {
+                currentComps.day = 1
+            }
             
         }
                 

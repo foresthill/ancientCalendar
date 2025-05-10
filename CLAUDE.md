@@ -220,7 +220,36 @@ let calculatedMoonAge = traditionalMoonAge
 2025/3/21     | 2025/2/22     |     21.0 |    20.26 |                20.2 |             0.8
 ```
 
-## バグ修正履歴
+## 復旧・バグ修正の経緯
+
+### アプリ復旧作業（2025年5月10日）
+
+**問題状況**:
+- トップページ（カレンダー表示画面）が完全に動作しなくなる重大な問題が発生
+- メイン画面での月の表示や日付表示などの基本機能が機能しない状態
+- 複数の機能変更による累積的な問題で、コードが安定状態から崩れていた
+
+**アプローチと診断**:
+1. **原因調査**:
+   - ViewController.swiftの問題を詳しく調査
+   - CalendarManagerとの連携の問題を特定
+   - 月齢計算の変更と月画像表示の方法の不一致が特に深刻な問題だった
+
+2. **段階的な復旧計画**:
+   - まず安定していた古いバージョンのコードを特定
+   - 主要ファイル（ViewController.swift, CalendarManager.swift）を古いバージョンに戻す方針を決定
+   - 先に行った改善（月齢計算の精度向上など）を維持しつつ、UI表示の問題を修正
+
+3. **具体的な復旧手順**:
+   - ViewController.swiftを安定版（コミット14f7233 "Optinal修正その他諸々"）に戻す
+   - CalendarManager.swiftを安定版（コミットbfb9492 "月齢計算の修正と統一"）に戻す
+   - メイン画面の機能を確認し、正常動作を確認
+   - 復元作業のコミット履歴に残すため、それぞれ個別にコミット（333609dと6d5e55f）
+
+**結果と評価**:
+- メイン画面（トップページ）が正常に動作するようになった
+- 月齢表示と月の画像表示が正しく同期するようになった
+- カレンダーの日付表示と閏月の処理が正しく機能するようになった
 
 ### 閏月表示のOptional表示バグの修正（2025年5月10日）
 
@@ -257,3 +286,85 @@ let calculatedMoonAge = traditionalMoonAge
 3. 影響範囲:
    - この修正により、旧暦モードで閏月を表示する際に「Optional(X)」という文字列が表示されなくなりました。
    - 詳細画面（ScheduleViewController）のタイトル表示が正しく表示されるようになりました。
+
+### モード切替時の日付変換バグの修正（2025年5月10日）
+
+**問題内容**:
+- カレンダーモード（新暦⇔旧暦）切替時に、日付が正しく対応せず、元の日付情報が失われる問題
+- 特に新暦モードに戻る際に、日付が常に1日になってしまう
+- モード切替時の日付の1:1対応が正しく機能していない
+
+**解析結果**:
+1. **問題の特定**:
+   - `CalendarManager.swift`の`setupAnotherCalendarData()`メソッドに問題があることを特定
+   - 新暦モードに戻す際、日付を強制的に1日に設定していた（`currentComps.day = 1`）
+   - 旧暦から新暦への変換時に実際の日付ではなく常に29日を使用していた
+
+2. **問題の影響**:
+   - モード間の切替時に日付情報が失われる
+   - 特に研究や実験目的で特定の日付の対応関係を見たい場合に支障をきたす
+   - ユーザーの使い勝手が大幅に低下
+
+**修正内容**:
+1. **日付変換ロジックの改善**:
+   ```swift
+   // 修正前
+   if(!nowLeapMonth) {  //閏月でない場合
+       currentComps = converter.convertForGregorianCalendar(dateArray: [year, month, 29, 0]) as DateComponents
+   } else {
+       currentComps = converter.convertForGregorianCalendar(dateArray: [year, -month, 29, 0]) as DateComponents
+       nowLeapMonth = false    //閏月の初期化
+   }
+
+   // 新暦変換時に曜日を設定し直す #46
+   currentComps.day = 1
+
+   // 修正後
+   let currentDay = day ?? 1  // 現在の日付を使用
+
+   if(!nowLeapMonth) {  //閏月でない場合
+       currentComps = converter.convertForGregorianCalendar(dateArray: [year, month, currentDay, 0]) as DateComponents
+   } else {
+       currentComps = converter.convertForGregorianCalendar(dateArray: [year, -month, currentDay, -1]) as DateComponents
+       nowLeapMonth = false    //閏月の初期化
+   }
+
+   // 日付が設定されていない場合のみデフォルト設定
+   if currentComps.day == nil {
+       currentComps.day = 1
+   }
+   ```
+
+2. **修正のポイント**:
+   - 実際の現在日（`day`変数）を変換に使用
+   - 強制的に日付を1日にリセットしない
+   - 閏月情報も正確に変換関数に引き渡す
+
+**影響範囲と検証**:
+- この修正によりモード切替時の日付対応が正確になり、ユーザー体験が向上
+- ScheduleViewControllerのモード切替機能が正常に動作し、日付が失われなくなる
+- 既存のワークアラウンド（`checkAndAdjustDay`メソッド）は残しつつも、ほとんど呼ばれなくなる
+
+### 現在の状態と今後の留意点
+
+**現在の状態**:
+- アプリの主要機能（カレンダー表示、閏月表示、月齢計算、月相表示）が正常に動作
+- 日付操作や画面遷移が正しく行われる
+- ViewControllerとCalendarManagerが適切に連携している
+- モード切替時の日付変換が正確に行われる
+
+**今後の留意点**:
+1. **オプショナル処理の徹底**:
+   - Swiftのオプショナル値は常に安全に処理する（`if let`や`guard let`を使用）
+   - 特に文字列表示の際は注意が必要
+
+2. **閏月処理の検証**:
+   - 閏月周辺の日付変更時には特に念入りなテストが必要
+   - `nowLeapMonth`と`isLeapMonth`の2つのフラグの一貫性を常に確認
+   - モード切替時の閏月の扱いには特に注意
+
+3. **コード改善時の注意事項**:
+   - 複数ファイルにまたがる変更は慎重に行い、段階的にテスト
+   - バージョン管理（git）を活用して安定状態を常に記録しておく
+   - 変更前後のスクリーンショットなどで視覚的に検証する
+   - 「最小限の変更」原則を守り、既存コードの意図を尊重する
