@@ -219,3 +219,41 @@ let calculatedMoonAge = traditionalMoonAge
 2025/3/20     | 2025/2/21     |     20.0 |    19.25 |                19.2 |             0.8
 2025/3/21     | 2025/2/22     |     21.0 |    20.26 |                20.2 |             0.8
 ```
+
+## バグ修正履歴
+
+### 閏月表示のOptional表示バグの修正（2025年5月10日）
+
+**問題内容**:
+- 旧暦の閏月が表示される際に、月の表示に「Optional(X)」という文字列が表示される問題が発生していました。
+- これはScheduleViewControllerで閏月情報を表示する際に、オプショナル値が適切にアンラップされていないことが原因でした。
+
+**修正内容**:
+1. `CalendarManager.swift`の`setScheduleTitle()`メソッド内で、`ancientMonth`オプショナル値を安全にアンラップするようコードを修正しました。
+   - 修正前: オプショナル値を直接文字列に変換して使用していた
+   - 修正後: `guard let`を使って安全にアンラップした値を使用するよう変更
+
+2. 修正箇所:
+   ```swift
+   // 修正前
+   var ancientMonthStr: String = String(ancientMonth)
+
+   if(isLeapMonth < 0) {
+       ancientMonthStr = "閏\(ancientMonth)"
+   }
+
+   // 修正後
+   guard let month = ancientMonth else {
+       return // Return early if ancientMonth is nil
+   }
+
+   var ancientMonthStr: String = String(month)
+
+   if(isLeapMonth < 0) {
+       ancientMonthStr = "閏\(month)"
+   }
+   ```
+
+3. 影響範囲:
+   - この修正により、旧暦モードで閏月を表示する際に「Optional(X)」という文字列が表示されなくなりました。
+   - 詳細画面（ScheduleViewController）のタイトル表示が正しく表示されるようになりました。

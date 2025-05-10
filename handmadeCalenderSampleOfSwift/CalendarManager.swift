@@ -87,18 +87,7 @@ class CalendarManager {
     /** 月齢 */
     var moonAge = 0.0
     
-    /**
-     月齢に対応する月の満ち欠けの名称
-     
-     月齢（0〜29）に対応する日本の伝統的な月の呼び名の配列。
-     空文字列("")は、その月齢に特別な名称がないことを示します。
-     
-     主な月相:
-     - 月齢0: 新月
-     - 月齢7: 上弦の月
-     - 月齢15: 満月
-     - 月齢23: 下弦の月
-     */
+    /** 月の満ち欠け */
     let moonName = ["新月", "", "繊月", "三日月", "", "", "", "上弦の月", "", "", "十日夜の月",         //0〜10
                     "", "", "十三夜月", "小望月", "満月", "十六夜", "立待月", "居待月", "寝待月", "更待月", //11〜20
                     "", "", "下弦の月", "", "", "有明月", "", "", "", "三十日月"]  //21〜30
@@ -154,94 +143,8 @@ class CalendarManager {
         var calendarTitle: String;
         calendarTitle = "\(month ?? 0)月"
         
-        // 閏月フラグの不一致があれば修正（このタイミングで修正しておく）
-        if nowLeapMonth != (isLeapMonth < 0) {
-            print("⚠️ カレンダータイトル設定時の閏月フラグ不一致: nowLeapMonth=\(nowLeapMonth), isLeapMonth=\(isLeapMonth ?? 0)")
-            if nowLeapMonth {
-                isLeapMonth = -1
-            } else {
-                isLeapMonth = 0
-            }
-        }
-        
-        // 特殊ケース: 2025年7月2日/6月8日の特別処理
-        if year == 2025 && month == 6 && day == 8 && calendarMode == -1 {
-            // この特殊ケースでは必ず通常月として扱う
-            print("⚠️ 特殊ケース（タイトル設定時）: 2025年6月8日は強制的に通常月として処理")
-            nowLeapMonth = false
-            isLeapMonth = 0
-        }
-            
-        // 閏月か判定：UI状態を優先的に考慮
-        // 月番号が閏月番号と一致するのは必要条件
-        let isValidLeapMonth = (month == converter.leapMonth)
-        
-        // 特殊ケース: 月番号が閏月番号と一致する場合、テーブル構造から実際に閏月か確認
-        if isValidLeapMonth && calendarMode == -1 {
-            // テーブル構造を確認して通日範囲をチェック
-            converter.tblExpand(inYear: year ?? 2025)
-            
-            if let year = year, let month = month, let day = day {
-                // 月のテーブルインデックス
-                let leapMonthIdx = converter.leapMonth ?? 0
-                let normalMonthIdx = leapMonthIdx - 1
-                
-                if leapMonthIdx > 0 && normalMonthIdx >= 0 {
-                    // 通常月と閏月の範囲
-                    let normalMonthStartDay = normalMonthIdx > 0 ? converter.ancientTbl[normalMonthIdx-1][0] : 0
-                    let normalMonthEndDay = converter.ancientTbl[normalMonthIdx][0]
-                    let leapMonthStartDay = converter.ancientTbl[leapMonthIdx-1][0]
-                    let leapMonthEndDay = converter.ancientTbl[leapMonthIdx][0]
-                    
-                    // 概算通日（簡易推測）
-                    let approxDayOfYear = (month - 1) * 30 + day
-                    
-                    print("月範囲確認: ")
-                    print("- 通常\(month)月: \(normalMonthStartDay+1)〜\(normalMonthEndDay)日")
-                    print("- 閏\(month)月: \(leapMonthStartDay+1)〜\(leapMonthEndDay)日")
-                    print("- 概算通日: \(approxDayOfYear)日")
-                    
-                    // 通日がどちらの範囲に入るか
-                    if approxDayOfYear >= normalMonthStartDay && approxDayOfYear < normalMonthEndDay {
-                        // 通常月範囲
-                        if nowLeapMonth {
-                            print("⚠️ 通日が通常月範囲ですが閏月フラグが立っています。通常月に修正します。")
-                            nowLeapMonth = false
-                            isLeapMonth = 0
-                        }
-                    } else if approxDayOfYear >= leapMonthStartDay && approxDayOfYear < leapMonthEndDay {
-                        // 閏月範囲
-                        if !nowLeapMonth {
-                            print("⚠️ 通日が閏月範囲ですが閏月フラグが立っていません。閏月に修正します。")
-                            nowLeapMonth = true
-                            isLeapMonth = -1
-                        }
-                    }
-                }
-            }
-        }
-        
-        // 閏月の表示決定
-        let shouldDisplayAsLeapMonth = nowLeapMonth && isValidLeapMonth
-        
-        if shouldDisplayAsLeapMonth {
+        if((month == converter.leapMonth) && nowLeapMonth) {   //leapMonth→converter.leapMonth（2016/04/17）
             calendarTitle = "閏\(month ?? 0)月"
-            
-            // 閏月状態を確実に設定 (すでに設定されているはずだが念のため)
-            nowLeapMonth = true
-            isLeapMonth = -1
-            
-            print("閏月タイトルを設定: \(calendarTitle)")
-        } else {
-            // 閏月ではない場合は通常月表示
-            calendarTitle = "\(month ?? 0)月"
-            
-            // 月番号が閏月と一致しても、nowLeapMonthがfalseなら通常月表示
-            if isValidLeapMonth && !nowLeapMonth {
-                print("月番号(\(month ?? 0))は閏月(\(converter.leapMonth ?? 0))と一致しますが、nowLeapMonth=falseのため通常月として表示")
-            } else {
-                print("通常月タイトルを設定: \(calendarTitle)")
-            }
         }
         
         switch calendarMode {
@@ -448,238 +351,37 @@ class CalendarManager {
         let currentCalendar = Calendar(identifier: .gregorian)
         var currentComps = DateComponents()
         
-        // 現在の状態を詳細に記録（デバッグ用）
-        print("モード切替前の状態:")
-        print("- モード: \(calendarMode == 1 ? "新暦" : "旧暦")")
-        print("- 日付: \(year ?? 0)年\(nowLeapMonth ? "閏" : "")\(month ?? 0)月\(day ?? 0)日")
-        print("- 閏月フラグ: nowLeapMonth=\(nowLeapMonth), isLeapMonth=\(isLeapMonth ?? 0)")
-        
         if(calendarMode == -1) {  //旧暦モードへ
             //これ入れないとおかしくなる。なんで？converForAncientCalendarの洗礼を通れなくなるから、みたい。
             currentComps.year  = year
             currentComps.month = month
-            currentComps.day   = day
+            currentComps.day   = day    //必要？
             
-            // テーブル初期化して閏月情報を確認
-            converter.tblExpand(inYear: year ?? 2025)
-            print("この年の閏月: \(converter.leapMonth ?? 0)月")
+            //新暦→旧暦へ変換
+            let ancientDate: [Int] = converter.convertForAncientCalendar(comps: currentComps)   //2016/04/17
             
-            // 新暦→旧暦へ変換
-            let ancientDate: [Int] = converter.convertForAncientCalendar(comps: currentComps)
-            
-            // 変換結果を適用
             currentComps.year = ancientDate[0]
             currentComps.month = ancientDate[1]
             currentComps.day = ancientDate[2]
             isLeapMonth = ancientDate[3]
             
-            // 閏月フラグを内部フラグと同期
-            nowLeapMonth = (isLeapMonth < 0)
-            
-            // 追加：特定の日付の検証（2025年7月2日など、特にモード切替時に問題を起こす日用）
-            if year == 2025 && month == 7 && day == 2 {
-                if isLeapMonth < 0 {
-                    print("⚠️ 特別な日付検出（2025年7月2日）: 正しくは通常6月8日のはずですが閏月として返されました")
-                    // 閏月フラグを強制的に修正
-                    isLeapMonth = 0
-                    nowLeapMonth = false
-                } else {
-                    print("✓ 特別な日付（2025年7月2日）が正しく通常月として検出されました")
-                }
-                
-                // このケースをさらに強化するため、コンポーネントの月と日を明示的に設定
-                currentComps.month = 6  // 6月
-                currentComps.day = 8    // 8日
+            if(isLeapMonth < 0) {
+                nowLeapMonth = true
             }
-            
-            // 月番号が閏月番号と一致する場合は、テーブル位置で正確に判断する
-            if currentComps.month == converter.leapMonth {
-                print("⚠️ 注意: 月番号(\(currentComps.month ?? 0))は閏月番号(\(converter.leapMonth ?? 0))と一致します")
-                
-                // 通日をチェックして、本当に通常月か閏月かを判断
-                if let year = currentComps.year, let month = currentComps.month, let day = currentComps.day {
-                    // テーブルの閏月インデックスと通常月インデックス
-                    let leapMonthIdx = converter.leapMonth ?? 0
-                    let normalMonthIdx = leapMonthIdx - 1
-                    
-                    // 範囲チェック
-                    if leapMonthIdx > 0 && leapMonthIdx < converter.ancientTbl.count && normalMonthIdx >= 0 {
-                        // 通常月と閏月の通日範囲
-                        let normalMonthStartDay = normalMonthIdx > 0 ? converter.ancientTbl[normalMonthIdx-1][0] : 0
-                        let normalMonthEndDay = converter.ancientTbl[normalMonthIdx][0]
-                        let leapMonthStartDay = converter.ancientTbl[leapMonthIdx-1][0]
-                        let leapMonthEndDay = converter.ancientTbl[leapMonthIdx][0]
-                        
-                        // 大まかな旧暦の通日を計算
-                        let approxDayOfYear = (month - 1) * 30 + day
-                        
-                        print("月範囲情報:")
-                        print("- 通常\(month)月: \(normalMonthStartDay+1)〜\(normalMonthEndDay)日")
-                        print("- 閏\(month)月: \(leapMonthStartDay+1)〜\(leapMonthEndDay)日")
-                        print("- 概算通日: \(approxDayOfYear)日")
-                        
-                        // 通日が通常月・閏月どちらの範囲に入るか判定
-                        let isInNormalMonthRange = approxDayOfYear >= normalMonthStartDay && approxDayOfYear < normalMonthEndDay
-                        let isInLeapMonthRange = approxDayOfYear >= leapMonthStartDay && approxDayOfYear < leapMonthEndDay
-                        
-                        if isInNormalMonthRange {
-                            print("✓ 日付(\(day))は通常月の範囲内。通常月として処理します。")
-                            // 通常月として扱う（フラグを確実にリセット）
-                            nowLeapMonth = false
-                            isLeapMonth = 0
-                        } else if isInLeapMonthRange {
-                            print("✓ 日付(\(day))は閏月の範囲内。閏月として処理します。")
-                            // 閏月として扱う（フラグを確実に設定）
-                            nowLeapMonth = true
-                            isLeapMonth = -1
-                        } else {
-                            print("⚠️ 警告: 日付(\(day))はどの月の範囲にも入りません。")
-                            // 既存のフラグを維持または適切なデフォルト値を設定
-                            
-                            // より近い方の範囲を選ぶ
-                            if approxDayOfYear < normalMonthStartDay {
-                                print("⚠️ 日付は両方の範囲より前になります。前の月の可能性があります。")
-                            } else if approxDayOfYear >= leapMonthEndDay {
-                                print("⚠️ 日付は両方の範囲より後になります。次の月の可能性があります。")
-                            } else {
-                                // 通常月と閏月の間の場合
-                                if approxDayOfYear - normalMonthEndDay < leapMonthStartDay - approxDayOfYear {
-                                    // 通常月の終わりに近い
-                                    nowLeapMonth = false
-                                    isLeapMonth = 0
-                                    print("通常月の終わりに近いので通常月として処理します。")
-                                } else {
-                                    // 閏月の始まりに近い
-                                    nowLeapMonth = true
-                                    isLeapMonth = -1
-                                    print("閏月の始まりに近いので閏月として処理します。")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            print("新暦→旧暦変換結果: \(year ?? 0)年\(month ?? 0)月\(day ?? 0)日 → \(currentComps.year ?? 0)年\(isLeapMonth < 0 ? "閏" : "")\(currentComps.month ?? 0)月\(currentComps.day ?? 0)日")
             
         } else {    //新暦モードへ戻す
             //旧暦→新暦へ変換
-            // 現在の日付を保存（変換後も同じ日にするため）
-            let currentDay = day ?? 1
-            
-            // 月の最大日数を取得（旧暦）
-            var ancientMonthMaxDay = 30  // デフォルト値
-            
-            // 正確な月日数を計算
-            if let year = year, let month = month {
-                // インデックスが範囲内か確認
-                let monthIndex = month - 1
-                let prevMonthIndex = monthIndex - 1
+            if(!nowLeapMonth) {  //閏月でない場合
+                currentComps = converter.convertForGregorianCalendar(dateArray: [year, month, 29, 0]) as DateComponents
                 
-                if prevMonthIndex >= 0 && monthIndex < 14 {
-                    // 月日数を取得
-                    ancientMonthMaxDay = converter.ancientTbl[monthIndex][0] - converter.ancientTbl[prevMonthIndex][0]
-                    print("旧暦\(month)月の日数: \(ancientMonthMaxDay)日")
-                }
-            }
-            
-            // 日付が旧暦の月日数を超えないように調整
-            let adjustedDay = min(currentDay, ancientMonthMaxDay)
-            print("変換に使用する日付: \(adjustedDay)日")
-            
-            // 閏月かどうかのチェック - 内部フラグの整合性確保
-            let currentLeapMonth = isLeapMonth < 0
-            
-            // フラグ調整（必要な場合）
-            if currentLeapMonth != nowLeapMonth {
-                print("⚠️ 閏月フラグの不一致を修正: nowLeapMonth=\(nowLeapMonth), isLeapMonth=\(isLeapMonth ?? 0)")
-                nowLeapMonth = currentLeapMonth
-            }
-            
-            // 閏月判定を厳密に行う
-            // 月番号が閏月番号と一致する場合は特に注意
-            let isMonthMatchLeapMonth = (month == converter.leapMonth)
-            
-            // この月の旧暦テーブル上での位置を確認（閏月か通常月かの厳密な判定）
-            var isActuallyLeapMonth = false
-            
-            if isMonthMatchLeapMonth {
-                print("注意: 現在月(\(month ?? 0))は閏月番号(\(converter.leapMonth ?? 0))と一致")
-                
-                // 通日ベースで閏月かどうかを判定
-                if let year = year, let month = month, let day = day {
-                    // 現在日の通日を取得
-                    let calendar = Calendar(identifier: .gregorian)
-                    var tmpComps = DateComponents()
-                    tmpComps.year = year
-                    tmpComps.month = month
-                    tmpComps.day = day
-                    
-                    if let date = calendar.date(from: tmpComps) {
-                        let dayOfYear = calendar.ordinality(of: .day, in: .year, for: date) ?? 0
-                        
-                        // 閏月のインデックスと通常月のインデックス
-                        let leapMonthIdx = converter.leapMonth ?? 0
-                        let normalMonthIdx = leapMonthIdx - 1
-                        
-                        // 通日が閏月の範囲内にあるかチェック
-                        if leapMonthIdx > 0 && leapMonthIdx < 14 && normalMonthIdx >= 0 {
-                            let leapMonthStartDay = converter.ancientTbl[leapMonthIdx-1][0]
-                            let leapMonthEndDay = converter.ancientTbl[leapMonthIdx][0]
-                            
-                            // 通日が閏月の範囲内にあれば閏月と判定
-                            if dayOfYear >= leapMonthStartDay && dayOfYear < leapMonthEndDay {
-                                isActuallyLeapMonth = true
-                                print("✓ 通日(\(dayOfYear))は閏月の範囲内: \(leapMonthStartDay)-\(leapMonthEndDay)")
-                            } else {
-                                print("✓ 通日(\(dayOfYear))は閏月の範囲外: \(leapMonthStartDay)-\(leapMonthEndDay)")
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // 閏月判定：UI状態と内部フラグの両方を参照
-            let monthValue: Int
-            let leapFlag: Int
-            
-            // 優先順位の明確化：
-            // 1. 明示的な閏月指定（nowLeapMonthがtrue）が最優先
-            // 2. テーブル判定（isActuallyLeapMonth）は参考情報
-            // 3. 内部フラグ（isLeapMonth）はバックアップ
-            
-            // 明示的に閏月と指定されているか、内部フラグで閏月と判定されている場合
-            if nowLeapMonth || isLeapMonth < 0 {
-                // 閏月の場合: 月をマイナス値として渡し、フラグもマイナス
-                monthValue = -(month ?? 0)
-                leapFlag = -1
-                print("閏月として変換を実行: \(monthValue)月, leapFlag=\(leapFlag)")
-                
-                // テーブル判定と矛盾する場合は警告のみ（閏月指定を優先）
-                if !isActuallyLeapMonth && isMonthMatchLeapMonth {
-                    print("⚠️ 閏月指定ですが、テーブル上では通常月の位置にあります。閏月として処理します。")
-                }
             } else {
-                // 通常月の場合: 正の値で渡し、フラグもゼロ
-                monthValue = month ?? 0
-                leapFlag = 0
-                print("通常月として変換を実行: \(monthValue)月, leapFlag=\(leapFlag)")
-                
-                // テーブル判定と矛盾する場合は警告のみ（通常月指定を優先）
-                if isActuallyLeapMonth {
-                    print("⚠️ 通常月指定ですが、テーブル上では閏月の位置にあります。通常月として処理します。")
-                }
+                currentComps = converter.convertForGregorianCalendar(dateArray: [year, -month, 29, 0]) as DateComponents
+                nowLeapMonth = false    //閏月の初期化
             }
             
-            // 変換実行
-            currentComps = converter.convertForGregorianCalendar(dateArray: [year ?? 0, monthValue, adjustedDay, leapFlag]) as DateComponents
+            // 新暦変換時に曜日を設定し直す #46
+            currentComps.day = 1
             
-            // 変換後は新暦なので閏月フラグをリセット
-            nowLeapMonth = false
-            isLeapMonth = 0
-            
-            // デバッグ情報（変換前後の確認）
-            print("旧暦→新暦変換結果: \(year ?? 0)年\(nowLeapMonth ? "閏" : "")\(month ?? 0)月\(adjustedDay)日 → \(currentComps.year ?? 0)年\(currentComps.month ?? 0)月\(currentComps.day ?? 0)日")
         }
                 
         //self.navigationItem.title = "\(year)"
@@ -743,54 +445,17 @@ class CalendarManager {
             ancientDay = ancientDate[2]
             isLeapMonth = ancientDate[3]
             
-            // 特殊ケース: Gregorian 2025-07-02 は必ず旧暦の通常6月8日
-            if gregorianYear == 2025 && gregorianMonth == 7 && gregorianDay == 2 {
-                print("⚠️ 特殊ケース（Schedule初期化時）: 新暦2025年7月2日は旧暦の通常6月8日に対応")
-                ancientYear = 2025
-                ancientMonth = 6
-                ancientDay = 8
-                isLeapMonth = 0
-                nowLeapMonth = false
-            }
-            
         } else {    //旧暦モード
             
             ancientYear = year
             ancientMonth = month
             ancientDay = day
             
-            //新暦時間を渡す
-            // 閏月かどうかを確認し、閏月の場合は正しく負の値として渡す
-            let monthValue: Int
-            if nowLeapMonth || (isLeapMonth ?? 0) < 0 {
-                // 閏月の場合は月をマイナス値として渡す
-                if let month = ancientMonth {
-                    monthValue = -month  // 閏月を示すためにマイナス値にする
-                    print("閏月として新暦変換: \(monthValue)月")
-                } else {
-                    monthValue = 0
-                }
-            } else {
-                // 通常月
-                monthValue = ancientMonth ?? 0
-            }
-            
-            // 閏月情報を含めた配列を渡す
-            // 特殊ケース: 旧暦2025年6月8日は新暦2025年7月2日
-            if ancientYear == 2025 && ancientMonth == 6 && ancientDay == 8 && !nowLeapMonth {
-                print("⚠️ 特殊ケース（Schedule初期化時）: 旧暦2025年6月8日は新暦の2025年7月2日に対応")
-                comps.year = 2025
-                comps.month = 7
-                comps.day = 2
-                gregorianYear = 2025
-                gregorianMonth = 7
-                gregorianDay = 2
-            } else {
-                comps = converter.convertForGregorianCalendar(dateArray: [ancientYear ?? 0, monthValue, ancientDay ?? 0, isLeapMonth ?? 0]) as DateComponents
-                gregorianYear = comps.year
-                gregorianMonth = comps.month
-                gregorianDay = comps.day
-            }
+            //新暦時間を渡す（これだと
+            comps = converter.convertForGregorianCalendar(dateArray: [ancientYear, ancientMonth, ancientDay, isLeapMonth]) as DateComponents
+            gregorianYear = comps.year
+            gregorianMonth = comps.month
+            gregorianDay = comps.day
             
         }
         
@@ -871,66 +536,16 @@ class CalendarManager {
         isLeapMonth = ancientDate[3]
          */
         
-        // 旧暦月の文字列表現を安全に作成（閏月を正しく表示）
-        var ancientMonthStr: String
-        
-        if let month = ancientMonth {
-            // 特殊ケース: 2025年6月8日は常に通常月として扱う
-            if ancientYear == 2025 && month == 6 && ancientDay == 8 {
-                print("⚠️ 特殊ケース（スケジュールタイトル設定時）: 2025年6月8日は強制的に通常月として処理")
-                nowLeapMonth = false
-                isLeapMonth = 0
-            }
-            
-            // まず月番号と閏月番号を比較して月が閏月かどうかを確認
-            let isValidLeapMonth = (month == converter.leapMonth)
-            
-            // フラグの状態を確認（内部状態が最も信頼性が高い）
-            let isLeapMonthFromInternalFlag = (isLeapMonth < 0)
-            
-            // フラグの不一致を修正するためのデバッグ情報
-            if isValidLeapMonth && nowLeapMonth != isLeapMonthFromInternalFlag {
-                print("⚠️ 閏月フラグの不一致を検出: nowLeapMonth=\(nowLeapMonth), isLeapMonth=\(isLeapMonth ?? 0)")
-            }
-            
-            // 現在のデータが閏月かどうかを判断
-            // 内部フラグ(isLeapMonth)を優先して判断する
-            let shouldBeLeapMonth = isValidLeapMonth && isLeapMonthFromInternalFlag && !(ancientYear == 2025 && month == 6 && ancientDay == 8)
-            
-            if shouldBeLeapMonth {
-                // 閏月の場合
-                ancientMonthStr = "閏\(month)"
-                
-                // 閏月状態を完全に同期
-                nowLeapMonth = true
-                isLeapMonth = -1
-                
-                print("閏月の表示をセット: 閏\(month)月 (内部フラグに基づく)")
-            } else {
-                // 通常月の場合
-                ancientMonthStr = "\(month)"
-                
-                // 閏月ではない場合、常にフラグをリセット（これが重要）
-                nowLeapMonth = false
-                isLeapMonth = 0
-                
-                // 月番号が閏月と一致する場合は追加情報
-                if isValidLeapMonth {
-                    print("注意: 月番号(\(month))は閏月番号(\(converter.leapMonth ?? 0))と一致しますが、通常月として表示します")
-                }
-                
-                print("通常月の表示をセット: \(month)月")
-            }
-        } else {
-            ancientMonthStr = "0" // 不明な場合のデフォルト値
-            // 安全のためフラグをリセット
-            nowLeapMonth = false
-            isLeapMonth = 0
+        // Safely unwrap the optional ancientMonth
+        guard let month = ancientMonth else {
+            return // Return early if ancientMonth is nil
         }
-        
-        // デバッグ情報
-        print("旧暦月の文字列表現: \(ancientMonthStr) (月=\(ancientMonth ?? 0), isLeapMonth=\(isLeapMonth ?? 0), nowLeapMonth=\(nowLeapMonth))")
-        print("現在の年の閏月: \(converter.leapMonth)月")
+
+        var ancientMonthStr: String = String(month)
+
+        if(isLeapMonth < 0) {
+            ancientMonthStr = "閏\(month)"
+        }
         
         //タイトル
         if(calendarMode == 1) {
@@ -1014,15 +629,13 @@ class CalendarManager {
     
     /**
      旧暦日に対応した月齢を計算（伝統的な旧暦表示に最適）
-     旧暦1日を新月(0)、旧暦15日を満月(14)とする伝統的な計算
+     旧暦1日を新月(0)、旧暦15日を満月(14)とする伝統的な月齢計算
      
      - parameter lunarDay: 旧暦の日付（1〜30）
      - returns: 月齢（Double、0〜29）
      */
     func calcMoonAgeForLunarDay(lunarDay: Int) -> Double {
-        // 基本の月齢: 旧暦日-1（伝統的な計算方法）
         let age = Double(lunarDay - 1)
-        
         print("旧暦\(lunarDay)日に対応する月齢: \(age)")
         return age
     }

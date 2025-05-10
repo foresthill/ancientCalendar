@@ -256,6 +256,96 @@ class MoonAgeTests: XCTestCase {
     }
 }
 
+// 2025年3月の参照日（特別に検証が必要な日）のテスト
+class MoonAgeReferenceTests: XCTestCase {
+    var calendarManager: CalendarManagerMock!
+
+    override func setUp() {
+        super.setUp()
+        calendarManager = CalendarManagerMock()
+    }
+
+    override func tearDown() {
+        calendarManager = nil
+        super.tearDown()
+    }
+
+    // 2025年3月17日の月齢計算比較テスト
+    func testReferenceDateMarch17_2025() {
+        // 2025年3月17日（旧暦2025年2月18日）
+        let gregorianDate = (year: 2025, month: 3, day: 17)
+        let lunarDate = (year: 2025, month: 2, day: 18)
+
+        // 各計算方法による月齢を計算
+        let traditionalMoonAge = MoonAgeCalculator.calculateFromLunarDay(lunarDay: lunarDate.day)
+
+        // 天文学的計算
+        let astronomicalMoonAge = MoonAgeCalculator.calculateAstronomical(
+            year: gregorianDate.year,
+            month: gregorianDate.month,
+            day: gregorianDate.day
+        )
+
+        // 伝統的計算と天文学的計算の差
+        let diff = traditionalMoonAge - astronomicalMoonAge
+
+        // 予想される結果
+        // 旧暦2月18日 → 月齢17.0
+        // 天文学的計算 → 月齢16.2前後
+        // 差は約0.8
+
+        XCTAssertEqual(traditionalMoonAge, 17.0, "2025年3月17日の伝統的月齢は17.0になるべき")
+        XCTAssertEqual(Int(astronomicalMoonAge), 16, "2025年3月17日の天文学的月齢の整数部は16になるべき")
+        XCTAssertGreaterThan(diff, 0.5, "伝統的計算と天文学的計算の差は0.5以上であるべき")
+        XCTAssertLessThan(diff, 1.0, "伝統的計算と天文学的計算の差は1.0未満であるべき")
+    }
+
+    // 連続する7日間の月齢変化テスト（2025年3月15日〜3月21日）
+    func testConsecutiveDaysMarch2025() {
+        // 2025年3月15日（旧暦2025年2月15日）から7日間の月齢変化をテスト
+        let startDate = (year: 2025, month: 3, day: 15)
+        let lunarDays = [15, 16, 18, 19, 20, 21, 22] // 旧暦の日（2月17日は存在しないため飛ぶ）
+
+        // 結果を保存する配列
+        var results: [(date: String, lunarDay: Int, traditional: Double, astronomical: Double, diff: Double)] = []
+
+        // 7日間の月齢を計算
+        for i in 0..<7 {
+            let gregorianDate = (year: startDate.year, month: startDate.month, day: startDate.day + i)
+            let lunarDay = lunarDays[i]
+
+            let traditionalMoonAge = MoonAgeCalculator.calculateFromLunarDay(lunarDay: lunarDay)
+            let astronomicalMoonAge = MoonAgeCalculator.calculateAstronomical(
+                year: gregorianDate.year,
+                month: gregorianDate.month,
+                day: gregorianDate.day
+            )
+
+            let diff = traditionalMoonAge - astronomicalMoonAge
+            let dateString = "\(gregorianDate.year)/\(gregorianDate.month)/\(gregorianDate.day)"
+
+            results.append((dateString, lunarDay, traditionalMoonAge, astronomicalMoonAge, diff))
+        }
+
+        // 月齢の変化をコンソールに出力
+        print("=== 参照日（3/17）周辺期間 (2025/3/15から7日間) ===\n")
+        print("日付          | 旧暦日   | 伝統的計算 | 天文学的計算 | 差")
+        print("--------------------------------------------------")
+
+        for result in results {
+            print("\(result.date) | \(result.lunarDay)日 | \(result.traditional) | \(result.astronomical) | \(result.diff)")
+        }
+
+        // 重要な参照日（2025年3月17日）のテスト
+        XCTAssertEqual(results[2].traditional, 17.0, "2025年3月17日の伝統的月齢は17.0になるべき")
+        XCTAssertEqual(Int(results[2].astronomical), 16, "2025年3月17日の天文学的月齢の整数部は16になるべき")
+
+        // 日付が飛ぶ日の前後で月齢の連続性を確認
+        XCTAssertEqual(results[1].lunarDay + 2, results[2].lunarDay, "旧暦2月16日の次は2月18日であるべき")
+        XCTAssertEqual(results[1].traditional + 2.0, results[2].traditional, "伝統的月齢は連続して+2.0されるべき")
+    }
+}
+
 // テストを実行するためのエントリーポイント
 if #available(macOS 10.13, *) {
     // macOS 10.13以降でXCTestを実行
@@ -264,15 +354,25 @@ if #available(macOS 10.13, *) {
         ("testSimpleMoonAge", MoonAgeTests.testSimpleMoonAge),
         ("testAstronomicalMoonAge", MoonAgeTests.testAstronomicalMoonAge),
         ("testLunarDayMoonAgeCorrelation", MoonAgeTests.testLunarDayMoonAgeCorrelation),
-        ("testMoonPhaseDates", MoonAgeTests.testMoonPhaseDates)
+        ("testMoonPhaseDates", MoonAgeTests.testMoonPhaseDates),
+        // 新しい参照日テストを追加
+        ("testReferenceDateMarch17_2025", MoonAgeReferenceTests.testReferenceDateMarch17_2025),
+        ("testConsecutiveDaysMarch2025", MoonAgeReferenceTests.testConsecutiveDaysMarch2025)
     ]
-    
+
     for (name, test) in tests {
         print("実行中: \(name)")
-        let testCase = MoonAgeTests()
-        testCase.setUp()
-        test(testCase)()
-        testCase.tearDown()
+        if name.contains("testReferenceDate") || name.contains("testConsecutive") {
+            let testCase = MoonAgeReferenceTests()
+            testCase.setUp()
+            test(testCase)()
+            testCase.tearDown()
+        } else {
+            let testCase = MoonAgeTests()
+            testCase.setUp()
+            test(testCase)()
+            testCase.tearDown()
+        }
     }
 } else {
     print("XCTestが利用できないため、テストをスキップします")
