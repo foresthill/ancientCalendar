@@ -1,0 +1,35 @@
+# カレンダーモード切替のデバッグログ
+
+## CalendarManager::setupAnotherCalendarData() 処理概要
+
+1. 現在のモードを確認
+   - カレンダーの状態: モード(`calendarMode`), 年月日, 閏月フラグ(`nowLeapMonth`, `isLeapMonth`)
+
+2. 新暦 → 旧暦モードの切替処理
+   - `(calendarMode == -1)` で判断
+   - `converter.convertForAncientCalendar(comps: currentComps)` で変換実行
+   - 変換結果には月(`ancientDate[1]`)と閏月フラグ(`ancientDate[3]`)が含まれる
+   - 特殊ケース処理: 2025年7月2日は旧暦の通常6月8日に対応
+
+3. 旧暦 → 新暦モードの切替処理
+   - `else` 部分
+   - 閏月判定が重要: `nowLeapMonth`と`isLeapMonth`の整合性確認
+   - 月の変換: 閏月の場合は月をマイナス値(`-month`)として渡す
+   - `converter.convertForGregorianCalendar(dateArray: [year, monthValue, day, leapFlag])` で変換実行
+   - 特殊ケース処理: 2025年6月8日(通常月)は新暦の2025年7月2日に対応
+
+4. 閏月状態検証
+   - テーブル位置による月の種類（通常/閏月）の厳密な判定ロジック
+   - 通日の範囲チェックで閏月かどうかを判定
+
+## 主要な問題箇所
+- 閏月フラグの不整合: `nowLeapMonth`(Bool)と`isLeapMonth`(Int)の同期が取れないケースがある
+- 月をまたぐ移動時、特に通常月→閏月→翌月の連続移動で不具合が発生する可能性
+- ボタン操作で月を変更する際、`setupNextCalendarData()`メソッド内での閏月判定が不十分な可能性
+- 2025年6月(水無月)→閏6月→7月(文月)の移動で特に注意が必要
+
+## 修正アプローチの方針
+1. フラグの整合性チェックと強制的な同期処理を各所に追加
+2. 月遷移時の閏月判定ロジックを厳密化
+3. モード切替時の特殊ケース処理（2025年7月2日/6月8日など）の確実な実行確認
+4. 閏月に対応する重要な処理箇所にデバッグログを追加
