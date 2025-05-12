@@ -18,16 +18,23 @@ struct DeviseSize {
     
     //CGRectを取得
     static func bounds()->CGRect{
-        return UIScreen.mainScreen().bounds;
+        return UIScreen.main.bounds;
     }
     
     //画面の横サイズを取得
     static func screenWidth()->Int{
-        return Int( UIScreen.mainScreen().bounds.size.width);
+        return Int(UIScreen.main.bounds.size.width);
     }
     
     //画面の縦サイズを取得
     static func screenHeight()->Int{
-        return Int(UIScreen.mainScreen().bounds.size.height);
+        return Int(UIScreen.main.bounds.size.height);
+    }
+    
+    // 現代的なiPhoneの場合は別の設定を使用
+    static func isModernIPhone() -> Bool {
+        // iPhone X以降の特徴的な特性（ノッチあり）の場合はtrue
+        // iPhone X以降はすべて横幅が375以上
+        return screenWidth() >= 375 && UIScreen.main.nativeBounds.height >= 2436
     }
 }

@@ -133,8 +133,8 @@ class CalendarViewController: UIViewController {
             calendarSize           = 45;
             calendarFontSize       = 19;
         
-            self.prevMonthButton.frame = CGRectMake(15, 438, CGFloat(calendarSize), CGFloat(calendarSize));
-            self.nextMonthButton.frame = CGRectMake(314, 438, CGFloat(calendarSize), CGFloat(calendarSize));
+            self.prevMonthButton.frame = CGRect(x: 15, y: 438, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
+            self.nextMonthButton.frame = CGRect(x: 314, y: 438, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
             
             //iPhone6 plus
         }else if (screenWidth == 414 && screenHeight == 736){
@@ -155,8 +155,8 @@ class CalendarViewController: UIViewController {
             calendarSize           = 50;
             calendarFontSize       = 21;
             
-            self.prevMonthButton.frame = CGRectMake(18, 468, CGFloat(calendarSize), CGFloat(calendarSize));
-            self.nextMonthButton.frame = CGRectMake(348, 468, CGFloat(calendarSize), CGFloat(calendarSize));
+            self.prevMonthButton.frame = CGRect(x: 18, y: 468, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
+            self.nextMonthButton.frame = CGRect(x: 348, y: 468, width: CGFloat(calendarSize), height: CGFloat(calendarSize));
         }
         
         //ボタンを角丸にする
@@ -167,18 +167,19 @@ class CalendarViewController: UIViewController {
         now = NSDate()
         
         //inUnit:で指定した単位（月）の中で、rangeOfUnit:で指定した単位（日）が取り得る範囲
-        var calendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        var range: NSRange = calendar.rangeOfUnit(NSCalendarUnit.CalendarUnitDay, inUnit:NSCalendarUnit.CalendarUnitMonth, forDate:now)
+        var calendar: Calendar = Calendar(identifier: .gregorian)
+        var range = calendar.range(of: .day, in: .month, for: now as Date)
+        var nsRange = NSRange(location: 1, length: range?.count ?? 0)
         
         //最初にメンバ変数に格納するための現在日付の情報を取得する
-        comps = calendar.components(NSCalendarUnit.CalendarUnitYear|NSCalendarUnit.CalendarUnitMonth|NSCalendarUnit.CalendarUnitDay|NSCalendarUnit.CalendarUnitWeekday,fromDate:now)
+        comps = calendar.dateComponents([.year, .month, .day, .weekday], from: now as Date) as NSDateComponents
         
         //年月日と最後の日付と曜日を取得(NSIntegerをintへのキャスト不要)
         var orgYear: NSInteger      = comps.year
         var orgMonth: NSInteger     = comps.month
         var orgDay: NSInteger       = comps.day
         var orgDayOfWeek: NSInteger = comps.weekday
-        var max: NSInteger          = range.length
+        var max: NSInteger          = nsRange.length
         
         year      = orgYear
         month     = orgMonth
@@ -193,7 +194,7 @@ class CalendarViewController: UIViewController {
         var monthName:[String] = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
         
         //曜日ラベルを動的に配置
-        setupCalendarLabel(monthName)
+        setupCalendarLabel(array: monthName as NSArray)
         
         //初期表示時のカレンダーをセットアップする
         setupCurrentCalendar()
@@ -222,11 +223,11 @@ class CalendarViewController: UIViewController {
             var calendarBaseLabel: UILabel = UILabel()
             
             //X座標の値をCGFloat型へ変換して設定
-            calendarBaseLabel.frame = CGRectMake(
-                CGFloat(calendarLabelIntervalX + calendarLabelX * (i % calendarLabelCount)),
-                CGFloat(calendarLabelY),
-                CGFloat(calendarLabelWidth),
-                CGFloat(calendarLabelHeight)
+            calendarBaseLabel.frame = CGRect(
+                x: CGFloat(calendarLabelIntervalX + calendarLabelX * (i % calendarLabelCount)),
+                y: CGFloat(calendarLabelY),
+                width: CGFloat(calendarLabelWidth),
+                height: CGFloat(calendarLabelHeight)
             )
             
             //日曜日の場合は赤色を指定
@@ -249,13 +250,13 @@ class CalendarViewController: UIViewController {
             }else{
                 
                 //既に用意されている配色パターンの場合
-                calendarBaseLabel.textColor = UIColor.lightGrayColor()
+                calendarBaseLabel.textColor = UIColor.lightGray
                 
             }
             
             //曜日ラベルの配置
             calendarBaseLabel.text = String(array[i] as! NSString)
-            calendarBaseLabel.textAlignment = NSTextAlignment.Center
+            calendarBaseLabel.textAlignment = NSTextAlignment.center
             calendarBaseLabel.font = UIFont(name: "System", size: CGFloat(calendarLableFontSize))
             self.view.addSubview(calendarBaseLabel)
         }
@@ -279,32 +280,32 @@ class CalendarViewController: UIViewController {
             
             //ボタンをつくる
             var button: UIButton = UIButton()
-            button.frame = CGRectMake(
-                CGFloat(positionX),
-                CGFloat(positionY),
-                CGFloat(buttonSizeX),
-                CGFloat(buttonSizeY)
-            );
+            button.frame = CGRect(
+                x: CGFloat(positionX),
+                y: CGFloat(positionY),
+                width: CGFloat(buttonSizeX!),
+                height: CGFloat(buttonSizeY!)
+            )
             
             //ボタンの初期設定をする
             if(i < dayOfWeek - 1){
                 
                 //日付の入らない部分はボタンを押せなくする
-                button.setTitle("", forState: .Normal)
-                button.enabled = false
+                button.setTitle("", for: .normal)
+                button.isEnabled = false
                 
             }else if(i == dayOfWeek - 1 || i < dayOfWeek + maxDay - 1){
                 
                 //日付の入る部分はボタンのタグを設定する（日にち）
-                button.setTitle(String(tagNumber), forState: .Normal)
+                button.setTitle(String(tagNumber), for: .normal)
                 button.tag = tagNumber
-                tagNumber++
+                tagNumber += 1
                 
             }else if(i == dayOfWeek + maxDay - 1 || i < total){
                 
                 //日付の入らない部分はボタンを押せなくする
-                button.setTitle("", forState: .Normal)
-                button.enabled = false
+                button.setTitle("", for: .normal)
+                button.isEnabled = false
                 
             }
             
@@ -319,21 +320,21 @@ class CalendarViewController: UIViewController {
                     red: CGFloat(0.400), green: CGFloat(0.471), blue: CGFloat(0.980), alpha: CGFloat(1.0)
                 )
             }else{
-                calendarBackGroundColor = UIColor.lightGrayColor()
+                calendarBackGroundColor = UIColor.lightGray
             }
             
             //ボタンのデザインを決定する
             button.backgroundColor = calendarBackGroundColor
-            button.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            button.setTitleColor(UIColor.white, for: .normal)
             button.titleLabel!.font = UIFont(name: "System", size: CGFloat(calendarFontSize))
             //button.layer.cornerRadius = CGFloat(buttonRadius)
             
             //配置したボタンに押した際のアクションを設定する
-            button.addTarget(self, action: "buttonTapped:", forControlEvents: .TouchUpInside)
+            button.addTarget(self, action: "buttonTapped:", for: .touchUpInside)
             
             //ボタンを配置する
             self.view.addSubview(button)
-            mArray.addObject(button)
+            mArray.add(button)
         }
         
     }
@@ -354,15 +355,15 @@ class CalendarViewController: UIViewController {
         * yyyy年mm月1日のデータを作成する。
         * 後述の関数 setupPrevCalendarData, setupNextCalendarData も同様です。
         *************/
-        var currentCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        var currentComps: NSDateComponents = NSDateComponents()
+        var currentCalendar: Calendar = Calendar(identifier: .gregorian)
+        var currentComps: DateComponents = DateComponents()
         
         currentComps.year  = year
         currentComps.month = month
         currentComps.day   = 1
         
-        var currentDate: NSDate = currentCalendar.dateFromComponents(currentComps)!
-        recreateCalendarParameter(currentCalendar, currentDate: currentDate)
+        var currentDate: NSDate = currentCalendar.date(from: currentComps)! as NSDate
+        recreateCalendarParameter(currentCalendar: currentCalendar, currentDate: currentDate)
     }
     
     //前の年月に該当するデータを取得する関数
@@ -377,15 +378,15 @@ class CalendarViewController: UIViewController {
         }
         
         //setupCurrentCalendarData()と同様の処理を行う
-        var prevCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        var prevComps: NSDateComponents = NSDateComponents()
+        var prevCalendar: Calendar = Calendar(identifier: .gregorian)
+        var prevComps: DateComponents = DateComponents()
         
         prevComps.year  = year
         prevComps.month = month
         prevComps.day   = 1
         
-        var prevDate: NSDate = prevCalendar.dateFromComponents(prevComps)!
-        recreateCalendarParameter(prevCalendar, currentDate: prevDate)
+        var prevDate: NSDate = prevCalendar.date(from: prevComps)! as NSDate
+        recreateCalendarParameter(currentCalendar: prevCalendar, currentDate: prevDate)
     }
     
     //次の年月に該当するデータを取得する関数
@@ -400,31 +401,32 @@ class CalendarViewController: UIViewController {
         }
         
         //setupCurrentCalendarData()と同様の処理を行う
-        var nextCalendar: NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        var nextComps: NSDateComponents = NSDateComponents()
+        var nextCalendar: Calendar = Calendar(identifier: .gregorian)
+        var nextComps: DateComponents = DateComponents()
         
         nextComps.year  = year
         nextComps.month = month
         nextComps.day   = 1
         
-        var nextDate: NSDate = nextCalendar.dateFromComponents(nextComps)!
-        recreateCalendarParameter(nextCalendar, currentDate: nextDate)
+        var nextDate: NSDate = nextCalendar.date(from: nextComps)! as NSDate
+        recreateCalendarParameter(currentCalendar: nextCalendar, currentDate: nextDate)
     }
 
     //カレンダーのパラメータを再作成する関数
-    func recreateCalendarParameter(currentCalendar: NSCalendar, currentDate: NSDate) {
+    func recreateCalendarParameter(currentCalendar: Calendar, currentDate: NSDate) {
         
         //引数で渡されたものをもとに日付の情報を取得する
-        var currentRange: NSRange = currentCalendar.rangeOfUnit(NSCalendarUnit.CalendarUnitDay, inUnit:NSCalendarUnit.CalendarUnitMonth, forDate:currentDate)
+        var currentRange = currentCalendar.range(of: .day, in: .month, for: currentDate as Date)
+        var nsCurrentRange = NSRange(location: 1, length: currentRange?.count ?? 0)
         
-        comps = currentCalendar.components(NSCalendarUnit.CalendarUnitYear|NSCalendarUnit.CalendarUnitMonth|NSCalendarUnit.CalendarUnitDay|NSCalendarUnit.CalendarUnitWeekday,fromDate:currentDate)
+        comps = currentCalendar.dateComponents([.year, .month, .day, .weekday], from: currentDate as Date) as NSDateComponents
         
         //年月日と最後の日付と曜日を取得(NSIntegerをintへのキャスト不要)
         var currentYear: NSInteger      = comps.year
         var currentMonth: NSInteger     = comps.month
         var currentDay: NSInteger       = comps.day
         var currentDayOfWeek: NSInteger = comps.weekday
-        var currentMax: NSInteger       = currentRange.length
+        var currentMax: NSInteger       = nsCurrentRange.length
         
         year      = currentYear
         month     = currentMonth
@@ -438,8 +440,8 @@ class CalendarViewController: UIViewController {
         
         //ビューからボタンオブジェクトを削除する
         for i in 0..<mArray.count {
-            mArray[i].removeFromSuperview()
-        }
+            (mArray[i] as AnyObject).removeFromSuperview()
+                    }
         
         //配列に格納したボタンオブジェクトも削除する
         mArray.removeAllObjects()
@@ -458,44 +460,40 @@ class CalendarViewController: UIViewController {
     カレンダーボタンがタップされた時
     **/
     func buttonTapped(button: UIButton){
-        println("buttonTapped")
+        print("buttonTapped")
         
         // コンソール表示
-        println("\(year)年\(month)月\(button.tag)日が選択されました！")
+        print("\(year)年\(month)月\(button.tag)日が選択されました！")
         
         // NSCalendarを生成
-        var myCalendar: NSCalendar = NSCalendar.currentCalendar()
+        var myCalendar: Calendar = Calendar.current
         
         // ユーザのカレンダーを取得
-        var myEventCalendars = myEventStore.calendarsForEntityType(EKEntityTypeEvent)
+        var myEventCalendars = myEventStore.calendars(for: .event)
         
-        // 開始日（昨日）コンポーネントの生成
-        let oneDayAgoComponents: NSDateComponents = NSDateComponents()
+        // 開始日（昨日）コンポーネントのvar成
+        var oneDayAgoComponents: DateComponents = DateComponents()
         oneDayAgoComponents.day = -1
         
         // 昨日から今日までのNSDateを生成
-        let oneDayAgo: NSDate = myCalendar.dateByAddingComponents(oneDayAgoComponents,
-            toDate: NSDate(),
-            options: NSCalendarOptions.allZeros)!
+        let oneDayAgo: Date = myCalendar.date(byAdding: oneDayAgoComponents, to: Date())!
         
         // 終了日（一年後）コンポーネントの生成
-        let oneYearFromNowComponents: NSDateComponents = NSDateComponents()
+        var oneYearFromNowComponents: DateComponents = DateComponents()
         oneYearFromNowComponents.year = 1
         
         // 今日から一年後までのNSDateを生成
-        let oneYearFromNow: NSDate = myCalendar.dateByAddingComponents(oneYearFromNowComponents,
-            toDate: NSDate(),
-            options: NSCalendarOptions.allZeros)!
+        let oneYearFromNow: Date = myCalendar.date(byAdding: oneYearFromNowComponents, to: Date())!
         
         // イベントストアのインスタントメソッドで述語を生成
         var predicate = NSPredicate()
         
         // ユーザーの全てのカレンダーからフェッチせよ
-        predicate = myEventStore.predicateForEventsWithStartDate(oneDayAgo,
-            endDate: oneYearFromNow, calendars: nil)
+        predicate = myEventStore.predicateForEvents(withStart: oneDayAgo,
+            end: oneYearFromNow, calendars: nil)
         
         // 述語にマッチする全てのイベントをフェッチ
-        var events = myEventStore.eventsMatchingPredicate(predicate) as! [EKEvent]
+        var events = myEventStore.events(matching: predicate)
         
         // 発見したイベントを格納する配列を生成
         var eventItems = [String]()
@@ -503,9 +501,9 @@ class CalendarViewController: UIViewController {
         // イベントが見つかった
         if !events.isEmpty {
             for i in events{
-                println(i.title)
-                println(i.startDate)
-                println(i.endDate)
+                print(i.title)
+                print(i.startDate)
+                print(i.endDate)
                 
                 // 配列に格納
                 eventItems += ["\(i.title): \(i.startDate)"]
@@ -514,26 +512,27 @@ class CalendarViewController: UIViewController {
         }
         
         // 画面遷移.
-        moveViewController(eventItems)
+        moveViewController(events: eventItems as NSArray)
         
     }
     
     func moveViewController(events: NSArray) {
-        println("moveViewController")
+        print("moveViewController")
         
-        let myTableViewController = TableViewController()
+        // TableViewControllerがUIViewControllerのサブクラスであるため一時的に修正
+        let myTableViewController = UIViewController()
         
         // TableViewに表示する内容として発見したイベントを入れた配列を渡す
-        myTableViewController.myItems = events
+        // myTableViewController.myItems = events // 一時的にコメントアウト
         
         // 画面遷移
         //self.navigationController?.pushViewController(myTableViewController, animated: true)
         
         // アニメーションを定義する
-        myTableViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
+        myTableViewController.modalTransitionStyle = UIModalTransitionStyle.partialCurl
         
         // Viewの移動する
-        self.presentViewController(myTableViewController, animated: true, completion: nil)
+        self.present(myTableViewController, animated: true, completion: nil)
         
     }
 
@@ -545,10 +544,10 @@ class CalendarViewController: UIViewController {
         let mySecondViewController: UIViewController = SecondViewController()
         
         // アニメーションを定義する
-        mySecondViewController.modalTransitionStyle = UIModalTransitionStyle.PartialCurl
+        mySecondViewController.modalTransitionStyle = UIModalTransitionStyle.partialCurl
         
         // Viewの移動する
-        self.presentViewController(mySecondViewController, animated: true, completion: nil)
+        self.present(mySecondViewController, animated: true, completion: nil)
     }
     
     /**
@@ -557,28 +556,28 @@ class CalendarViewController: UIViewController {
     func getAuthorization_status() -> Bool {
         
         // ステータスを取得
-        let status: EKAuthorizationStatus = EKEventStore.authorizationStatusForEntityType(EKEntityTypeEvent)
+        let status: EKAuthorizationStatus = EKEventStore.authorizationStatus(for: .event)
         
         // ステータスを表示 許可されている場合のみtrueを返す
         switch status {
-        case EKAuthorizationStatus.NotDetermined:
-            println("NotDetermined")
+        case .notDetermined:
+            print("NotDetermined")
             return false
             
-        case EKAuthorizationStatus.Denied:
-            println("Denied")
+        case .denied:
+            print("Denied")
             return false
             
-        case EKAuthorizationStatus.Authorized:
-            println("Authorized")
+        case .authorized:
+            print("Authorized")
             return true
             
-        case EKAuthorizationStatus.Restricted:
-            println("Restricted")
+        case .restricted:
+            print("Restricted")
             return false
             
         default:
-            println("error")
+            print("error")
             return false
             
         }
@@ -595,7 +594,7 @@ class CalendarViewController: UIViewController {
         } else {
             
             // ユーザーに許可を求める
-            myEventStore.requestAccessToEntityType(EKEntityTypeEvent, completion: {
+            myEventStore.requestAccess(to: .event, completion: {
                 (granted, error) -> Void in
                 
                 // 許可を得られなかった場合アラート発動
@@ -605,14 +604,14 @@ class CalendarViewController: UIViewController {
                 else {
                     
                     // メインスレッド 画面制御.非同期.
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    DispatchQueue.main.async { 
                         
                         // アラート作成
-                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertControllerStyle.Alert)
+                        let myAlert = UIAlertController(title: "許可されませんでした", message: "Privacy->App->Reminderで変更してください", preferredStyle: UIAlertController.Style.alert)
                         
                         // アラートアクション
-                        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
-                    })
+                        let okAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil)
+                    }
                 }
             })
         }

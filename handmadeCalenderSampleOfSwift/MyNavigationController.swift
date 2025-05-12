@@ -9,7 +9,17 @@
 import UIKit
 
 class MyNavigationController: UINavigationController {
-    override func childViewControllerForStatusBarStyle() -> UIViewController? {
-        return self.visibleViewController
+    // ステータスバーのスタイルを設定するためのメソッド
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // ここでステータスバーのスタイルを設定する場合
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        // 表示中のビューコントローラのステータスバースタイルを取得
+        if let visController = visibleViewController {
+            return visController.preferredStatusBarStyle
+        }
+        return .default
     }
 }

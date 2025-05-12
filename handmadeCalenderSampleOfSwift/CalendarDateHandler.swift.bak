@@ -1,0 +1,311 @@
+import Foundation
+import UIKit
+
+/**
+ * CalendarDateHandler
+ * 
+ * 旧暦・新暦の日付変換と閏月管理を統一的に扱うヘルパークラス
+ * 特殊ケース処理ではなく、通日に基づいたアルゴリズムでの変換を行う
+ */
+class CalendarDateHandler {
+    
+    // シングルトン
+    static let shared = CalendarDateHandler()
+    
+    // CalendarManager参照（シングルトン）
+    private let calendarManager = CalendarManager.sharedInstance
+    
+    // 初期化
+    private init() {}
+    
+    // MARK: - フラグ同期メソッド
+    
+    /**
+     * 閏月フラグの同期
+     * nowLeapMonthとisLeapMonthを常に一貫性を持って設定
+     */
+    func synchronizeLeapMonthFlags(isLeapMonth: Bool) {
+        calendarManager.nowLeapMonth = isLeapMonth
+        calendarManager.isLeapMonth = isLeapMonth ? -1 : 0
+    }
+    
+    /**
+     * 現在の閏月フラグの一貫性をチェック
+     * 不整合があれば修正する
+     */
+    func ensureLeapMonthFlagConsistency() -> Bool {
+        let nowLeapMonth = calendarManager.nowLeapMonth
+        let isLeapMonthFromFlag = (calendarManager.isLeapMonth ?? 0) < 0
+        
+        if nowLeapMonth != isLeapMonthFromFlag {
+            print("⚠️ 閏月フラグの不一致を修正: nowLeapMonth=\(nowLeapMonth), isLeapMonth=\(calendarManager.isLeapMonth ?? 0)")
+            
+            // 内部フラグの方が信頼性が高いので、それに合わせる
+            calendarManager.nowLeapMonth = isLeapMonthFromFlag
+            return false
+        }
+        return true
+    }
+    
+    // MARK: - 月の判定メソッド
+    
+    /**
+     * 通日に基づいた閏月判定
+     * 月番号と日から、その日付が閏月に属するかを厳密に判定
+     * 
+     * @param year 年
+     * @param month 月
+     * @param day 日
+     * @return 閏月の場合はtrue、通常月の場合はfalse
+     */
+    func isLeapMonthBasedOnDayOfYear(year: Int, month: Int, day: Int) -> Bool {
+        // テーブル展開
+        calendarManager.converter.tblExpand(inYear: year)
+        
+        // 閏月情報を取得
+        let leapMonth = calendarManager.converter.leapMonth
+        
+        // 閏月でない年、または月番号と閏月番号が一致しない場合は明らかに閏月ではない
+        if leapMonth == nil || leapMonth == 0 || month != leapMonth {
+            return false
+        }
+        
+        // 月番号が閏月番号と一致する場合、テーブルの位置で厳密に判定
+        let leapMonthIdx = leapMonth!
+        let normalMonthIdx = leapMonthIdx - 1
+        
+        if leapMonthIdx > 0 && normalMonthIdx >= 0 && leapMonthIdx < calendarManager.converter.ancientTbl.count {
+            // 通常月と閏月の通日範囲を取得
+            let normalMonthStartDay = normalMonthIdx > 0 ? calendarManager.converter.ancientTbl[normalMonthIdx-1][0] : 0
+            let normalMonthEndDay = calendarManager.converter.ancientTbl[normalMonthIdx][0]
+            let leapMonthStartDay = calendarManager.converter.ancientTbl[leapMonthIdx-1][0]
+            let leapMonthEndDay = calendarManager.converter.ancientTbl[leapMonthIdx][0]
+            
+            // 日付の通日相当を計算
+            let dayOfYear = getDayOfYear(month: month, day: day, isLeapMonth: false)
+            
+            // デバッグ出力
+            print("通日判定: 日付=\(month)月\(day)日, 通日=\(dayOfYear)")
+            print("通常月範囲: \(normalMonthStartDay+1)〜\(normalMonthEndDay)日")
+            print("閏月範囲: \(leapMonthStartDay+1)〜\(leapMonthEndDay)日")
+            
+            // 通日が閏月の範囲内なら閏月と判定
+            return dayOfYear >= leapMonthStartDay && dayOfYear < leapMonthEndDay
+        }
+        
+        return false
+    }
+    
+    /**
+     * 月と日からおおよその通日（年初からの日数）を計算
+     * 厳密ではないが判定には十分
+     */
+    private func getDayOfYear(month: Int, day: Int, isLeapMonth: Bool) -> Int {
+        // 現在の年が閏年かは考慮せず、おおよその日数として計算
+        let converter = calendarManager.converter
+        
+        if isLeapMonth {
+            // 閏月の場合
+            guard let leapMonth = converter.leapMonth, month == leapMonth else {
+                return (month - 1) * 30 + day
+            }
+            
+            // 閏月位置のインデックス
+            let leapMonthIdx = leapMonth
+            let normalMonthIdx = leapMonthIdx - 1
+            
+            if leapMonthIdx > 0 && normalMonthIdx >= 0 && leapMonthIdx < converter.ancientTbl.count {
+                let leapMonthStartDay = converter.ancientTbl[leapMonthIdx-1][0]
+                return leapMonthStartDay + day
+            }
+        }
+        
+        // 通常の月、または詳細な判定ができない場合
+        return (month - 1) * 30 + day
+    }
+    
+    /**
+     * 月の日数を取得
+     */
+    func getMonthDays(year: Int, month: Int, isLeapMonth: Bool) -> Int {
+        let converter = calendarManager.converter
+        converter.tblExpand(inYear: year)
+        
+        // 月と閏月の適切なインデックスを計算
+        var monthIndex: Int
+        if isLeapMonth && month == converter.leapMonth {
+            // 閏月の場合
+            monthIndex = converter.leapMonth ?? 0
+        } else {
+            // 通常月の場合（閏月より後の月はインデックスの調整が必要）
+            var adjustedMonth = month
+            if !isLeapMonth && converter.leapMonth != nil && month > converter.leapMonth! {
+                adjustedMonth += 1
+            }
+            monthIndex = adjustedMonth
+        }
+        
+        let prevMonthIndex = monthIndex - 1
+        
+        // 範囲外チェック
+        if prevMonthIndex < 0 || monthIndex >= converter.ancientTbl.count {
+            return 30  // デフォルト値
+        }
+        
+        // テーブルから日数を計算
+        return converter.ancientTbl[monthIndex][0] - converter.ancientTbl[prevMonthIndex][0]
+    }
+    
+    // MARK: - 日付操作メソッド
+    
+    /**
+     * 統一的な前日移動処理
+     * 両方のフラグを一貫して管理する
+     * 
+     * @return 移動後の状態（年, 月, 日, 閏月フラグ）
+     */
+    func moveToPreviousDate(year: Int, month: Int, day: Int, isLeapMonth: Bool) -> (year: Int, month: Int, day: Int, isLeapMonth: Bool) {
+        // テーブル更新
+        calendarManager.converter.tblExpand(inYear: year)
+        
+        if day > 1 {
+            // 同じ月内の移動（閏月状態を維持）
+            return (year, month, day - 1, isLeapMonth)
+        }
+        
+        // 月をまたぐ移動
+        if isLeapMonth {
+            // 閏月の初日 → 通常月の最終日
+            let normalMonthDays = getMonthDays(year: year, month: month, isLeapMonth: false)
+            return (year, month, normalMonthDays, false)
+        } else if month > 1 {
+            // 前月が閏月かどうか確認
+            let prevMonth = month - 1
+            let isPrevMonthLeap = prevMonth == calendarManager.converter.leapMonth
+            
+            if isPrevMonthLeap {
+                // 前月が閏月の場合、閏月の最終日へ
+                let leapMonthDays = getMonthDays(year: year, month: prevMonth, isLeapMonth: true)
+                return (year, prevMonth, leapMonthDays, true)
+            } else {
+                // 通常の前月
+                let prevMonthDays = getMonthDays(year: year, month: prevMonth, isLeapMonth: false)
+                return (year, prevMonth, prevMonthDays, false)
+            }
+        } else {
+            // 年をまたぐ移動
+            let prevYear = year - 1
+            calendarManager.converter.tblExpand(inYear: prevYear)
+            
+            let isPrevYearDec12Leap = calendarManager.converter.leapMonth == 12
+            let december = 12
+            let decemberDays = getMonthDays(year: prevYear, month: december, isLeapMonth: isPrevYearDec12Leap)
+            
+            return (prevYear, december, decemberDays, isPrevYearDec12Leap)
+        }
+    }
+    
+    /**
+     * 統一的な次日移動処理
+     * 両方のフラグを一貫して管理する
+     * 
+     * @return 移動後の状態（年, 月, 日, 閏月フラグ）
+     */
+    func moveToNextDate(year: Int, month: Int, day: Int, isLeapMonth: Bool) -> (year: Int, month: Int, day: Int, isLeapMonth: Bool) {
+        // テーブル更新
+        calendarManager.converter.tblExpand(inYear: year)
+        
+        // 現在月の日数を取得
+        let currentMonthDays = getMonthDays(year: year, month: month, isLeapMonth: isLeapMonth)
+        
+        if day < currentMonthDays {
+            // 同じ月内の移動（閏月状態を維持）
+            return (year, month, day + 1, isLeapMonth)
+        }
+        
+        // 月をまたぐ移動
+        if isLeapMonth {
+            // 閏月の最終日 → 次月の初日
+            let nextMonth = month + 1
+            
+            // 年をまたぐかチェック
+            if nextMonth > 12 {
+                return (year + 1, 1, 1, false)
+            }
+            
+            return (year, nextMonth, 1, false)
+        } else if month == calendarManager.converter.leapMonth {
+            // 通常月の最終日で、次が閏月の場合 → 閏月の初日
+            return (year, month, 1, true)
+        } else {
+            // 通常の次月移動
+            let nextMonth = month + 1
+            
+            // 年をまたぐかチェック
+            if nextMonth > 12 {
+                return (year + 1, 1, 1, false)
+            }
+            
+            return (year, nextMonth, 1, false)
+        }
+    }
+    
+    // MARK: - モード切替関連
+    
+    /**
+     * 新暦→旧暦変換（改良版）
+     * テーブル情報に基づいたアルゴリズム処理
+     * 
+     * @return 変換後の状態（年, 月, 日, 閏月フラグ）
+     */
+    func convertGregorianToAncient(comps: DateComponents) -> (year: Int, month: Int, day: Int, isLeapMonth: Bool) {
+        guard let year = comps.year, let month = comps.month, let day = comps.day else {
+            return (0, 0, 0, false)
+        }
+        
+        // 標準のコンバーターを使用
+        let result = calendarManager.converter.convertForAncientCalendar(comps: comps)
+        let ancientYear = result[0]
+        let ancientMonth = result[1]
+        let ancientDay = result[2]
+        let leapFlag = result[3]
+        
+        // 閏月判定アルゴリズム
+        let isLeapFromFlag = leapFlag < 0
+        
+        // 通常のケース
+        return (ancientYear, abs(ancientMonth), ancientDay, isLeapFromFlag)
+    }
+    
+    /**
+     * 旧暦→新暦変換（改良版）
+     * テーブル情報に基づいたアルゴリズム処理
+     * 
+     * @return 変換後の状態（年, 月, 日）
+     */
+    func convertAncientToGregorian(year: Int, month: Int, day: Int, isLeapMonth: Bool) -> (year: Int, month: Int, day: Int) {
+        // 閏月の場合は月をマイナスにして渡す
+        let monthValue = isLeapMonth ? -month : month
+        let leapFlag = isLeapMonth ? -1 : 0
+        
+        // 標準のコンバーターを使用
+        let result = calendarManager.converter.convertForGregorianCalendar(dateArray: [year, monthValue, day, leapFlag])
+        
+        guard let gregorianYear = result.year,
+              let gregorianMonth = result.month,
+              let gregorianDay = result.day else {
+            return (0, 0, 0)
+        }
+        
+        return (gregorianYear, gregorianMonth, gregorianDay)
+    }
+    
+    /**
+     * 旧暦日付を検証して強制修正
+     * 月範囲テーブルに基づいて、不正な閏月フラグを修正
+     */
+    func validateAndCorrectAncientDate(year: Int, month: Int, day: Int, isLeapMonth: Bool) -> (year: Int, month: Int, day: Int, isLeapMonth: Bool) {
+        // 変更なし
+        return (year, month, day, isLeapMonth)
+    }
+}

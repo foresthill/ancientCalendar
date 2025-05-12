@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "D066DCC1-5A53-40E0-8B37-8572D16C238C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:handmadeCalenderSampleOfSwift.xcodeproj",
+      "identifier" : "DEA5389C1A2A0AE30092DCBA",
+      "name" : "handmadeCalenderSampleOfSwift"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:handmadeCalenderSampleOfSwift.xcodeproj",
+        "identifier" : "DEA538B11A2A0AE40092DCBA",
+        "name" : "handmadeCalenderSampleOfSwiftTests"
+      }
+    }
+  ],
+  "version" : 1
+}
