@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  events    Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          String       @id @default(cuid())
+  title       String
+  description String?      @db.Text
+  location    String?
+
+  startDate   DateTime
+  endDate     DateTime?
+  allDay      Boolean      @default(false)
+  timezone    String       @default("Asia/Tokyo")
+
+  calendarType CalendarType @default(GREGORIAN)
+
+  lunarYear   Int?
+  lunarMonth  Int?
+  lunarDay    Int?
+  isLeapMonth Boolean      @default(false)
+
+  category    String?
+  tags        String[]
+  color       String?
+  moonPhase   String?
+
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([userId, startDate])
+  @@index([calendarType])
+}
+
+enum CalendarType {
+  GREGORIAN
+  LUNAR
+}

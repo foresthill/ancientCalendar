@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+
+# Next.js
+.next
+.turbo
+
+# Build
+dist
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# iOS参照用（実際のプロジェクトファイルは除外）
+apps/ios/AncientCalendar
+
+# 月画像は含める（重要）
+!apps/web/public/images/moon/*.png
