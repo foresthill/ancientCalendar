@@ -28,7 +28,23 @@
   --ring: 212.7 26.8% 83.9%;
 }
 
+/* 旧暦モード - 古代日本の雰囲気を表現 */
+.lunar-dark {
+  --background: 240 10% 6%;
+  --foreground: 40 30% 90%;
+  --muted: 240 8% 12%;
+  --muted-foreground: 40 15% 60%;
+  --border: 240 6% 18%;
+  --input: 240 6% 18%;
+  --primary: 35 60% 60%;
+  --primary-foreground: 240 10% 6%;
+  --accent: 240 8% 15%;
+  --accent-foreground: 40 30% 85%;
+  --ring: 35 60% 50%;
+}
+
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  transition: background-color 0.5s ease, color 0.5s ease;
 }

@@ -21,21 +21,34 @@ export function MonthNavigator({
 }: MonthNavigatorProps) {
   const formatMonth = () => {
     if (view === 'gregorian') {
-      return `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`;
+      return {
+        main: `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`,
+        sub: null
+      };
     } else {
-      // 旧暦表示
+      // 旧暦表示 + グレゴリオ暦を付記
       const lunar = LunarConverter.gregorianToLunar(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
         1
       );
-      return `${lunar.lunar.ganzhiYear}年 ${lunar.lunar.monthName}`;
+      return {
+        main: `${lunar.lunar.ganzhiYear}年 ${lunar.lunar.monthName}`,
+        sub: `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月`
+      };
     }
   };
 
+  const monthDisplay = formatMonth();
+
   return (
     <div className="flex items-center justify-between">
-      <h2 className="text-2xl font-bold">{formatMonth()}</h2>
+      <div>
+        <h2 className="text-2xl font-bold">{monthDisplay.main}</h2>
+        {monthDisplay.sub && (
+          <span className="text-sm text-muted-foreground">（{monthDisplay.sub}）</span>
+        )}
+      </div>
 
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={onToday}>
