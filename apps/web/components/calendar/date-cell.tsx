@@ -20,6 +20,9 @@ export function DateCell({ date, view, isCurrentMonth, currentGregorianMonth, cu
   const showLunarMonth = date.lunar.month !== currentLunarMonth;
   const showGregorianMonth = date.gregorian.month !== currentGregorianMonth;
 
+  // ヘッダーと同じ月かどうか（太字表示用）
+  const isSameMonthAsHeader = view === 'gregorian' ? !showGregorianMonth : !showLunarMonth;
+
   return (
     <button
       onClick={onClick}
@@ -34,8 +37,9 @@ export function DateCell({ date, view, isCurrentMonth, currentGregorianMonth, cu
         {/* 日付表示 */}
         <div className="flex items-center justify-between w-full">
           <span className={cn(
-            'text-sm font-medium',
-            isToday && 'text-primary font-bold'
+            'text-sm',
+            isSameMonthAsHeader ? 'font-bold' : 'font-normal',
+            isToday && 'text-primary'
           )}>
             {view === 'gregorian'
               ? (showGregorianMonth ? `${date.gregorian.month}/${date.gregorian.day}` : date.gregorian.day)
