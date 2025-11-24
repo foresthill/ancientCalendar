@@ -20,18 +20,20 @@ export function MonthNavigator({
   onToday
 }: MonthNavigatorProps) {
   const formatMonth = () => {
+    const lunar = LunarConverter.gregorianToLunar(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      1
+    );
+
     if (view === 'gregorian') {
+      // 新暦表示 + 旧暦の月を付記
       return {
         main: `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`,
-        sub: null
+        sub: `旧暦 ${lunar.lunar.monthName}`
       };
     } else {
       // 旧暦表示 + グレゴリオ暦を付記
-      const lunar = LunarConverter.gregorianToLunar(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 1,
-        1
-      );
       return {
         main: `${lunar.lunar.ganzhiYear}年 ${lunar.lunar.monthName}`,
         sub: `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月`
