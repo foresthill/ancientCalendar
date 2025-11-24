@@ -1,6 +1,6 @@
 'use client';
 
-import { CalendarDate } from '@repo/calendar-core';
+import { CalendarDate, LunarConverter } from '@repo/calendar-core';
 import { DateCell } from './date-cell';
 import { isSameMonth } from 'date-fns';
 
@@ -15,6 +15,15 @@ export function CalendarGrid({ dates, currentMonth, view, onDateClick }: Calenda
   const weekdays = view === 'gregorian'
     ? ['日', '月', '火', '水', '木', '金', '土']
     : ['初', '二', '三', '四', '五', '六', '七'];
+
+  // 現在表示中の月を取得
+  const currentGregorianMonth = currentMonth.getMonth() + 1;
+  const lunarDate = LunarConverter.gregorianToLunar(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+    1
+  );
+  const currentLunarMonth = lunarDate.lunar.month;
 
   return (
     <div className="w-full">
@@ -48,6 +57,8 @@ export function CalendarGrid({ dates, currentMonth, view, onDateClick }: Calenda
               date={date}
               view={view}
               isCurrentMonth={isCurrentMonth}
+              currentGregorianMonth={currentGregorianMonth}
+              currentLunarMonth={currentLunarMonth}
               onClick={() => onDateClick?.(date)}
             />
           );

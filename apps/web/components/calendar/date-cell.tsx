@@ -8,11 +8,17 @@ interface DateCellProps {
   date: CalendarDate;
   view: 'gregorian' | 'lunar';
   isCurrentMonth: boolean;
+  currentGregorianMonth: number;
+  currentLunarMonth: number;
   onClick?: () => void;
 }
 
-export function DateCell({ date, view, isCurrentMonth, onClick }: DateCellProps) {
+export function DateCell({ date, view, isCurrentMonth, currentGregorianMonth, currentLunarMonth, onClick }: DateCellProps) {
   const isToday = isDateToday(date);
+
+  // 月が異なる場合のみ月を表示
+  const showLunarMonth = date.lunar.month !== currentLunarMonth;
+  const showGregorianMonth = date.gregorian.month !== currentGregorianMonth;
 
   return (
     <button
@@ -44,14 +50,14 @@ export function DateCell({ date, view, isCurrentMonth, onClick }: DateCellProps)
         {/* 旧暦表示（新暦ビューの場合） */}
         {view === 'gregorian' && (
           <span className="text-xs text-muted-foreground mt-1">
-            {date.lunar.month}月{date.lunar.day}日
+            {showLunarMonth ? `${date.lunar.month}月${date.lunar.day}日` : `${date.lunar.day}日`}
           </span>
         )}
 
         {/* 新暦表示（旧暦ビューの場合） */}
         {view === 'lunar' && (
           <span className="text-xs text-muted-foreground mt-1">
-            {date.gregorian.month}/{date.gregorian.day}
+            {showGregorianMonth ? `${date.gregorian.month}/${date.gregorian.day}` : `${date.gregorian.day}`}
           </span>
         )}
 
