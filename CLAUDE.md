@@ -31,6 +31,11 @@
 - `apps/web/components/calendar/month-navigator.tsx`
 - `apps/web/app/globals.css` (.lunar-dark クラス)
 
+### 今後の開発TODO
+- [ ] 詳細画面（カレンダー登録ができる）
+- [ ] 旧暦の月ごとに表示
+- [ ] 旧暦は一月で月が一周するはずなので合わせる
+
 ---
 
 ## 画面遷移とデータ同期（2025年5月9日更新）
