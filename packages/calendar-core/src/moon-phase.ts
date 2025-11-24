@@ -139,8 +139,7 @@ export class MoonPhaseCalculator {
    * @returns 画像パス
    */
   private static getImagePath(index: number): string {
-    const paddedIndex = index.toString().padStart(2, '0');
-    return `/images/moon/moon-${paddedIndex}.png`;
+    return `/images/moon/moon${index}_90x90.png`;
   }
 
   /**

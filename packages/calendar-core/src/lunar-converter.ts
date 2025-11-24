@@ -51,20 +51,20 @@ export class LunarConverter {
         year: solar.getYear(),
         month: solar.getMonth(),
         day: solar.getDay(),
-        weekday: solar.getWeekInChinese()
+        weekday: typeof solar.getWeekInChinese === 'function' ? solar.getWeekInChinese() : ''
       },
       lunar: {
         year: lunar.getYear(),
         month: lunar.getMonth(),
         day: lunar.getDay(),
-        isLeapMonth: lunar.isLeap(),
-        monthName: lunar.getMonthInChinese(),
-        dayName: lunar.getDayInChinese(),
-        zodiac: lunar.getYearShengXiao(),
-        ganzhiYear: lunar.getYearInGanZhi(),
-        ganzhiMonth: lunar.getMonthInGanZhi(),
-        ganzhiDay: lunar.getDayInGanZhi(),
-        solarTerm: lunar.getJieQi()
+        isLeapMonth: typeof lunar.isLeap === 'function' ? lunar.isLeap() : false,
+        monthName: typeof lunar.getMonthInChinese === 'function' ? lunar.getMonthInChinese() : String(lunar.getMonth()),
+        dayName: typeof lunar.getDayInChinese === 'function' ? lunar.getDayInChinese() : String(lunar.getDay()),
+        zodiac: typeof lunar.getYearShengXiao === 'function' ? lunar.getYearShengXiao() : '',
+        ganzhiYear: typeof lunar.getYearInGanZhi === 'function' ? lunar.getYearInGanZhi() : '',
+        ganzhiMonth: typeof lunar.getMonthInGanZhi === 'function' ? lunar.getMonthInGanZhi() : '',
+        ganzhiDay: typeof lunar.getDayInGanZhi === 'function' ? lunar.getDayInGanZhi() : '',
+        solarTerm: typeof lunar.getJieQi === 'function' ? lunar.getJieQi() : undefined
       }
     };
   }

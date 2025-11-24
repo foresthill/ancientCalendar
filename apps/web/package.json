@@ -16,12 +16,16 @@
     "@prisma/client": "^6.0.0",
     "@repo/calendar-core": "workspace:*",
     "@repo/shared-types": "workspace:*",
+    "@tailwindcss/postcss": "^4.1.17",
+    "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.0.0",
+    "lucide-react": "^0.554.0",
     "lunar-javascript": "^1.6.12",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.4.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
