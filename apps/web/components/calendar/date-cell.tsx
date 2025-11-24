@@ -37,7 +37,10 @@ export function DateCell({ date, view, isCurrentMonth, currentGregorianMonth, cu
             'text-sm font-medium',
             isToday && 'text-primary font-bold'
           )}>
-            {view === 'gregorian' ? date.gregorian.day : date.lunar.dayName}
+            {view === 'gregorian'
+              ? (showGregorianMonth ? `${date.gregorian.month}/${date.gregorian.day}` : date.gregorian.day)
+              : (showLunarMonth ? `${date.lunar.monthName}${date.lunar.dayName}` : date.lunar.dayName)
+            }
           </span>
 
           {/* 月の画像 */}
@@ -47,17 +50,17 @@ export function DateCell({ date, view, isCurrentMonth, currentGregorianMonth, cu
           />
         </div>
 
-        {/* 旧暦表示（新暦ビューの場合） */}
+        {/* 旧暦表示（新暦ビューの場合）- 常に月を表示 */}
         {view === 'gregorian' && (
           <span className="text-xs text-muted-foreground mt-1">
-            {showLunarMonth ? `${date.lunar.month}月${date.lunar.day}日` : `${date.lunar.day}日`}
+            {date.lunar.month}月{date.lunar.day}日
           </span>
         )}
 
-        {/* 新暦表示（旧暦ビューの場合） */}
+        {/* 新暦表示（旧暦ビューの場合）- 常に月を表示 */}
         {view === 'lunar' && (
           <span className="text-xs text-muted-foreground mt-1">
-            {showGregorianMonth ? `${date.gregorian.month}/${date.gregorian.day}` : `${date.gregorian.day}`}
+            {date.gregorian.month}/{date.gregorian.day}
           </span>
         )}
 
