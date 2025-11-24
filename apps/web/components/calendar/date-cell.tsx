@@ -44,14 +44,14 @@ export function DateCell({ date, view, isCurrentMonth, onClick }: DateCellProps)
         {/* 旧暦表示（新暦ビューの場合） */}
         {view === 'gregorian' && (
           <span className="text-xs text-muted-foreground mt-1">
-            {date.lunar.dayName}
+            {date.lunar.month}月{date.lunar.day}日
           </span>
         )}
 
         {/* 新暦表示（旧暦ビューの場合） */}
         {view === 'lunar' && (
           <span className="text-xs text-muted-foreground mt-1">
-            {date.gregorian.day}
+            {date.gregorian.month}/{date.gregorian.day}
           </span>
         )}
 
